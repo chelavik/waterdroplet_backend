@@ -94,5 +94,9 @@ class DatabaseBaseClass:
 
 
 
+class DatabaseClass(DatabaseBaseClass):
+    # ---------------requests-------------------
 
-# ----------------------------------
+
+    #----------------functions------------------
+    pass
