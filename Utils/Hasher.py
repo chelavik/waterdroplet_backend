@@ -1,0 +1,23 @@
+from passlib.context import CryptContext
+from jose import JWTError, jwt
+
+
+SECRET_KEY = '4cfbd1107dc91e5d8b0c1b988b0808499258ae2c8e3336f6aa225e1c122ffa0a'
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 300
+
+
+class HasherClass:
+    def __init__(self):
+        self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        self.TokenGenerate = CryptContext(schemes=['des_crypt'], deprecated='auto')
+
+    def get_password_hash(self, password):
+        return self.pwd_context.hash(password)
+
+    def verify_password(self, plain_password, hashed_password):
+        return self.pwd_context.verify(plain_password, hashed_password)
+
+    def GetToken(self, HashedPassword: str) -> str:
+        return self.TokenGenerate.hash(HashedPassword)
+
