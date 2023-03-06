@@ -11,7 +11,7 @@ router = APIRouter()
 # ---------------------ABOUT US-----------------------------
 
 #get
-@router.get('/about-us')
+@router.get('/get-about-us')
 async def get_about_us():
     try:
         return await database.get_about_us()
@@ -19,17 +19,43 @@ async def get_about_us():
         raise HTTPException(status_code=500, detail='Database Error')
 
 #put
-@router.put('/edit-about-us')
-async def edit_about_us(token: CheckToken, text: str):
-    pass
 
 #-----------------articles(for developers)----------------
 
-#crud
 #get all
+@router.get('/get-all-articles')
+async def get_all_articles():
+    try:
+        return await database.get_all_articles()
+    except:
+        raise HTTPException(status_code=500, detail='Database Error')
+
 #get by id
+@router.get('/get-article-by-id/{article_id}')
+async def get_article_by_id(article_id: int):
+    try:
+        return await database.get_article_by_id(article_id)
+    except:
+        raise HTTPException(status_code=500, detail='Database Error')
+
+#get by name
+@router.get('/get-article-by-name/{article_name}')
+async def get_article_by_name(article_name: str):
+    try:
+        return await database.get_article_by_name(article_name)
+    except:
+        raise HTTPException(status_code=500, detail='Database Error')
+
+#crud
 
 #----------------services---------------
 
-#crud
 #get all
+@router.get('/get-all-services')
+async def get_all_services():
+    try:
+        return await database.get_all_services()
+    except:
+        raise HTTPException(status_code=500, detail='Database Error')
+
+#crud

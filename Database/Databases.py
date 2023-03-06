@@ -101,9 +101,37 @@ class DatabaseClass(DatabaseBaseClass):
     #about_us
     getAboutUs = 'SELECT * FROM about_us'
 
+
+    #articles
+    getAllArticles = 'SELECT * FROM for_developers'
+    getArticleById = 'SELECT * FROM for_developers WHERE id_article=:article_id'
+    getArticleByName = 'SELECT * FROM for_developers WHERE article_name=:article_name'
+
+
+
+    #services
+    getAllServices = 'SELECT * FROM services'
+
     #-------------------------functions------------------------------
     
 
     #about_us
     async def get_about_us(self):
-        return (await self.request(self.getAboutUs))
+        return await self.request(self.getAboutUs)
+
+
+    #articles
+    async def get_all_articles(self):
+        return await self.request(self.getAllArticles)
+
+    async def get_article_by_id(self, article_id):
+        return await self.request(self.getArticleById, article_id=article_id)
+
+    async def get_article_by_name(self, article_name):
+        return await self.request(self.getArticleByName, article_name=article_name)
+
+
+    #services
+    async def get_all_services(self):
+        return await self.request(self.getAllServices)
+    
