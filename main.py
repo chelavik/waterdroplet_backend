@@ -53,7 +53,4 @@ async def shutdown_event():
         ...
 
 app.include_router(Authorization.router)
-
-# asdhaiuhdwaifhauifhojk
-
-#1234557
+app.include_router(Info_CRUD.router)

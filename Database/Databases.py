@@ -95,8 +95,15 @@ class DatabaseBaseClass:
 
 
 class DatabaseClass(DatabaseBaseClass):
-    # ---------------requests-------------------
+    # -----------------------requests----------------------------
 
 
-    #----------------functions------------------
-    pass
+    #about_us
+    getAboutUs = 'SELECT * FROM about_us'
+
+    #-------------------------functions------------------------------
+    
+
+    #about_us
+    async def get_about_us(self):
+        return (await self.request(self.getAboutUs))
