@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from Models.Models import CheckToken
+from Models.Models import CheckToken, AboutUs, FullArticle, ArticleText, Service
 from Utils.Hasher import HasherClass
 from Database.Databases import DatabaseClass
 
@@ -8,7 +8,7 @@ database = DatabaseClass()
 HasherObject = HasherClass()
 router = APIRouter()
 
-# ---------------------ABOUT US-----------------------------
+# ---------------------------------ABOUT US---------------------------------------------
 
 #get
 @router.get('/get-about-us')
@@ -19,8 +19,14 @@ async def get_about_us():
         raise HTTPException(status_code=500, detail='Database Error')
 
 #put
+@router.put('/edit-about-us')
+async def edit_about_us(AboutUs: AboutUs): #auth is requiered
+    try:
+        return await database.edit_about_us(AboutUs)
+    except:
+        raise HTTPException(status_code=500, detail='Database Error')
 
-#-----------------articles(for developers)----------------
+#-------------------------------articles(for developers)--------------------------------
 
 #get all
 @router.get('/get-all-articles')
@@ -46,15 +52,39 @@ async def get_article_by_name(article_name: str):
     except:
         raise HTTPException(status_code=500, detail='Database Error')
 
+#put by id(whole article)
+@router.put('/edit-article-by-id/{article_id}')
+async def edit_article_by_id(article_id: int, Article: FullArticle): #auth is requiered
+    try:
+        return await database.edit_article_by_id(article_id, Article)
+    except:
+        raise HTTPException(status_code=500, detail='Database Error')
+
+#put by name(text only)
+@router.put('/edit-article-by-name/{article_name}')
+async def edit_article_by_name(article_name: str, Article: ArticleText): #auth is requiered
+    try:
+        return await database.edit_article_by_name(article_name, Article)
+    except:
+        raise HTTPException(status_code=500, detail='Database Error')
+
 #crud
 
-#----------------services---------------
+#---------------------------------------services--------------------------------------
 
 #get all
 @router.get('/get-all-services')
 async def get_all_services():
     try:
         return await database.get_all_services()
+    except:
+        raise HTTPException(status_code=500, detail='Database Error')
+
+#put
+@router.put('/edit-service-by-id/{service_id}')
+async def edit_service_by_id(service_id: int, Service: Service):
+    try:
+        return await database.edit_service_by_id(service_id, Service)
     except:
         raise HTTPException(status_code=500, detail='Database Error')
 

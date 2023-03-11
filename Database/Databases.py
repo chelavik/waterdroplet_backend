@@ -100,17 +100,20 @@ class DatabaseClass(DatabaseBaseClass):
 
     #about_us
     getAboutUs = 'SELECT * FROM about_us'
+    editAboutUs = 'UPDATE about_us SET about_text=:about_text'
 
 
     #articles
     getAllArticles = 'SELECT * FROM for_developers'
     getArticleById = 'SELECT * FROM for_developers WHERE id_article=:article_id'
     getArticleByName = 'SELECT * FROM for_developers WHERE article_name=:article_name'
-
+    editArticleById = 'UPDATE for_developers SET article_name=:article_name, article_text=:article_text WHERE id_article=:article_id'
+    editArticleByName = 'UPDATE for_developers SET article_text=:article_text WHERE article_name=:article_name'
 
 
     #services
     getAllServices = 'SELECT * FROM services'
+    editServiceById = 'UPDATE services SET service_name=:service_name, price=:price WHERE id_service=:service_id'
 
     #-------------------------functions------------------------------
     
@@ -118,6 +121,10 @@ class DatabaseClass(DatabaseBaseClass):
     #about_us
     async def get_about_us(self):
         return await self.request(self.getAboutUs)
+
+    async def edit_about_us(self, AboutUs):
+        await self.request(self.editAboutUs, about_text=AboutUs.about_text)
+        return {'Edited':'successfully'}
 
 
     #articles
@@ -130,8 +137,19 @@ class DatabaseClass(DatabaseBaseClass):
     async def get_article_by_name(self, article_name):
         return await self.request(self.getArticleByName, article_name=article_name)
 
+    async def edit_article_by_id(self, article_id, Article):
+        await self.request(self.editArticleById, article_id=article_id, article_name=Article.article_name, article_text=Article.article_text)
+        return {'Edited':'successfully'}
+
+    async def edit_article_by_name(self, article_name, Article):
+        await self.request(self.editArticleByName, article_name=article_name, article_text=Article.article_text)
+        return {'Edited':'successfully'}
+
 
     #services
     async def get_all_services(self):
         return await self.request(self.getAllServices)
-    
+
+    async def edit_service_by_id(self, service_id, Service):
+        await self.request(self.editServiceById, service_id=service_id, service_name=Service.service_name, price=Service.price)
+        return {'Edited':'successfully'}
