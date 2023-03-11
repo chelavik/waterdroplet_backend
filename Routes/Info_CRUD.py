@@ -80,9 +80,9 @@ async def get_all_services():
     except:
         raise HTTPException(status_code=500, detail='Database Error')
 
-#put
+#put by id
 @router.put('/edit-service-by-id/{service_id}')
-async def edit_service_by_id(service_id: int, Service: Service):
+async def edit_service_by_id(service_id: int, Service: Service): #auth is requiered
     try:
         return await database.edit_service_by_id(service_id, Service)
     except:
