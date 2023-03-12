@@ -68,6 +68,7 @@ async def edit_article_by_name(article_name: str, Article: ArticleText): #auth i
     except:
         raise HTTPException(status_code=500, detail='Database Error')
 
+#post
 @router.post('/post-article')
 async def post_article(Article: FullArticle): #auth is required
     try:
@@ -75,7 +76,13 @@ async def post_article(Article: FullArticle): #auth is required
     except:
         raise HTTPException(status_code=500, detail='Database Error')
 
-#crud
+#delete by id
+@router.delete('/delete-article/{article_id}')
+async def delete_article(article_id: int):
+    try:
+        return await database.delete_article(article_id)
+    except:
+        raise HTTPException(status_code=500, detail='Database Error')
 
 #---------------------------------------services--------------------------------------
 
@@ -103,4 +110,10 @@ async def post_service(Service: Service): #auth is required
     except:
         raise HTTPException(status_code=500, detail='Database Error')
 
-#crud
+#delete by id
+@router.delete('/delete-service/{service_id}')
+async def delete_service(service_id: int): #auth is required
+    try:
+        return await database.delete_service(service_id)
+    except:
+        raise HTTPException(status_code=500, detail='Database Error')

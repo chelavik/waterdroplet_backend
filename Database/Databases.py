@@ -110,12 +110,15 @@ class DatabaseClass(DatabaseBaseClass):
     editArticleById = 'UPDATE for_developers SET article_name=:article_name, article_text=:article_text WHERE id_article=:article_id'
     editArticleByName = 'UPDATE for_developers SET article_text=:article_text WHERE article_name=:article_name'
     postArticle = 'INSERT INTO for_developers (article_name, article_text) VALUES (:article_name, :article_text)'
+    deleteArticle = 'DELETE FROM for_developers WHERE id_article=:article_id'
 
 
     #services
     getAllServices = 'SELECT * FROM services'
     editServiceById = 'UPDATE services SET service_name=:service_name, price=:price WHERE id_service=:service_id'
     postService = 'INSERT INTO services (service_name, price) VALUES (:service_name, :price)'
+    deleteService = 'DELETE FROM services WHERE id_service=:service_id'
+
 
     #-------------------------functions------------------------------
     
@@ -151,6 +154,10 @@ class DatabaseClass(DatabaseBaseClass):
         await self.request(self.postArticle, article_name=Article.article_name, article_text=Article.article_text)
         return {'Posted':'successfully'}
 
+    async def delete_article(self, article_id):
+        await self.request(self.deleteArticle, article_id=article_id)
+        return {'Deleted':'successfully'}
+
 
     #services
     async def get_all_services(self):
@@ -163,3 +170,7 @@ class DatabaseClass(DatabaseBaseClass):
     async def post_service(self, Service):
         await self.request(self.postService, service_name=Service.service_name, price=Service.price)
         return {'Posted':'successfully'}
+
+    async def delete_service(self, service_id):
+        await self.request(self.deleteService, service_id=service_id)
+        return {'Deleted':'successfully'}
