@@ -20,7 +20,7 @@ async def get_about_us():
 
 #put
 @router.put('/edit-about-us')
-async def edit_about_us(AboutUs: AboutUs): #auth is requiered
+async def edit_about_us(AboutUs: AboutUs): #auth is required
     try:
         return await database.edit_about_us(AboutUs)
     except:
@@ -54,7 +54,7 @@ async def get_article_by_name(article_name: str):
 
 #put by id(whole article)
 @router.put('/edit-article-by-id/{article_id}')
-async def edit_article_by_id(article_id: int, Article: FullArticle): #auth is requiered
+async def edit_article_by_id(article_id: int, Article: FullArticle): #auth is required
     try:
         return await database.edit_article_by_id(article_id, Article)
     except:
@@ -62,9 +62,16 @@ async def edit_article_by_id(article_id: int, Article: FullArticle): #auth is re
 
 #put by name(text only)
 @router.put('/edit-article-by-name/{article_name}')
-async def edit_article_by_name(article_name: str, Article: ArticleText): #auth is requiered
+async def edit_article_by_name(article_name: str, Article: ArticleText): #auth is required
     try:
         return await database.edit_article_by_name(article_name, Article)
+    except:
+        raise HTTPException(status_code=500, detail='Database Error')
+
+@router.post('/post-article')
+async def post_article(Article: FullArticle):
+    try:
+        return await database.post_article(Article)
     except:
         raise HTTPException(status_code=500, detail='Database Error')
 
@@ -82,9 +89,17 @@ async def get_all_services():
 
 #put by id
 @router.put('/edit-service-by-id/{service_id}')
-async def edit_service_by_id(service_id: int, Service: Service): #auth is requiered
+async def edit_service_by_id(service_id: int, Service: Service): #auth is required
     try:
         return await database.edit_service_by_id(service_id, Service)
+    except:
+        raise HTTPException(status_code=500, detail='Database Error')
+
+#post
+@router.post('/post-service')
+async def post_service(Service: Service): #auth is required
+    try:
+        return await database.post_service(Service)
     except:
         raise HTTPException(status_code=500, detail='Database Error')
 
