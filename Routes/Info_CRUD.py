@@ -69,7 +69,7 @@ async def edit_article_by_name(article_name: str, Article: ArticleText): #auth i
         raise HTTPException(status_code=500, detail='Database Error')
 
 @router.post('/post-article')
-async def post_article(Article: FullArticle):
+async def post_article(Article: FullArticle): #auth is required
     try:
         return await database.post_article(Article)
     except:
