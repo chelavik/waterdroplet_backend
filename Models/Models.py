@@ -14,12 +14,8 @@ class AboutUs(BaseModel):
     about_text: str
 
 
-class FullArticle(BaseModel):
+class Article(BaseModel):
     article_name: str
-    article_text: str
-
-
-class ArticleText(BaseModel):
     article_text: str
 
 

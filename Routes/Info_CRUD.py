@@ -1,7 +1,8 @@
 from fastapi import APIRouter, HTTPException
-from Models.Models import CheckToken, AboutUs, FullArticle, ArticleText, Service
+from Models.Models import CheckToken, AboutUs, Article, Service
 from Utils.Hasher import HasherClass
 from Database.Databases import DatabaseClass
+from typing import Optional
 
 
 database = DatabaseClass()
@@ -36,7 +37,7 @@ async def get_all_articles():
     except:
         raise HTTPException(status_code=500, detail='Database Error')
 
-#get by id
+#get
 @router.get('/get-article-by-id/{article_id}')
 async def get_article_by_id(article_id: int):
     try:
@@ -44,39 +45,25 @@ async def get_article_by_id(article_id: int):
     except:
         raise HTTPException(status_code=500, detail='Database Error')
 
-#get by name
-@router.get('/get-article-by-name/{article_name}')
-async def get_article_by_name(article_name: str):
+#put
+@router.put('/edit-article/{article_id}')
+async def edit_article(article_id: int, article_text: str, article_name: Optional[str] = None):
     try:
-        return await database.get_article_by_name(article_name)
-    except:
-        raise HTTPException(status_code=500, detail='Database Error')
-
-#put by id(whole article)
-@router.put('/edit-article-by-id/{article_id}')
-async def edit_article_by_id(article_id: int, Article: FullArticle): #auth is required
-    try:
-        return await database.edit_article_by_id(article_id, Article)
-    except:
-        raise HTTPException(status_code=500, detail='Database Error')
-
-#put by name(text only)
-@router.put('/edit-article-by-name/{article_name}')
-async def edit_article_by_name(article_name: str, Article: ArticleText): #auth is required
-    try:
-        return await database.edit_article_by_name(article_name, Article)
+        if article_name != None:
+            return await database.edit_article(article_id, article_name, article_text)
+        return await database.edit_article_text(article_id, article_text)
     except:
         raise HTTPException(status_code=500, detail='Database Error')
 
 #post
 @router.post('/post-article')
-async def post_article(Article: FullArticle): #auth is required
+async def post_article(Article: Article): #auth is required
     try:
         return await database.post_article(Article)
     except:
         raise HTTPException(status_code=500, detail='Database Error')
 
-#delete by id
+#delete
 @router.delete('/delete-article/{article_id}')
 async def delete_article(article_id: int): #auth is required
     try:
@@ -94,7 +81,7 @@ async def get_all_services():
     except:
         raise HTTPException(status_code=500, detail='Database Error')
 
-#put by id
+#put
 @router.put('/edit-service-by-id/{service_id}')
 async def edit_service_by_id(service_id: int, Service: Service): #auth is required
     try:
@@ -110,7 +97,7 @@ async def post_service(Service: Service): #auth is required
     except:
         raise HTTPException(status_code=500, detail='Database Error')
 
-#delete by id
+#delete
 @router.delete('/delete-service/{service_id}')
 async def delete_service(service_id: int): #auth is required
     try:

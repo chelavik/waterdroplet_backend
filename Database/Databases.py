@@ -106,9 +106,8 @@ class DatabaseClass(DatabaseBaseClass):
     #articles
     getAllArticles = 'SELECT * FROM for_developers'
     getArticleById = 'SELECT * FROM for_developers WHERE id_article=:article_id'
-    getArticleByName = 'SELECT * FROM for_developers WHERE article_name=:article_name'
-    editArticleById = 'UPDATE for_developers SET article_name=:article_name, article_text=:article_text WHERE id_article=:article_id'
-    editArticleByName = 'UPDATE for_developers SET article_text=:article_text WHERE article_name=:article_name'
+    editArticle = 'UPDATE for_developers SET article_name=:article_name, article_text=:article_text WHERE id_article=:article_id'
+    editArticleText = 'UPDATE for_developers SET article_text=:article_text WHERE id_article=:article_id'
     postArticle = 'INSERT INTO for_developers (article_name, article_text) VALUES (:article_name, :article_text)'
     deleteArticle = 'DELETE FROM for_developers WHERE id_article=:article_id'
 
@@ -139,15 +138,12 @@ class DatabaseClass(DatabaseBaseClass):
     async def get_article_by_id(self, article_id):
         return await self.request(self.getArticleById, article_id=article_id)
 
-    async def get_article_by_name(self, article_name):
-        return await self.request(self.getArticleByName, article_name=article_name)
-
-    async def edit_article_by_id(self, article_id, Article):
-        await self.request(self.editArticleById, article_id=article_id, article_name=Article.article_name, article_text=Article.article_text)
+    async def edit_article(self, article_id, article_name, article_text):
+        await self.request(self.editArticle, article_id=article_id, article_name=article_name, article_text=article_text)
         return {'Edited':'successfully'}
 
-    async def edit_article_by_name(self, article_name, Article):
-        await self.request(self.editArticleByName, article_name=article_name, article_text=Article.article_text)
+    async def edit_article_text(self, article_id, article_text):
+        await self.request(self.editArticleText, article_id=article_id, article_text=article_text)
         return {'Edited':'successfully'}
 
     async def post_article(self, Article):
