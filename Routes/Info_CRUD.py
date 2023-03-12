@@ -78,7 +78,7 @@ async def post_article(Article: FullArticle): #auth is required
 
 #delete by id
 @router.delete('/delete-article/{article_id}')
-async def delete_article(article_id: int):
+async def delete_article(article_id: int): #auth is required
     try:
         return await database.delete_article(article_id)
     except:
