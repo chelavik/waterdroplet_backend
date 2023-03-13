@@ -1,4 +1,4 @@
 from Routes import *
 
-__all__ = ['Authorization', 'Info_CRUD']
+__all__ = ['Authorization', 'Info_CRUD', 'UserInfo_update']
 

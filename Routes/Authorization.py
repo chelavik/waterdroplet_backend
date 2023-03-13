@@ -1,41 +1,96 @@
-from datetime import datetime, timedelta
-from fastapi import APIRouter, Depends, HTTPException
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from Utils.Hasher import *
-from Models.Models import *
+from datetime import timedelta, datetime
 from Database import Databases
-from jose import JWTError, jwt
+from Models.Models import UserInDB
+from Utils.Hasher import HasherClass, SECRET_KEY, ALGORITHM
+from jose import jwt
+from jose.exceptions import ExpiredSignatureError
+from Models.Models import *
+from fastapi import HTTPException, Depends, APIRouter, status
 
 
+class BadTokenError(Exception): pass
+
+db = Databases.SQLDatabase()
+Database = Databases.DatabaseBaseClass()
 router = APIRouter()
 Hasher = HasherClass()
-database = Databases.DatabaseBaseClass()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+ACCESS_TOKEN_EXPIRE_MINUTES = 300
 
 
-def authenticate_user(username: str, password: str):
-    # проверка существования в бд и получение пользака
-    hashed_password = 'полученный от него хеш из бд'
-    if not Hasher.verify_password(password, hashed_password):
+# --------------------------FUNCTIONS-------------------------------
+def unpack_token(token: str):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, ALGORITHM)
+        username = payload.get('login')
+        user_type = payload.get('type')
+        return username, user_type
+    except ExpiredSignatureError:
+        raise ExpiredSignatureError
+    except:
+        raise BadTokenError
+
+
+def get_user(login: str):
+    c = Databases.users_conn.cursor()
+    c.execute(f"SELECT * FROM business WHERE login='{login}'")
+    user = c.fetchone()
+    user['user_type'] = 'business'
+    if not user:
+        c.execute(f"SELECT * FROM physic WHERE login='{login}'")
+        user = c.fetchone()
+        user['user_type'] = 'physic'
+        if not user:
+            c.execute(f"SELECT * FROM sotrudnik WHERE login='{login}'")
+            user = c.fetchone()
+            user['user_type'] = 'sotrudnik'
+            if not user:
+                return False
+    return UserInDB(**user)
+
+
+def authenticate_user(login: str, password: str):
+    user = get_user(login)
+    if not user:
         return False
-    return "вся необходимая информация о пользователе"
+    if not Hasher.verify_password(password, user.hashed_password):
+        return False
+    return user
 
 
-# -----------------------ROUTES----------------------------
-
-@router.post('/register')
-async def registration(user: User):
-    # проверка существования по username
-    # создание пользователя в бд
-    return HTTPException(status_code=200, detail='Success')
-
-
-@router.post('/login')
-async def login(user: User):
-    if authenticate_user(user.username, user.password):
-        pass
-        # запись времени входа в бд
-        # создание и возврат токена
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
     else:
-        return HTTPException(status_code=400, detail='Invalid login or password')
+        expire = datetime.utcnow() + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
 
+
+# --------------------------ROUTES-------------------------------
+
+
+@router.post("/login", tags=['user'])
+async def login_for_access_token(user: auth):
+    user = authenticate_user(user.username, user.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"login": user.login, "type": user.user_type}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.post('/register', tags=['user'])
+async def create_user(user: reg_user, user_type: str):
+    is_user = get_user(user.username)
+    if is_user:
+        return HTTPException(status_code=400, detail="personal account occupied")
+    hashed_password = Hasher.get_password_hash(auth.password)
+    return await db.create_user(user.username, hashed_password, user_type)
