@@ -19,6 +19,6 @@
 - put('/change_email'): input: body: Token ; query: new_email: str. output: код 200
 - post('/user_info'): input: body: Token. output: словарь со всей информацией о пользователе. поскольку в роуте
 принимается и сотрудник, и физическое лицо, модели словарей разные. 
-у сотрудника: id_sotrudnik, id_business, login,
+у сотрудника: id_sotrudnik, id_business, login
 у физ. лица: id_physic, login, full_name, email, address, id_business
 - 

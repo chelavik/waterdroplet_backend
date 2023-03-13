@@ -57,7 +57,8 @@ class SQLDatabase:
 
     async def get_user(self, username, user_type):
         if user_type == 'physic':
-            self.user_c.execute(f"SELECT id_physic, login, full_name, email, address, id_business from physic WHERE login='{username}'")
+            self.user_c.execute(f"SELECT id_physic, login, full_name, email, address, id_business"
+                                f" from physic WHERE login='{username}'")
             return self.user_c.fetchone()
         if user_type == 'sotrudnik':
             self.user_c.execute(f"SELECT id_sotrudnik, id_business, login from sotrudnik WHERE login='{username}'")
@@ -67,12 +68,31 @@ class SQLDatabase:
 
     async def get_business(self, username, user_type):
         if user_type == 'business':
-            self.user_c.execute(f"SELECT id_business, login, email, apitoken, tariff from business WHERE login='{username}'")
+            self.user_c.execute(f"SELECT id_business, login, email, apitoken, tariff from business "
+                                f"WHERE login='{username}'")
+            return self.user_c.fetchone()
         else:
             raise BadUserError
 
-    async def create_user(self, username, password, user_type):
-        self.user_c.execute(f"INSERT INTO {user_type} ")
+    async def create_user(self, username, password, email, user_type, full_name):
+        if user_type == 'physic':
+            self.user_c.execute(f"INSERT INTO {user_type} (login, email, hashed_password, full_name)"
+                                f" VALUES ('{username}', '{email}', '{password}', '{full_name}')")
+            self.users_conn.commit()
+        elif user_type == 'business':
+            self.user_c.execute(
+                f"INSERT INTO {user_type} (login, email, hashed_password)"
+                f" VALUES ('{username}', '{email}', '{password}')")
+            self.users_conn.commit()
+        else:
+            raise BadUserError
+
+    async def get_ipus(self, username, user_type):
+        if user_type != 'physic':
+            raise BadUserError
+        self.user_c.execute(f"SELECT ipus from physic WHERE login='{username}'")
+        return self.user_c.fetchone()
+
 # -----------------------------SQLITE----------------------------
 
 

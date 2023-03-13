@@ -8,17 +8,20 @@ class User(BaseModel):
     id_sotrudnik: Optional[int] = None
     login: str
     email: str
-    apitoken: str
-    tariff: int
+    apitoken: Optional[str] = None
+    tariff: Optional[str] = None
 
 
 class CheckToken(BaseModel):
     token: str
 
+
 class reg_user(BaseModel):
     username: str
     password: str
     email: str
+    full_name: Optional[str] = None
+
 
 class UserInDB(User):
     hashed_password: str
@@ -27,7 +30,6 @@ class UserInDB(User):
 
 class Token(BaseModel):
     access_token: str
-
 
 
 class auth(BaseModel):

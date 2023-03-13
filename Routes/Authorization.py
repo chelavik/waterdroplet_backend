@@ -34,17 +34,20 @@ def get_user(login: str):
     c = Databases.users_conn.cursor()
     c.execute(f"SELECT * FROM business WHERE login='{login}'")
     user = c.fetchone()
-    user['user_type'] = 'business'
+
     if not user:
         c.execute(f"SELECT * FROM physic WHERE login='{login}'")
         user = c.fetchone()
-        user['user_type'] = 'physic'
         if not user:
             c.execute(f"SELECT * FROM sotrudnik WHERE login='{login}'")
             user = c.fetchone()
-            user['user_type'] = 'sotrudnik'
             if not user:
                 return False
+            user['user_type'] = 'sotrudnik'
+            return UserInDB(**user)
+        user['user_type'] = 'physic'
+        return UserInDB(**user)
+    user['user_type'] = 'business'
     return UserInDB(**user)
 
 
@@ -74,6 +77,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 @router.post("/login", tags=['user'])
 async def login_for_access_token(user: auth):
     user = authenticate_user(user.username, user.password)
+    print(user)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -92,5 +96,7 @@ async def create_user(user: reg_user, user_type: str):
     is_user = get_user(user.username)
     if is_user:
         return HTTPException(status_code=400, detail="personal account occupied")
-    hashed_password = Hasher.get_password_hash(auth.password)
-    return await db.create_user(user.username, hashed_password, user_type)
+    hashed_password = Hasher.get_password_hash(user.password)
+    print(user.username, hashed_password, user.email, user_type, user.full_name)
+    return await db.create_user(username=user.username, password=hashed_password,
+                                email=user.email, user_type=user_type, full_name=user.full_name)
