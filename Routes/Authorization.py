@@ -10,6 +10,7 @@ from fastapi import HTTPException, Depends, APIRouter, status
 
 class BadTokenError(Exception): pass
 
+
 db = Databases.SQLDatabase()
 Database = Databases.DatabaseBaseClass()
 router = APIRouter()
@@ -70,6 +71,13 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
+
+def get_user_id_tariff(username):
+    db.user_c.execute(f"SELECT id_physic, id_business from physic where login='{username}'")
+    id = db.user_c.fetchone()
+    db.user_c.execute(f"SELECT tariff from business where id_business={id['id_business']}")
+    tariff = db.user_c.fetchone()
+    return id['id_physic'], tariff['tariff']
 
 # --------------------------ROUTES-------------------------------
 

@@ -33,8 +33,8 @@ users_conn = pymysql.connect(
 trans_conn = pymysql.connect(
     host='185.185.70.161',  # Local IP address
     port=3333,  # Local port
-    user='admin_backend',  # MySQL server username
-    password='BacKend_paSSword123331',  # MySQL server password
+    user='admin_backend_trans',  # MySQL server username
+    password='QWh4YM1XXwum{LN',  # MySQL server password
     db='transactions',  # MySQL database name
     cursorclass=pymysql.cursors.DictCursor
 )
@@ -48,6 +48,7 @@ class SQLDatabase:
         self.user_c = self.users_conn.cursor()
         self.validate_c = self.trans_conn.cursor()
 
+    # ---------------------------USERS-----------------------------------------------
     async def change_password(self, new_password, username, user_type):
         self.user_c.execute(f"UPDATE {user_type} set hashed_password='{new_password}' WHERE login = '{username}'")
         users_conn.commit()
@@ -94,6 +95,30 @@ class SQLDatabase:
         self.user_c.execute(f"SELECT ipus from physic WHERE login='{username}'")
         return self.user_c.fetchone()
 
+    # -------------------------TRANSACTIONS----------------------------------
+
+    async def get_last_number(self, user_id, ipu):
+        self.validate_c.execute(f"SELECT prev_number from transactions WHERE id_physic={user_id} AND ipu='{ipu}' "
+                                f"ORDER BY date DESC "
+                                f"LIMIT 1")
+        prev_number = self.validate_c.fetchone()
+        prev_number = prev_number['prev_number']
+        return prev_number
+
+    async def add_transaction(self, user_id, prev_number, new_number, ipu, payment_sum):
+        self.validate_c.execute(f"INSERT INTO transactions "
+                                f"(date, id_physic, ipu, prev_number, new_number, payment_sum, status) "
+                                f"VALUES (NOW(), {user_id}, '{ipu}', '{prev_number}', '{new_number}', "
+                                f"{payment_sum}, 1)")
+        self.trans_conn.commit()
+        self.validate_c.execute(f"SELECT id_transaction from transactions WHERE id_physic={user_id} AND ipu='{ipu}' "
+                                f"ORDER BY date DESC "
+                                f"LIMIT 1")
+        return self.validate_c.fetchone()
+
+    async def change_status(self, trans_id: int, status: int):
+        self.validate_c.execute(f"UPDATE transactions set status={status} WHERE id_transaction={trans_id}")
+        self.trans_conn.commit()
 
 # -----------------------------SQLITE----------------------------
 

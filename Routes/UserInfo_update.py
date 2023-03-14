@@ -1,8 +1,8 @@
 from Database import Databases
-from Utils.Hasher import HasherClass, SECRET_KEY, ALGORITHM
+from Utils.Hasher import HasherClass
 from jose.exceptions import ExpiredSignatureError
 from Models.Models import *
-from fastapi import HTTPException, Depends, APIRouter, status
+from fastapi import HTTPException, APIRouter
 from Routes.Authorization import unpack_token, BadTokenError
 
 Database = Databases.DatabaseBaseClass()

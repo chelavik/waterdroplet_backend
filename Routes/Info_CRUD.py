@@ -3,7 +3,7 @@ from Models.Models import Token, AboutUs, Article, Service
 from Utils.Hasher import HasherClass
 from Database.Databases import DatabaseClass
 from typing import Optional
-from Authorization import BadTokenError, unpack_token, get_user
+from Routes.Authorization import BadTokenError, unpack_token, get_user
 from jose.exceptions import ExpiredSignatureError
 
 database = DatabaseClass()
@@ -84,7 +84,6 @@ async def delete_article(token: Token, article_id: int):  # auth is required
         return HTTPException(status_code=401, detail='token expired')
     except BadTokenError:
         return HTTPException(status_code=400, detail='bad token')
-
     except:
         raise HTTPException(status_code=500, detail='Database Error')
 

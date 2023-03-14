@@ -31,3 +31,4 @@ async def shutdown_event():
 app.include_router(Info_CRUD.router)
 app.include_router(Authorization.router)
 app.include_router(UserInfo_update.router)
+app.include_router(Transactions.router)
