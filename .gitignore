@@ -4,4 +4,4 @@ Database/__pycache__/*
 Models/__pycache__/*
 Routes/__pycache__/*
 Utils/__pycache__/*
-*.pyc
+

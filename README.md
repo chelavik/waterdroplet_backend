@@ -34,4 +34,4 @@
 принимается и сотрудник, и физическое лицо, модели словарей разные. 
 у сотрудника: id_sotrudnik, id_business, login
 у физ. лица: id_physic, login, full_name, email, address, id_business
-- продолжение следует
+- 1asdxzzzzzzz
