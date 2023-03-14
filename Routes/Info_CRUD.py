@@ -1,8 +1,10 @@
 from fastapi import APIRouter, HTTPException
-from Models.Models import CheckToken, AboutUs, Article, Service
+from Models.Models import Token, AboutUs, Article, Service
 from Utils.Hasher import HasherClass
 from Database.Databases import DatabaseClass
 from typing import Optional
+from Authorization import BadTokenError, unpack_token, get_user
+from jose.exceptions import ExpiredSignatureError
 
 database = DatabaseClass()
 HasherObject = HasherClass()
@@ -71,9 +73,18 @@ async def post_article(Article: Article):  # auth is required
 
 # delete
 @router.delete('/delete-article/{article_id}', tags=['site_info'])
-async def delete_article(article_id: int):  # auth is required
+async def delete_article(token: Token, article_id: int):  # auth is required
     try:
-        return await database.delete_article(article_id)
+        username, user_type = unpack_token(token.access_token)
+        if username == 'admin':
+            return await database.delete_article(article_id)
+        else:
+            return HTTPException(status_code=400, detail='No permission')
+    except ExpiredSignatureError:
+        return HTTPException(status_code=401, detail='token expired')
+    except BadTokenError:
+        return HTTPException(status_code=400, detail='bad token')
+
     except:
         raise HTTPException(status_code=500, detail='Database Error')
 

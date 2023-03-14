@@ -16,6 +16,7 @@ class DatabaseConnectionError(DatabaseError): pass
 
 class DatabaseTransactionError(DatabaseError): pass
 
+
 class BadUserError(DatabaseError): pass
 
 
@@ -93,6 +94,7 @@ class SQLDatabase:
         self.user_c.execute(f"SELECT ipus from physic WHERE login='{username}'")
         return self.user_c.fetchone()
 
+
 # -----------------------------SQLITE----------------------------
 
 
@@ -156,7 +158,6 @@ class DatabaseBaseClass:
 
 
 class DatabaseClass(DatabaseBaseClass):
-
     # -----------------------requests----------------------------
 
     # about_us
@@ -227,4 +228,3 @@ class DatabaseClass(DatabaseBaseClass):
     async def delete_service(self, service_id):
         await self.request(self.deleteService, service_id=service_id)
         return {'Deleted': 'successfully'}
-
