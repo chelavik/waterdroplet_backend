@@ -24,9 +24,18 @@ async def get_about_us():
 
 # put
 @router.put('/edit-about-us', tags=['site_info'])
-async def edit_about_us(AboutUs: AboutUs):  # auth is required
+async def edit_about_us(token: Token, AboutUs: AboutUs):
     try:
-        return await database.edit_about_us(AboutUs)
+        username, user_type = unpack_token(token.access_token)
+        if username == 'admin':
+            await database.edit_about_us(AboutUs)
+            return HTTPException(status_code=200, detail='Success')
+        else:
+            return HTTPException(status_code=400, detail='No permission')
+    except ExpiredSignatureError:
+        return HTTPException(status_code=401, detail='token expired')
+    except BadTokenError:
+        return HTTPException(status_code=400, detail='bad token')
     except:
         raise HTTPException(status_code=500, detail='Database Error')
 
@@ -53,31 +62,50 @@ async def get_article_by_id(article_id: int):
 
 # put
 @router.put('/edit-article/{article_id}', tags=['site_info'])
-async def edit_article(article_id: int, article_text: str, article_name: Optional[str] = None):
+async def edit_article(token: Token, article_id: int, article_text: str, article_name: Optional[str] = None):
     try:
-        if article_name != None:
-            return await database.edit_article(article_id, article_name, article_text)
-        return await database.edit_article_text(article_id, article_text)
+        username, user_type = unpack_token(token.access_token)
+        if username == 'admin':
+            if article_name != None:
+                await database.edit_article(article_id, article_name, article_text)
+            await database.edit_article_text(article_id, article_text)
+            return HTTPException(status_code=200, detail='Success')
+        else:
+            return HTTPException(status_code=400, detail='No permission')
+    except ExpiredSignatureError:
+        return HTTPException(status_code=401, detail='token expired')
+    except BadTokenError:
+        return HTTPException(status_code=400, detail='bad token')
     except:
         raise HTTPException(status_code=500, detail='Database Error')
 
 
 # post
 @router.post('/post-article', tags=['site_info'])
-async def post_article(Article: Article):  # auth is required
+async def post_article(token: Token, Article: Article):
     try:
-        return await database.post_article(Article)
+        username, user_type = unpack_token(token.access_token)
+        if username == 'admin':
+            await database.post_article(Article)
+            return HTTPException(status_code=200, detail='Success')
+        else:
+            return HTTPException(status_code=400, detail='No permission')
+    except ExpiredSignatureError:
+        return HTTPException(status_code=401, detail='token expired')
+    except BadTokenError:
+        return HTTPException(status_code=400, detail='bad token')
     except:
         raise HTTPException(status_code=500, detail='Database Error')
 
 
 # delete
 @router.delete('/delete-article/{article_id}', tags=['site_info'])
-async def delete_article(token: Token, article_id: int):  # auth is required
+async def delete_article(token: Token, article_id: int):
     try:
         username, user_type = unpack_token(token.access_token)
         if username == 'admin':
-            return await database.delete_article(article_id)
+            await database.delete_article(article_id)
+            return HTTPException(status_code=200, detail='Success')
         else:
             return HTTPException(status_code=400, detail='No permission')
     except ExpiredSignatureError:
@@ -101,26 +129,53 @@ async def get_all_services():
 
 # put
 @router.put('/edit-service-by-id/{service_id}', tags=['site_info'])
-async def edit_service_by_id(service_id: int, Service: Service):  # auth is required
+async def edit_service_by_id(token: Token,Service: Service, service_id: int):
     try:
-        return await database.edit_service_by_id(service_id, Service)
+        username, user_type = unpack_token(token.access_token)
+        if username == 'admin':
+            await database.edit_service_by_id(service_id, Service)
+            return HTTPException(status_code=200, detail='Success')
+        else:
+            return HTTPException(status_code=400, detail='No permission')
+    except ExpiredSignatureError:
+        return HTTPException(status_code=401, detail='token expired')
+    except BadTokenError:
+        return HTTPException(status_code=400, detail='bad token')
     except:
         raise HTTPException(status_code=500, detail='Database Error')
 
 
 # post
 @router.post('/post-service', tags=['site_info'])
-async def post_service(Service: Service):  # auth is required
+async def post_service(token: Token, Service: Service):
     try:
-        return await database.post_service(Service)
+        username, user_type = unpack_token(token.access_token)
+        if username == 'admin':
+            await database.post_service(Service)
+            return HTTPException(status_code=200, detail='Success')
+        else:
+            return HTTPException(status_code=400, detail='No permission')
+    except ExpiredSignatureError:
+        return HTTPException(status_code=401, detail='token expired')
+    except BadTokenError:
+        return HTTPException(status_code=400, detail='bad token')
     except:
         raise HTTPException(status_code=500, detail='Database Error')
 
 
 # delete
 @router.delete('/delete-service/{service_id}', tags=['site_info'])
-async def delete_service(service_id: int):  # auth is required
+async def delete_service(token: Token, service_id: int):
     try:
-        return await database.delete_service(service_id)
+        username, user_type = unpack_token(token.access_token)
+        if username == 'admin':
+            await database.delete_service(service_id)
+            return HTTPException(status_code=200, detail='Success')
+        else:
+            return HTTPException(status_code=400, detail='No permission')
+    except ExpiredSignatureError:
+        return HTTPException(status_code=401, detail='token expired')
+    except BadTokenError:
+        return HTTPException(status_code=400, detail='bad token')
     except:
         raise HTTPException(status_code=500, detail='Database Error')

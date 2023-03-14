@@ -211,7 +211,6 @@ class DatabaseClass(DatabaseBaseClass):
 
     async def edit_about_us(self, AboutUs):
         await self.request(self.editAboutUs, about_text=AboutUs.about_text)
-        return {'Edited': 'successfully'}
 
     # articles
     async def get_all_articles(self):
@@ -221,35 +220,26 @@ class DatabaseClass(DatabaseBaseClass):
         return await self.request(self.getArticleById, article_id=article_id)
 
     async def edit_article(self, article_id, article_name, article_text):
-        await self.request(self.editArticle, article_id=article_id, article_name=article_name,
-                           article_text=article_text)
-        return {'Edited': 'successfully'}
+        await self.request(self.editArticle, article_id=article_id, article_name=article_name, article_text=article_text)
 
     async def edit_article_text(self, article_id, article_text):
         await self.request(self.editArticleText, article_id=article_id, article_text=article_text)
-        return {'Edited': 'successfully'}
 
     async def post_article(self, Article):
         await self.request(self.postArticle, article_name=Article.article_name, article_text=Article.article_text)
-        return {'Posted': 'successfully'}
 
     async def delete_article(self, article_id):
         await self.request(self.deleteArticle, article_id=article_id)
-        return {'Deleted': 'successfully'}
 
     # services
     async def get_all_services(self):
         return await self.request(self.getAllServices)
 
     async def edit_service_by_id(self, service_id, Service):
-        await self.request(self.editServiceById, service_id=service_id, service_name=Service.service_name,
-                           price=Service.price)
-        return {'Edited': 'successfully'}
+        await self.request(self.editServiceById, service_id=service_id, service_name=Service.service_name, price=Service.price)
 
     async def post_service(self, Service):
         await self.request(self.postService, service_name=Service.service_name, price=Service.price)
-        return {'Posted': 'successfully'}
 
     async def delete_service(self, service_id):
         await self.request(self.deleteService, service_id=service_id)
-        return {'Deleted': 'successfully'}
