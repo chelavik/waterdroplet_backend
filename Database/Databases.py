@@ -111,7 +111,7 @@ class SQLDatabase:
                                 f"VALUES (NOW(), {user_id}, '{ipu}', '{prev_number}', '{new_number}', "
                                 f"{payment_sum}, 1)")
         self.trans_conn.commit()
-        self.validate_c.execute(f"SELECT id_transaction from transactions WHERE id_physic={user_id} AND ipu='{ipu}' "
+        self.validate_c.execute(f"SELECT id_transaction, payment_sum from transactions WHERE id_physic={user_id} AND ipu='{ipu}' "
                                 f"ORDER BY date DESC "
                                 f"LIMIT 1")
         return self.validate_c.fetchone()
