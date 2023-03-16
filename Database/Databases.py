@@ -211,6 +211,7 @@ class DatabaseClass(DatabaseBaseClass):
     # about_us
     async def get_about_us(self):
         return (await self.request(self.getAboutUs))[0]
+        # работает?
 
     async def edit_about_us(self, AboutUs):
         await self.request(self.editAboutUs, about_text=AboutUs.about_text)
