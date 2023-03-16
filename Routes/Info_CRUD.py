@@ -3,7 +3,8 @@ from Models.Models import Token, AboutUs, Article, Service
 from Utils.Hasher import HasherClass
 from Database.Databases import DatabaseClass
 from typing import Optional
-from Routes.Authorization import BadTokenError, unpack_token, get_user
+from Routes.Authorization import BadTokenError, unpack_token
+from starlette.responses import JSONResponse
 from jose.exceptions import ExpiredSignatureError
 
 database = DatabaseClass()
@@ -17,7 +18,7 @@ router = APIRouter()
 @router.get('/get-about-us', tags=['site_info'])
 async def get_about_us():
     try:
-        return await database.get_about_us()
+        return JSONResponse(await database.get_about_us())
     except:
         raise HTTPException(status_code=500, detail='Database Error')
 
@@ -46,7 +47,7 @@ async def edit_about_us(token: Token, AboutUs: AboutUs):
 @router.get('/get-all-articles', tags=['site_info'])
 async def get_all_articles():
     try:
-        return await database.get_all_articles()
+        return JSONResponse(await database.get_all_articles())
     except:
         raise HTTPException(status_code=500, detail='Database Error')
 
@@ -55,7 +56,7 @@ async def get_all_articles():
 @router.get('/get-article-by-id/{article_id}', tags=['site_info'])
 async def get_article_by_id(article_id: int):
     try:
-        return await database.get_article_by_id(article_id)
+        return JSONResponse(await database.get_article_by_id(article_id))
     except:
         raise HTTPException(status_code=500, detail='Database Error')
 
@@ -122,14 +123,14 @@ async def delete_article(token: Token, article_id: int):
 @router.get('/get-all-services', tags=['site_info'])
 async def get_all_services():
     try:
-        return await database.get_all_services()
+        return JSONResponse(await database.get_all_services())
     except:
         raise HTTPException(status_code=500, detail='Database Error')
 
 
 # put
 @router.put('/edit-service-by-id/{service_id}', tags=['site_info'])
-async def edit_service_by_id(token: Token,Service: Service, service_id: int):
+async def edit_service_by_id(token: Token, Service: Service, service_id: int):
     try:
         username, user_type = unpack_token(token.access_token)
         if username == 'admin':

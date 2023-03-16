@@ -210,7 +210,7 @@ class DatabaseClass(DatabaseBaseClass):
 
     # about_us
     async def get_about_us(self):
-        return await self.request(self.getAboutUs)
+        return (await self.request(self.getAboutUs))[0]
 
     async def edit_about_us(self, AboutUs):
         await self.request(self.editAboutUs, about_text=AboutUs.about_text)
@@ -220,7 +220,7 @@ class DatabaseClass(DatabaseBaseClass):
         return await self.request(self.getAllArticles)
 
     async def get_article_by_id(self, article_id):
-        return await self.request(self.getArticleById, article_id=article_id)
+        return (await self.request(self.getArticleById, article_id=article_id))[0]
 
     async def edit_article(self, article_id, article_name, article_text):
         await self.request(self.editArticle, article_id=article_id, article_name=article_name, article_text=article_text)
