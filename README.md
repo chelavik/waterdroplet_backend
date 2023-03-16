@@ -49,7 +49,7 @@
 # порты
 - 3306 : mysql_db
 - 5000: api_test 
-- 5001: Backend (main)
+- 5002: Backend (main)
 
 
 # тестовые пользователи в бд
