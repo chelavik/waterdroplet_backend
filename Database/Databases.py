@@ -102,7 +102,10 @@ class SQLDatabase:
                                 f"ORDER BY date DESC "
                                 f"LIMIT 1")
         prev_number = self.validate_c.fetchone()
-        prev_number = prev_number['prev_number']
+        if not prev_number:
+            prev_number = 0
+        else:
+            prev_number = prev_number['prev_number']
         return prev_number
 
     async def add_transaction(self, user_id, prev_number, new_number, ipu, payment_sum):

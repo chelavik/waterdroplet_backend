@@ -5,7 +5,8 @@ from Utils.Hasher import HasherClass, SECRET_KEY, ALGORITHM
 from jose import jwt
 from jose.exceptions import ExpiredSignatureError
 from Models.Models import *
-from fastapi import HTTPException, Depends, APIRouter, status
+from fastapi import HTTPException, APIRouter, status, Form
+from starlette.responses import JSONResponse
 
 
 class BadTokenError(Exception): pass
@@ -85,7 +86,6 @@ def get_user_id_tariff(username):
 @router.post("/login", tags=['user'])
 async def login_for_access_token(user: auth):
     user = authenticate_user(user.username, user.password)
-    print(user)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -96,7 +96,7 @@ async def login_for_access_token(user: auth):
     access_token = create_access_token(
         data={"login": user.login, "type": user.user_type}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    return JSONResponse({"access_token": access_token, "token_type": "bearer"})
 
 
 @router.post('/register', tags=['user'])

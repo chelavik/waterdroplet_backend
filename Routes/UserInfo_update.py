@@ -2,7 +2,7 @@ from Database import Databases
 from Utils.Hasher import HasherClass
 from jose.exceptions import ExpiredSignatureError
 from Models.Models import *
-from fastapi import HTTPException, APIRouter
+from fastapi import HTTPException, APIRouter, Form
 from Routes.Authorization import unpack_token, BadTokenError
 
 Database = Databases.DatabaseBaseClass()
@@ -14,7 +14,7 @@ SQLDatabase = Databases.SQLDatabase()
 # ----------------------ROUTES--------------------------
 
 @router.put('/change_password', tags=['user'])
-async def change_password(token: Token, new_password: str):
+async def change_password(new_password: str, token: Token):
     try:
         username, user_type = unpack_token(token.access_token)
         hashed_password = Hasher.get_password_hash(new_password)

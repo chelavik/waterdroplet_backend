@@ -2,6 +2,7 @@ from Database import Databases
 from Utils.Hasher import HasherClass
 from jose.exceptions import ExpiredSignatureError
 from Models.Models import *
+from starlette.responses import JSONResponse
 from fastapi import HTTPException, APIRouter
 from Routes.Authorization import unpack_token, BadTokenError, get_user_id_tariff
 
@@ -28,7 +29,7 @@ async def add_transaction(token: Token, new_number: str, ipu: str):
         prev_number = await SQLDatabase.get_last_number(user_id, ipu)
         trans_id = await SQLDatabase.add_transaction(user_id, prev_number, new_number, ipu,
                                                      count_sum(int(new_number) - int(prev_number), tariff))
-        return trans_id
+        return JSONResponse(trans_id)
     except ExpiredSignatureError:
         return HTTPException(status_code=400, detail='token expired')
     except BadTokenError:
