@@ -105,5 +105,6 @@ async def create_user(user: reg_user, user_type: str):
     if is_user:
         return HTTPException(status_code=400, detail="personal account occupied")
     hashed_password = Hasher.get_password_hash(user.password)
-    return await db.create_user(username=user.username, password=hashed_password,
+    await db.create_user(username=user.username, password=hashed_password,
                                 email=user.email, user_type=user_type, full_name=user.full_name)
+    return HTTPException(status_code=200, detail='Success')
