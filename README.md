@@ -1,4 +1,4 @@
-# waterdroplet_backend
+# waterdroplet_backend routes
 
 #### в каждом роуте, использующем токен может вернуться ошибка 400 - token expired или bad token
 
@@ -12,6 +12,7 @@
 
 
 ## site_info 
+- post/put/delete запросы выполнятся лишь при токене от пользователя с ником admin
 - get('/get-about-us'): OUT: описание сайта about_text
 - put('/edit-about-us'): IN: body: Token, AboutUs. output: код 200
 - get('/get-all-articles'): OUT: список всех статей
@@ -43,3 +44,26 @@
 - post("/add_transaction"): IN: body: Token; query: new_number: str, ipu: str. OUT: {'id_transaction': int, 'payment_sum': float}
 - post("/trans_status"): IN: body: Token; query: trans_id: int, status: int. OUT: код 200.
 транзакция имеет 3 статуса, записываемых в бд цифрой. 0 - отклонена, 1 - ожидание, 2 - успех.
+
+
+# порты
+- 3306 : mysql_db
+- 5000: api_test 
+- 5001: Backend (main)
+
+
+# тестовые пользователи в бд
+- админ и физическое лицо:
+- {
+  "username": "chelavik",
+  "password": "amogus"
+}
+{
+  "username": "admin",
+  "password": "amogus"
+}
+- бизнес-аккаунт:
+- {
+  "username": "business_test",
+  "password": "business"
+}
