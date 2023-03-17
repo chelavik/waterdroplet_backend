@@ -73,13 +73,6 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
-def get_user_id_tariff(username):
-    db.user_c.execute(f"SELECT id_physic, id_business from physic where login='{username}'")
-    id = db.user_c.fetchone()
-    db.user_c.execute(f"SELECT tariff from business where id_business={id['id_business']}")
-    tariff = db.user_c.fetchone()
-    return id['id_physic'], tariff['tariff']
-
 # --------------------------ROUTES-------------------------------
 
 
@@ -106,5 +99,5 @@ async def create_user(user: reg_user, user_type: str):
         return HTTPException(status_code=400, detail="personal account occupied")
     hashed_password = Hasher.get_password_hash(user.password)
     await db.create_user(username=user.username, password=hashed_password,
-                                email=user.email, user_type=user_type, full_name=user.full_name)
+                         email=user.email, user_type=user_type, full_name=user.full_name)
     return HTTPException(status_code=200, detail='Success')

@@ -3,6 +3,7 @@ from typing import Any
 from databases import Database
 from Utils import Hasher
 from Utils.Env import EnvClass
+import datetime
 
 
 # -----------------------ERRORS------------------------
@@ -101,13 +102,38 @@ class SQLDatabase:
             raise BadUserError
 
     async def get_ipus(self, username, user_type):
-        if user_type != 'physic':
-            raise BadUserError
+        try:
+            if user_type != 'physic':
+                raise BadUserError
+            user_c = self.users_conn.cursor()
+            validate_c = self.trans_conn.cursor()
+            user_id, tariff = await self.get_user_id_tariff(username)
+            data = {}
+            user_c.execute(f"SELECT ipus from physic WHERE login='{username}'")
+            ipus = (user_c.fetchone())['ipus'].split()
+            for i in ipus:
+                try:
+                    validate_c.execute(f"SELECT date from transactions WHERE id_physic={user_id} AND ipu='{i}' "
+                                   f"ORDER BY date DESC "
+                                   f"LIMIT 1")
+                    date = (validate_c.fetchone())['date'].strftime('%m/%d/%Y')
+                    data[i] = date
+                except:
+                    data[i] = 'None'
+            user_c.close()
+            validate_c.close()
+            return data
+        except:
+            ...
+
+    async def get_user_id_tariff(self, username):
         user_c = self.users_conn.cursor()
-        user_c.execute(f"SELECT ipus from physic WHERE login='{username}'")
-        data = user_c.fetchone()
+        user_c.execute(f"SELECT id_physic, id_business from physic where login='{username}'")
+        id = user_c.fetchone()
+        user_c.execute(f"SELECT tariff from business where id_business={id['id_business']}")
+        tariff = user_c.fetchone()
         user_c.close()
-        return data
+        return id['id_physic'], tariff['tariff']
 
     # -------------------------TRANSACTIONS----------------------------------
 
