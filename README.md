@@ -4,7 +4,7 @@
 
 ### используемые модели:
 - auth: username: str, password: str
-- Token: token: str
+- Token: access_token: str
 - reg_user: username: str, password: str, email: str
 - AboutUs: about_text: str
 - Article: article_name: str, article_text: str
@@ -13,7 +13,7 @@
 
 ## site_info 
 - post/put/delete запросы выполнятся лишь при токене от пользователя с ником admin
-- get('/get-about-us'): OUT: описание сайта about_text
+- get('/get-about-us'): OUT: описание сайта about_text 
 - put('/edit-about-us'): IN: body: Token, AboutUs. output: код 200
 - get('/get-all-articles'): OUT: список словарей модели Article
 - get('/get-article-by-id/{article_id}'): IN: query: article_id: int. OUT: одна статья по введенному айди
@@ -31,14 +31,14 @@
 - post("/login"): IN: body: модель auth. OUT: {"access_token": str, "token_type": "bearer"} / код 401
 - put('/change_password'): IN: body: Token ; query: new_password: str. OUT: код 200
 - put('/change_email'): IN: body: Token ; query: new_email: str. OUT: код 200
-- post('/user_info'): IN: body: Token. output: словарь со всей информацией о пользователе. поскольку в роуте
-принимается и сотрудник, и физическое лицо, модели словарей разные. 
+- post('/user_info'): IN: body: Token. output: словарь со всей информацией о пользователе / ошибка 400. поскольку в роуте
+принимается и сотрудник, и физическое лицо, модели словарей разные. (бизнес-токен не принимается)
 у сотрудника: id_sotrudnik, id_business, login
 у физ. лица: id_physic, login, full_name, email, address, id_business
 - post('/user_info_ipus') IN: body: Token. OUT: {"ipus": "ipu1"} / ошибка 400, если пользователь - не физическое лицо. пока так, поскольку неизвестно в каком виде хранятся счетчики в бд
 
 ## business
-- post("/get_business"): IN: body: Token. OUT: id_business, login, email, apitoken, tariff словарем.
+- post("/get_business"): IN: body: Token. OUT: id_business, login, email, apitoken, tariff словарем / ошибка 401, если пользователь - не бизнес
 
 ## transactions
 - post("/add_transaction"): IN: body: Token; query: new_number: str, ipu: str. OUT: {'id_transaction': int, 'payment_sum': float}

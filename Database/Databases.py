@@ -1,10 +1,8 @@
-import asyncio, aiomysql
+import asyncio, aiomysql, pymysql, time, threading
 from typing import Any
-import asyncssh
 from databases import Database
 from Utils import Hasher
 from Utils.Env import EnvClass
-import pymysql
 
 
 # -----------------------ERRORS------------------------
@@ -45,83 +43,108 @@ class SQLDatabase:
     def __init__(self):
         self.users_conn = users_conn
         self.trans_conn = trans_conn
-        self.user_c = self.users_conn.cursor()
-        self.validate_c = self.trans_conn.cursor()
 
     # ---------------------------USERS-----------------------------------------------
     async def change_password(self, new_password, username, user_type):
-        self.user_c.execute(f"UPDATE {user_type} set hashed_password='{new_password}' WHERE login = '{username}'")
+        user_c = self.users_conn.cursor()
+        user_c.execute(f"UPDATE {user_type} set hashed_password='{new_password}' WHERE login = '{username}'")
         users_conn.commit()
+        user_c.close()
 
     async def change_email(self, new_email, username, user_type):
-        self.user_c.execute(f"UPDATE {user_type} set email='{new_email}' WHERE login = '{username}'")
+        user_c = self.users_conn.cursor()
+        user_c.execute(f"UPDATE {user_type} set email='{new_email}' WHERE login = '{username}'")
         users_conn.commit()
+        user_c.close()
 
     async def get_user(self, username, user_type):
         if user_type == 'physic':
-            self.user_c.execute(f"SELECT id_physic, login, full_name, email, address, id_business"
-                                f" from physic WHERE login='{username}'")
-            return self.user_c.fetchone()
-        if user_type == 'sotrudnik':
-            self.user_c.execute(f"SELECT id_sotrudnik, id_business, login from sotrudnik WHERE login='{username}'")
-            return self.user_c.fetchone()
+            user_c = self.users_conn.cursor()
+            user_c.execute(f"SELECT id_physic, login, full_name, email, address, id_business"
+                           f" from physic WHERE login='{username}'")
+            data = user_c.fetchone()
+        elif user_type == 'sotrudnik':
+            user_c = self.users_conn.cursor()
+            user_c.execute(f"SELECT id_sotrudnik, id_business, login from sotrudnik WHERE login='{username}'")
+            data = user_c.fetchone()
         else:
             raise BadUserError
+        user_c.close()
+        return data
 
     async def get_business(self, username, user_type):
         if user_type == 'business':
-            self.user_c.execute(f"SELECT id_business, login, email, apitoken, tariff from business "
-                                f"WHERE login='{username}'")
-            return self.user_c.fetchone()
+            user_c = self.users_conn.cursor()
+            user_c.execute(f"SELECT id_business, login, email, apitoken, tariff from business "
+                           f"WHERE login='{username}'")
+            data = user_c.fetchone()
+            user_c.close()
+            return data
         else:
             raise BadUserError
 
     async def create_user(self, username, password, email, user_type, full_name):
         if user_type == 'physic':
-            self.user_c.execute(f"INSERT INTO {user_type} (login, email, hashed_password, full_name)"
-                                f" VALUES ('{username}', '{email}', '{password}', '{full_name}')")
+            user_c = self.users_conn.cursor()
+            user_c.execute(f"INSERT INTO {user_type} (login, email, hashed_password, full_name)"
+                           f" VALUES ('{username}', '{email}', '{password}', '{full_name}')")
             self.users_conn.commit()
+            user_c.close()
         elif user_type == 'business':
-            self.user_c.execute(
+            user_c = self.users_conn.cursor()
+            user_c.execute(
                 f"INSERT INTO {user_type} (login, email, hashed_password)"
                 f" VALUES ('{username}', '{email}', '{password}')")
             self.users_conn.commit()
+            user_c.close()
         else:
             raise BadUserError
 
     async def get_ipus(self, username, user_type):
         if user_type != 'physic':
             raise BadUserError
-        self.user_c.execute(f"SELECT ipus from physic WHERE login='{username}'")
-        return self.user_c.fetchone()
+        user_c = self.users_conn.cursor()
+        user_c.execute(f"SELECT ipus from physic WHERE login='{username}'")
+        data = user_c.fetchone()
+        user_c.close()
+        return data
 
     # -------------------------TRANSACTIONS----------------------------------
 
     async def get_last_number(self, user_id, ipu):
-        self.validate_c.execute(f"SELECT prev_number from transactions WHERE id_physic={user_id} AND ipu='{ipu}' "
-                                f"ORDER BY date DESC "
-                                f"LIMIT 1")
-        prev_number = self.validate_c.fetchone()
+        validate_c = self.trans_conn.cursor()
+        validate_c.execute(f"SELECT prev_number from transactions WHERE id_physic={user_id} AND ipu='{ipu}' "
+                           f"ORDER BY date DESC "
+                           f"LIMIT 1")
+        prev_number = validate_c.fetchone()
         if not prev_number:
             prev_number = 0
         else:
             prev_number = prev_number['prev_number']
+        validate_c.close()
         return prev_number
 
     async def add_transaction(self, user_id, prev_number, new_number, ipu, payment_sum):
-        self.validate_c.execute(f"INSERT INTO transactions "
-                                f"(date, id_physic, ipu, prev_number, new_number, payment_sum, status) "
-                                f"VALUES (NOW(), {user_id}, '{ipu}', '{prev_number}', '{new_number}', "
-                                f"{payment_sum}, 1)")
+        validate_c = self.trans_conn.cursor()
+        validate_c.execute(f"INSERT INTO transactions "
+                           f"(date, id_physic, ipu, prev_number, new_number, payment_sum, status) "
+                           f"VALUES (NOW(), {user_id}, '{ipu}', '{prev_number}', '{new_number}', "
+                           f"{payment_sum}, 1)")
         self.trans_conn.commit()
-        self.validate_c.execute(f"SELECT id_transaction, payment_sum from transactions WHERE id_physic={user_id} AND ipu='{ipu}' "
-                                f"ORDER BY date DESC "
-                                f"LIMIT 1")
-        return self.validate_c.fetchone()
+        validate_c.execute(
+            f"SELECT id_transaction, payment_sum from transactions WHERE id_physic={user_id} AND ipu='{ipu}' "
+            f"ORDER BY date DESC "
+            f"LIMIT 1")
+        data = validate_c.fetchone()
+        validate_c.close()
+        return data
 
     async def change_status(self, trans_id: int, status: int):
-        self.validate_c.execute(f"UPDATE transactions set status={status} WHERE id_transaction={trans_id}")
+        validate_c = self.trans_conn.cursor()
+        validate_c.execute(f"UPDATE transactions set status={status} WHERE id_transaction={trans_id}")
         self.trans_conn.commit()
+        validate_c.close()
+
 
 # -----------------------------SQLITE----------------------------
 
@@ -224,7 +247,8 @@ class DatabaseClass(DatabaseBaseClass):
         return (await self.request(self.getArticleById, article_id=article_id))[0]
 
     async def edit_article(self, article_id, article_name, article_text):
-        await self.request(self.editArticle, article_id=article_id, article_name=article_name, article_text=article_text)
+        await self.request(self.editArticle, article_id=article_id, article_name=article_name,
+                           article_text=article_text)
 
     async def edit_article_text(self, article_id, article_text):
         await self.request(self.editArticleText, article_id=article_id, article_text=article_text)
@@ -240,7 +264,8 @@ class DatabaseClass(DatabaseBaseClass):
         return await self.request(self.getAllServices)
 
     async def edit_service_by_id(self, service_id, Service):
-        await self.request(self.editServiceById, service_id=service_id, service_name=Service.service_name, price=Service.price)
+        await self.request(self.editServiceById, service_id=service_id, service_name=Service.service_name,
+                           price=Service.price)
 
     async def post_service(self, Service):
         await self.request(self.postService, service_name=Service.service_name, price=Service.price)
