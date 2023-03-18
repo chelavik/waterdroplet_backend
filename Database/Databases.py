@@ -1,9 +1,9 @@
-import asyncio, aiomysql, pymysql, time, threading
+import asyncio, aiomysql, pymysql
 from typing import Any
 from databases import Database
 from Utils import Hasher
 from Utils.Env import EnvClass
-import datetime
+import config
 
 
 # -----------------------ERRORS------------------------
@@ -21,20 +21,20 @@ class BadUserError(DatabaseError): pass
 
 # -----------------MYSQL_CONNECTIONS-----------------------
 users_conn = pymysql.connect(
-    host='185.185.70.161',
-    port=3333,
-    user='admin_backend',
-    password='BacKend_paSSword123331',
-    db='waterdroplet_model',
+    host=config.host,
+    port=config.port,
+    user=config.user_users,
+    password=config.users_password,
+    db=config.db_users,
     cursorclass=pymysql.cursors.DictCursor
 )
 
 trans_conn = pymysql.connect(
-    host='185.185.70.161',  # Local IP address
-    port=3333,  # Local port
-    user='admin_backend_trans',  # MySQL server username
-    password='QWh4YM1XXwum{LN',  # MySQL server password
-    db='transactions',  # MySQL database name
+    host=config.host,  # Local IP address
+    port=config.port,  # Local port
+    user=config.user_trans,  # MySQL server username
+    password=config.trans_password,  # MySQL server password
+    db=config.db_trans,  # MySQL database name
     cursorclass=pymysql.cursors.DictCursor
 )
 
