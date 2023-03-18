@@ -31,7 +31,7 @@
 - post("/login"): IN: body: модель auth. OUT: {"access_token": str, "token_type": "bearer"} / код 401
 - put('/change_password'): IN: body: Token ; query: new_password: str. OUT: код 200
 - put('/change_email'): IN: body: Token ; query: new_email: str. OUT: код 200
-- post('/user_info'): IN: body: Token. output: словарь со всей информацией о пользователе / ошибка 400. поскольку в роуте
+- post('/user_info'): IN: body: Token. output: словарь со всей информацией о пользователе / ошибка 400 если пользователь - не физик или работник. поскольку в роуте
 принимается и сотрудник, и физическое лицо, модели словарей разные. (бизнес-токен не принимается)
 у сотрудника: id_sotrudnik, id_business, login
 у физ. лица: id_physic, login, full_name, email, address, id_business
