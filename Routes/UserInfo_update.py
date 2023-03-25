@@ -6,7 +6,6 @@ from fastapi import HTTPException, APIRouter
 from starlette.responses import JSONResponse
 from Routes.Authorization import unpack_token, BadTokenError
 
-Database = Databases.DatabaseBaseClass()
 router = APIRouter()
 Hasher = HasherClass()
 SQLDatabase = Databases.SQLDatabase()

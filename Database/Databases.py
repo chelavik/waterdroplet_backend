@@ -114,8 +114,8 @@ class SQLDatabase:
             for i in ipus:
                 try:
                     validate_c.execute(f"SELECT date from transactions WHERE id_physic={user_id} AND ipu='{i}' "
-                                   f"ORDER BY date DESC "
-                                   f"LIMIT 1")
+                                       f"ORDER BY date DESC "
+                                       f"LIMIT 1")
                     date = (validate_c.fetchone())['date'].strftime('%m/%d/%Y')
                     data[i] = date
                 except:
@@ -171,6 +171,15 @@ class SQLDatabase:
         self.trans_conn.commit()
         validate_c.close()
 
+    # ----------------------WORKERS-------------------------------------
+
+    async def get_all_workers(self, username):
+        user_c = self.users_conn.cursor()
+        user_c.execute(f"SELECT id_business FROM business WHERE login='{username}'")
+        id = user_c.fetchone()
+        user_c.execute(f"SELECT id_sotrudnik, login FROM sotrudnik WHERE id_business={id['id_business']}")
+        data = user_c.fetchall()
+        return data
 
 # -----------------------------SQLITE----------------------------
 
