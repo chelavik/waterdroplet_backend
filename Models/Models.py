@@ -49,3 +49,9 @@ class Article(BaseModel):
 class Service(BaseModel):
     service_name: str
     price: str
+
+
+class Worker(BaseModel):
+    login: str
+    phone: str
+    password: str

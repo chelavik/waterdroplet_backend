@@ -10,6 +10,9 @@ import config
 class DatabaseError(Exception): pass
 
 
+class NotFoundError(DatabaseError): pass
+
+
 class DatabaseConnectionError(DatabaseError): pass
 
 
@@ -17,6 +20,9 @@ class DatabaseTransactionError(DatabaseError): pass
 
 
 class BadUserError(DatabaseError): pass
+
+
+class BadUsernameError(DatabaseError): pass
 
 
 # -----------------MYSQL_CONNECTIONS-----------------------
@@ -173,13 +179,113 @@ class SQLDatabase:
 
     # ----------------------WORKERS-------------------------------------
 
-    async def get_all_workers(self, username):
+    async def get_business_id(self, username):
         user_c = self.users_conn.cursor()
         user_c.execute(f"SELECT id_business FROM business WHERE login='{username}'")
         id = user_c.fetchone()
-        user_c.execute(f"SELECT id_sotrudnik, login FROM sotrudnik WHERE id_business={id['id_business']}")
+        user_c.close()
+        return id['id_business']
+
+    async def get_all_workers(self, username):
+        business_id = await self.get_business_id(username)
+        user_c = self.users_conn.cursor()
+        user_c.execute(f"SELECT id_sotrudnik, login FROM sotrudnik WHERE id_business={business_id}")
         data = user_c.fetchall()
+        user_c.close()
         return data
+
+    async def get_worker_info(self, username, sotrudnik_id):
+        business_id = await self.get_business_id(username)
+        user_c = self.users_conn.cursor()
+        user_c.execute(f"SELECT * FROM sotrudnik WHERE id_business={business_id} AND id_sotrudnik={sotrudnik_id}")
+        info = user_c.fetchone()
+        user_c.close()
+        if not info:
+            user_c.close()
+            raise NotFoundError
+        return info
+
+    async def delete_worker(self, username, sotrudnik_id):
+        business_id = await self.get_business_id(username)
+        user_c = self.users_conn.cursor()
+        user_c.execute(f'DELETE FROM sotrudnik WHERE id_sotrudnik={sotrudnik_id} and id_business={business_id} LIMIT 1')
+        self.users_conn.commit()
+        user_c.close()
+
+    async def create_worker(self, username, login, phone, password):
+        business_id = await self.get_business_id(username)
+        user_c = self.users_conn.cursor()
+        user_c.execute(f'SELECT id_sotrudnik from sotrudnik where login="{login}"')
+        if not user_c.fetchone():
+            user_c.execute(f'INSERT INTO sotrudnik '
+                           f'(id_business, login, phone, hashed_password)'
+                           f'VALUES ({business_id}, "{login}", "{phone}", "{password}")')
+            self.users_conn.commit()
+            user_c.close()
+        else:
+            user_c.close()
+            raise BadUsernameError
+
+    async def edit_worker_login(self, username, worker_id, new_login):
+        business_id = await self.get_business_id(username)
+        user_c = self.users_conn.cursor()
+        user_c.execute(f'SELECT id_sotrudnik from sotrudnik where login="{new_login}"')
+        if not user_c.fetchone():
+            user_c.execute(f'SELECT id_sotrudnik from sotrudnik '
+                           f'WHERE id_sotrudnik={worker_id} '
+                           f'AND id_business={business_id}')
+            if user_c.fetchone():
+                user_c.execute(f'UPDATE sotrudnik set login="{new_login}" '
+                               f'WHERE id_sotrudnik={worker_id} AND id_business = {business_id}')
+                self.users_conn.commit()
+            else:
+                raise NotFoundError
+        else:
+            raise BadUsernameError
+
+    async def edit_worker_phone(self, username, worker_id, phone):
+        business_id = await self.get_business_id(username)
+        user_c = self.users_conn.cursor()
+        user_c.execute(f'SELECT id_sotrudnik from sotrudnik '
+                       f'WHERE id_sotrudnik={worker_id} '
+                       f'AND id_business={business_id}')
+        if user_c.fetchone():
+            user_c.execute(f'UPDATE sotrudnik set phone="{phone}" '
+                           f'WHERE id_sotrudnik={worker_id} AND id_business = {business_id}')
+            self.users_conn.commit()
+        else:
+            raise NotFoundError
+
+    async def edit_worker_password(self, username, worker_id, password):
+        business_id = await self.get_business_id(username)
+        user_c = self.users_conn.cursor()
+        user_c.execute(f'SELECT id_sotrudnik from sotrudnik '
+                       f'WHERE id_sotrudnik={worker_id} '
+                       f'AND id_business={business_id}')
+        if user_c.fetchone():
+            user_c.execute(f'UPDATE sotrudnik set hashed_password="{password}" '
+                           f'WHERE id_sotrudnik={worker_id} AND id_business = {business_id}')
+            self.users_conn.commit()
+        else:
+            raise NotFoundError
+
+    # ---------------------------Business-----------------------------
+
+    async def get_related_physics(self, username):
+        business_id = await self.get_business_id(username)
+        user_c = self.users_conn.cursor()
+        user_c.execute(f'SELECT id_physic, login, full_name, email, ipus, address, id_business from physic '
+                       f'WHERE id_business={business_id}')
+        info = user_c.fetchall()
+        return info
+
+    async def get_suspicious_validations(self, username):
+        business_id = await self.get_business_id(username)
+        print(business_id)
+        user_c = self.users_conn.cursor()
+        user_c.execute(f'SELECT id_physic from physic WHERE id_business={business_id}')
+        info = user_c.fetchall()
+        print(info)
 
 # -----------------------------SQLITE----------------------------
 

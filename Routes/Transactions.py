@@ -31,9 +31,9 @@ async def add_transaction(token: Token, new_number: str, ipu: str):
                                                      count_sum(int(new_number) - int(prev_number), tariff))
         return JSONResponse(trans_id)
     except ExpiredSignatureError:
-        return HTTPException(status_code=400, detail='token expired')
+        raise HTTPException(status_code=400, detail='token expired')
     except BadTokenError:
-        return HTTPException(status_code=400, detail='bad token')
+        raise HTTPException(status_code=400, detail='bad token')
 
 
 @router.post('/trans_status', tags=['transactions'])
@@ -43,6 +43,6 @@ async def change_trans_status(token: Token, trans_id: int, status: int):
         await SQLDatabase.change_status(trans_id, status)
         return HTTPException(status_code=200)
     except ExpiredSignatureError:
-        return HTTPException(status_code=400, detail='token expired')
+        raise HTTPException(status_code=400, detail='token expired')
     except BadTokenError:
-        return HTTPException(status_code=400, detail='bad token')
+        raise HTTPException(status_code=400, detail='bad token')
