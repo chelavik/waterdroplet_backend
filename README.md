@@ -60,7 +60,7 @@
 - админ и физическое лицо:
 - {
   "username": "chelavik",
-  "password": "amogus"
+  "password": "Amogus12"
 }
 {
   "username": "admin",
