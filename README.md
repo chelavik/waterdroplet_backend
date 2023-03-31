@@ -35,7 +35,10 @@
 принимается и сотрудник, и физическое лицо, модели словарей разные. (бизнес-токен не принимается)
 у сотрудника: id_sotrudnik, id_business, login
 у физ. лица: id_physic, login, full_name, email, address, id_business
-- post('/user_info_ipus') IN: body: Token. OUT: {"ipus": "ipu1"} / ошибка 400, если пользователь - не физическое лицо. пока так, поскольку неизвестно в каком виде хранятся счетчики в бд
+- post('/user_info_ipus') IN: body: Token. OUT: {
+  "ipu1": "03/31/2023",
+  "ipu2": "03/31/2023"
+} / ошибка 400, если пользователь - не физическое лицо. пока так, поскольку неизвестно в каком виде хранятся счетчики в бд
 
 ## business
 - post("/get_business"): IN: body: Token. OUT: id_business, login, email, apitoken, tariff словарем / ошибка 401, если пользователь - не бизнес
@@ -62,12 +65,17 @@
   "username": "chelavik",
   "password": "Amogus12"
 }
+- {
+  "username": "physic2",
+  "password": "physic"
+}
+
 {
   "username": "admin",
   "password": "amogus"
 }
 - бизнес-аккаунт:
 - {
-  "username": "business_test",
-  "password": "business"
+  "username": "physic2",
+  "password": "physic"
 }
