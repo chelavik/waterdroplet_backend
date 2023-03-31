@@ -43,7 +43,6 @@ async def change_email(token: Token, new_email: str):
 async def get_user_info(token: Token):
     try:
         username, user_type = unpack_token(token.access_token)
-        print(username, user_type)
         info = await SQLDatabase.get_user(username, user_type)
         return JSONResponse(info)
     except Databases.BadUserError:
