@@ -26,6 +26,23 @@ async def get_related_physics(token: Token):
         raise HTTPException(status_code=400, detail='bad token')
 
 
+@router.post('/get_related_physics/{page_id}', tags=['business'])
+async def get_hundred_physics(token: Token, page_id: int):
+    try:
+        username, user_type = unpack_token(token.access_token)
+        if user_type == "business":
+            info = await SQLDatabase.get_hundred_physics(username, page_id)
+            return JSONResponse({'physics': info})
+        else:
+            raise HTTPException(status_code=400, detail="bad user_type")
+    except ExpiredSignatureError:
+        raise HTTPException(status_code=400, detail='token expired')
+    except BadTokenError:
+        raise HTTPException(status_code=400, detail='bad token')
+
+
+
+
 @router.post('/suspicious_validations', tags=['business'])
 async def get_suspicious_validations(token: Token):
     try:
