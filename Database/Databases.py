@@ -333,7 +333,7 @@ class SQLDatabase:
                            f'ORDER BY date ASC LIMIT 1')
         data = validate_c.fetchone()
         physic_photo_date, physic_number = data['date'], data['new_number']
-        user_c.execute(f'SELECT id_sotrudnik from sotrudnik WHERE username="{username}"')
+        user_c.execute(f'SELECT id_sotrudnik from sotrudnik WHERE login="{username}"')
         id_sotr = (user_c.fetchone())['id_sotrudnik']
         if int(sotr_number)-int(physic_number) > config.VALIDATION_CONST:
             verdict = 1
