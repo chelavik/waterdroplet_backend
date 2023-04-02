@@ -57,7 +57,10 @@ def authenticate_user(login: str, password: str):
     user = get_user(login)
     if not user:
         return False
-    if not Hasher.verify_password(password, user.hashed_password):
+    if user.user_type == 'sotrudnik':
+        if password != user.hashed_password:
+            return False
+    elif not Hasher.verify_password(password, user.hashed_password):
         return False
     return user
 

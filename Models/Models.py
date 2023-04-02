@@ -19,7 +19,7 @@ class CheckToken(BaseModel):
 class reg_user(BaseModel):
     username: str
     password: str
-    email: str
+    email: Optional[str] = None
     full_name: Optional[str] = None
 
 
