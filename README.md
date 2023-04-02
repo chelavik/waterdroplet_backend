@@ -42,9 +42,8 @@
 
 ## business
 - post("/get_business"): IN: body: Token. OUT: id_business, login, email, apitoken, tariff словарем / ошибка 401, если пользователь - не бизнес
-- post("/get_related_physics/{page_id}"): IN: body: Token; url: page_id. OUT: словарь до ста пользователей от n•100 до n•100+100
-{
-  "physics": [
+- post("/get_related_physics/{page_id}"): IN: body: Token; url: page_id: int. OUT: словарь до ста пользователей от n•100 до n•100+100
+[
     {
       "id_physic": 4,
       "login": "physic1",
@@ -64,7 +63,17 @@
       "id_business": 2
     }
   ]
-}
+
+## validations
+- post("/suspicious_validations/{page_id}"): IN: body: Token; url: page_id: int. OUT: 
+- post('/get_related_address/{page_id}'): IN: body: Token; url: page_id: int. OUT: [
+  {
+    "address": "улица abc d 123, kv 1"
+  },
+  {
+    "address": "улица defc d 13, kv 55"
+  }
+]
 
 ## transactions
 - post("/add_transaction"): IN: body: Token; query: new_number: str, ipu: str. OUT: {'id_transaction': int, 'payment_sum': float}

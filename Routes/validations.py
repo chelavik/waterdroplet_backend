@@ -57,7 +57,7 @@ async def get_suspicious_validations(token: Token, page_id: int):
         raise HTTPException(status_code=401, detail='bad token')
 
 
-@router.post('/get_related_address', tags=['sotrudnik'])
+@router.post('/get_related_address/{page_id}', tags=['sotrudnik'])
 async def get_related_address(token: Token, page_id: int):
     try:
         username, user_type = unpack_token(token.access_token)
@@ -79,7 +79,8 @@ async def get_ipus_by_address(token: Token, address: str):
         username, user_type = unpack_token(token.access_token)
         if user_type == "sotrudnik":
             info = await SQLDatabase.get_ipus_by_address(address)
-            return JSONResponse(info)
+            output = info.split()
+            return JSONResponse(output)
         else:
             raise HTTPException(status_code=400, detail="bad user_type")
     except ExpiredSignatureError:
