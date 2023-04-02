@@ -79,10 +79,24 @@ async def get_ipus_by_address(token: Token, address: str):
         username, user_type = unpack_token(token.access_token)
         if user_type == "sotrudnik":
             info = await SQLDatabase.get_ipus_by_address(address)
-            output = info.split()
+            output = info['ipus'].split()
             return JSONResponse(output)
         else:
             raise HTTPException(status_code=400, detail="bad user_type")
+    except ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail='token expired')
+    except BadTokenError:
+        raise HTTPException(status_code=401, detail='bad token')
+
+
+@router.post('/new_validation', tags=['sotrudnik'])
+async def new_validation(token: Token, sotr_number: int, ipu: str, address: str):
+    try:
+        username, user_type = unpack_token(token.access_token)
+        if not user_type == "sotrudnik":
+            raise HTTPException(status_code=400, detail="bad user_type")
+        await SQLDatabase.add_validation(username, sotr_number, ipu, address)
+        return HTTPException(status_code=200, detail="success")
     except ExpiredSignatureError:
         raise HTTPException(status_code=401, detail='token expired')
     except BadTokenError:

@@ -284,6 +284,7 @@ class SQLDatabase:
         user_c.execute(f'SELECT id_physic, login, full_name, email, ipus, address, id_business from physic '
                        f'WHERE id_business={business_id}')
         info = user_c.fetchall()
+        user_c.close()
         return info
 
     async def get_hundred_physics(self, username, hundred: int):
@@ -293,14 +294,17 @@ class SQLDatabase:
                        f'WHERE id_business={business_id} AND hashed_password != "000000" '
                        f'LIMIT 100 OFFSET {hundred * 100};')
         info = user_c.fetchall()
+        user_c.close()
         return info
 
     async def get_suspicious_validations(self, username, hundred):
         business_id = await self.get_business_id(username)
         validate_c = self.trans_conn.cursor()
         validate_c.execute(f'SELECT id_physic, sotrudnik_photo_date from validate WHERE id_business={business_id} '
+                           f'AND verdict=1'
                            f'LIMIT 100 OFFSET {hundred * 100};')
         info = validate_c.fetchall()
+        validate_c.close()
         return info
 
     async def get_addresses(self, username, hundred):
@@ -309,13 +313,39 @@ class SQLDatabase:
         user_c.execute(f'SELECT address from physic WHERE id_business={business_id} '
                        f'LIMIT 100 OFFSET {hundred*100}')
         info = user_c.fetchall()
+        user_c.close()
         return info
 
     async def get_ipus_by_address(self, address):
         user_c = self.users_conn.cursor()
         user_c.execute(f'SELECT ipus from physic WHERE address="{address}"')
         info = user_c.fetchone()
+        user_c.close()
         return info
+
+    async def add_validation(self, username, sotr_number, ipu, address):
+        validate_c = self.trans_conn.cursor()
+        user_c = self.users_conn.cursor()
+        user_c.execute(f'SELECT id_physic, id_business from physic where address="{address}"')
+        data = user_c.fetchone()
+        id_physic, id_business = data['id_physic'], data['id_business']
+        validate_c.execute(f'SELECT date, new_number from transactions WHERE id_physic={id_physic} AND ipu="{ipu}" '
+                           f'ORDER BY date ASC LIMIT 1')
+        data = validate_c.fetchone()
+        physic_photo_date, physic_number = data['date'], data['new_number']
+        user_c.execute(f'SELECT id_sotrudnik from sotrudnik WHERE username="{username}"')
+        id_sotr = (user_c.fetchone())['id_sotrudnik']
+        if int(sotr_number)-int(physic_number) > config.VALIDATION_CONST:
+            verdict = 1
+        else:
+            verdict = 0
+        validate_c.execute(f'INSERT INTO validate (id_physic, id_business, physic_photo_date, physic_number, '
+                           f'sotrudnik_id, sotrudnik_photo_date, sotrudnik_number, verdict) '
+                           f'VALUES ({id_physic}, {id_business}, {physic_photo_date}, "{physic_number}", '
+                           f'{id_sotr}, NOW(), "{sotr_number}", {verdict})')
+        user_c.close()
+        validate_c.close()
+
 
 # -----------------------------SQLITE----------------------------
 

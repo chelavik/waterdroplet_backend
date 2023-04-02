@@ -74,6 +74,11 @@
     "address": "улица defc d 13, kv 55"
   }
 ]
+- post('/get_ipus_by_address'): IN: body: Token; query: address: str. OUT: [
+  "ipu1",
+  "ipu2"
+]
+- post('/new_validation'): IN: body: Token; query: sotr_number: int, ipu: str, address: str
 
 ## transactions
 - post("/add_transaction"): IN: body: Token; query: new_number: str, ipu: str. OUT: {'id_transaction': int, 'payment_sum': float}
