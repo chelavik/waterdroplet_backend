@@ -311,6 +311,12 @@ class SQLDatabase:
         info = user_c.fetchall()
         return info
 
+    async def get_ipus_by_address(self, address):
+        user_c = self.users_conn.cursor()
+        user_c.execute(f'SELECT ipus from physic WHERE address="{address}"')
+        info = user_c.fetchone()
+        return info
+
 # -----------------------------SQLITE----------------------------
 
 
