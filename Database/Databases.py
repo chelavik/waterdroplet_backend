@@ -341,7 +341,7 @@ class SQLDatabase:
             verdict = 0
         validate_c.execute(f'INSERT INTO validate (id_physic, id_business, physic_photo_date, physic_number, '
                            f'sotrudnik_id, sotrudnik_photo_date, sotrudnik_number, verdict) '
-                           f'VALUES ({id_physic}, {id_business}, {physic_photo_date}, "{physic_number}", '
+                           f'VALUES ({id_physic}, {id_business}, "{physic_photo_date}", "{physic_number}", '
                            f'{id_sotr}, NOW(), "{sotr_number}", {verdict})')
         user_c.close()
         validate_c.close()
