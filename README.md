@@ -62,10 +62,14 @@
       "address": null,
       "id_business": 2
     }
-  ]
+  ] / 200 - success / 400 - bad user_type /
+401 - проблема с токеном
+
 
 ## validations
-- post("/suspicious_validations/{page_id}"): IN: body: Token; url: page_id: int. OUT: 
+- post("/suspicious_validations/{page_id}"): IN: body: Token; url: page_id: int. OUT: 200 - success / 400 - bad user_type /
+401 - проблема с токеном
+
 - post('/get_related_address/{page_id}'): IN: body: Token; url: page_id: int. OUT: [
   {
     "address": "улица abc d 123, kv 1"
@@ -73,12 +77,17 @@
   {
     "address": "улица defc d 13, kv 55"
   }
-]
+] / 200 - success / 400 - bad user_type /
+401 - проблема с токеном
+
 - post('/get_ipus_by_address'): IN: body: Token; query: address: str. OUT: [
   "ipu1",
   "ipu2"
-]
-- post('/new_validation'): IN: body: Token; query: sotr_number: int, ipu: str, address: str
+] / 200 - success / 400 - bad user_type /
+401 - проблема с токеном
+
+- post('/new_validation'): IN: body: Token; query: sotr_number: int, ipu: str, address: str. OUT: 200 - success / 400 - bad user_type /
+401 - проблема с токеном
 
 ## transactions
 - post("/add_transaction"): IN: body: Token; query: new_number: str, ipu: str. OUT: {'id_transaction': int, 'payment_sum': float}
