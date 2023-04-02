@@ -17,7 +17,7 @@ async def get_related_physics(token: Token):
         username, user_type = unpack_token(token.access_token)
         if user_type == "business":
             info = await SQLDatabase.get_related_physics(username)
-            return JSONResponse({info})
+            return JSONResponse(info)
         else:
             raise HTTPException(status_code=400, detail="bad user_type")
     except ExpiredSignatureError:
