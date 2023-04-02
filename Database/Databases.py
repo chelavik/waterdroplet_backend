@@ -343,6 +343,7 @@ class SQLDatabase:
                            f'sotrudnik_id, sotrudnik_photo_date, sotrudnik_number, verdict) '
                            f'VALUES ({id_physic}, {id_business}, "{physic_photo_date}", "{physic_number}", '
                            f'{id_sotr}, NOW(), "{sotr_number}", {verdict})')
+        trans_conn.commit()
         user_c.close()
         validate_c.close()
 
