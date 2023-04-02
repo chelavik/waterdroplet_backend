@@ -21,9 +21,9 @@ async def get_related_physics(token: Token):
         else:
             raise HTTPException(status_code=400, detail="bad user_type")
     except ExpiredSignatureError:
-        raise HTTPException(status_code=400, detail='token expired')
+        raise HTTPException(status_code=401, detail='token expired')
     except BadTokenError:
-        raise HTTPException(status_code=400, detail='bad token')
+        raise HTTPException(status_code=401, detail='bad token')
 
 
 @router.post('/get_related_physics/{page_id}', tags=['business'])
@@ -37,9 +37,9 @@ async def get_hundred_physics(token: Token, page_id: int):
         else:
             raise HTTPException(status_code=400, detail="bad user_type")
     except ExpiredSignatureError:
-        raise HTTPException(status_code=400, detail='token expired')
+        raise HTTPException(status_code=401, detail='token expired')
     except BadTokenError:
-        raise HTTPException(status_code=400, detail='bad token')
+        raise HTTPException(status_code=401, detail='bad token')
 
 
 @router.post('/suspicious_validations/{page_id}', tags=['business'])
@@ -52,6 +52,21 @@ async def get_suspicious_validations(token: Token, page_id: int):
         else:
             raise HTTPException(status_code=400, detail="bad user_type")
     except ExpiredSignatureError:
-        raise HTTPException(status_code=400, detail='token expired')
+        raise HTTPException(status_code=401, detail='token expired')
     except BadTokenError:
-        raise HTTPException(status_code=400, detail='bad token')
+        raise HTTPException(status_code=401, detail='bad token')
+
+
+@router.post('/get_related_address', tags=['sotrudnik'])
+async def get_related_address(token: Token, page_id: int):
+    try:
+        username, user_type = unpack_token(token.access_token)
+        if user_type == "sotrudnik":
+            info = await SQLDatabase.get_addresses(username, page_id)
+            return JSONResponse({'addresses': info})
+        else:
+            raise HTTPException(status_code=400, detail="bad user_type")
+    except ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail='token expired')
+    except BadTokenError:
+        raise HTTPException(status_code=401, detail='bad token')

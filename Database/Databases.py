@@ -186,6 +186,13 @@ class SQLDatabase:
         user_c.close()
         return id['id_business']
 
+    async def get_sotr_business(self, username):
+        user_c = self.users_conn.cursor()
+        user_c.execute(f'SELECT id_business FROM sotrudnik WHERE login="{username}"')
+        id = user_c.fetchone()
+        user_c.close()
+        return id['id_business']
+
     async def get_all_workers(self, username):
         business_id = await self.get_business_id(username)
         user_c = self.users_conn.cursor()
@@ -291,11 +298,18 @@ class SQLDatabase:
     async def get_suspicious_validations(self, username, hundred):
         business_id = await self.get_business_id(username)
         validate_c = self.trans_conn.cursor()
-        validate_c.execute(f'SELECT id_physic, sotrudnik_photo_date from validate WHERE business_id={business_id} '
+        validate_c.execute(f'SELECT id_physic, sotrudnik_photo_date from validate WHERE id_business={business_id} '
                            f'LIMIT 100 OFFSET {hundred * 100};')
         info = validate_c.fetchall()
         return info
 
+    async def get_addresses(self, username, hundred):
+        business_id = await self.get_sotr_business(username)
+        user_c = self.users_conn.cursor()
+        user_c.execute(f'SELECT address from physic WHERE id_business={business_id} '
+                       f'LIMIT 100 OFFSET {hundred*100}')
+        info = user_c.fetchall()
+        return info
 
 # -----------------------------SQLITE----------------------------
 
