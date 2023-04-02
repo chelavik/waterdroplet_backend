@@ -283,8 +283,10 @@ class SQLDatabase:
         business_id = await self.get_business_id(username)
         user_c = self.users_conn.cursor()
         user_c.execute(f'SELECT id_physic, login, full_name, email, ipus, address, id_business from physic '
-                       f'WHERE id_business={business_id}'
-                       f'LIMIT {hundred*100} OFFSET {hundred*100 + 100}')
+                       f'WHERE id_business={business_id} '
+                       f'LIMIT 100 OFFSET {hundred*100};')
+        info = user_c.fetchall()
+        return info
 
 
     async def get_suspicious_validations(self, username):
