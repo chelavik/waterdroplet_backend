@@ -1,13 +1,14 @@
 host = '185.185.70.161'  # Local IP address
-port = 3333  # Local port
+port = 3306  # Local port
 
 
-user_users = 'admin_backend'  # MySQL server username
-users_password = 'BacKend_paSSword123331'  # MySQL server password
+user_users = 'admin_backend_test'  # MySQL server username
+users_password = 'w65S?nGC'  # MySQL server password
 db_users = 'waterdroplet_model'  # MySQL database name
 
 
-user_trans = 'admin_backend_trans'
-trans_password = 'QWh4YM1XXwum{LN'
+user_trans = 'admin_backend_trans_test'
+trans_password = 'ZS7bq|#%'
 db_trans = 'transactions'  # MySQL database name
 
+VALIDATION_CONST = 100

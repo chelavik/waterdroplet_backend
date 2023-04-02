@@ -31,7 +31,7 @@
 - post("/login"): IN: body: модель auth. OUT: {"access_token": str, "token_type": "bearer"} / код 401
 - put('/change_password'): IN: body: Token ; query: new_password: str. OUT: код 200
 - put('/change_email'): IN: body: Token ; query: new_email: str. OUT: код 200
-- post('/user_info'): IN: body: Token. output: словарь со всей информацией о пользователе / ошибка 400. поскольку в роуте
+- post('/user_info'): IN: body: Token. output: словарь со всей информацией о пользователе / ошибка 400 если пользователь - не физик или работник. поскольку в роуте
 принимается и сотрудник, и физическое лицо, модели словарей разные. (бизнес-токен не принимается)
 у сотрудника: id_sotrudnik, id_business, login
 у физ. лица: id_physic, login, full_name, email, address, id_business
@@ -42,6 +42,52 @@
 
 ## business
 - post("/get_business"): IN: body: Token. OUT: id_business, login, email, apitoken, tariff словарем / ошибка 401, если пользователь - не бизнес
+- post("/get_related_physics/{page_id}"): IN: body: Token; url: page_id: int. OUT: словарь до ста пользователей от n•100 до n•100+100
+[
+    {
+      "id_physic": 4,
+      "login": "physic1",
+      "full_name": "string",
+      "email": "string",
+      "ipus": "ipu1",
+      "address": null,
+      "id_business": 2
+    },
+    {
+      "id_physic": 5,
+      "login": "physic2",
+      "full_name": "string",
+      "email": "string",
+      "ipus": "ipu1 ipu2",
+      "address": null,
+      "id_business": 2
+    }
+  ] / 200 - success / 400 - bad user_type /
+401 - проблема с токеном
+
+
+## validations
+- post("/suspicious_validations/{page_id}"): IN: body: Token; url: page_id: int. OUT: 200 - success / 400 - bad user_type /
+401 - проблема с токеном
+
+- post('/get_related_address/{page_id}'): IN: body: Token; url: page_id: int. OUT: [
+  {
+    "address": "улица abc d 123, kv 1"
+  },
+  {
+    "address": "улица defc d 13, kv 55"
+  }
+] / 200 - success / 400 - bad user_type /
+401 - проблема с токеном
+
+- post('/get_ipus_by_address'): IN: body: Token; query: address: str. OUT: [
+  "ipu1",
+  "ipu2"
+] / 200 - success / 400 - bad user_type /
+401 - проблема с токеном
+
+- post('/new_validation'): IN: body: Token; query: sotr_number: int, ipu: str, address: str. OUT: 200 - success / 400 - bad user_type /
+401 - проблема с токеном
 
 ## transactions
 - post("/add_transaction"): IN: body: Token; query: new_number: str, ipu: str. OUT: {'id_transaction': int, 'payment_sum': float}
@@ -75,7 +121,7 @@
   "password": "amogus"
 }
 - бизнес-аккаунт:
-- {
-  "username": "physic2",
-  "password": "physic"
+{
+  "username": "business_test",
+  "password": "business"
 }

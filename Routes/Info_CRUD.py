@@ -32,11 +32,11 @@ async def edit_about_us(token: Token, AboutUs: AboutUs):
             await database.edit_about_us(AboutUs)
             return HTTPException(status_code=200, detail='Success')
         else:
-            return HTTPException(status_code=400, detail='No permission')
+            raise HTTPException(status_code=400, detail='No permission')
     except ExpiredSignatureError:
-        return HTTPException(status_code=401, detail='token expired')
+        raise HTTPException(status_code=401, detail='token expired')
     except BadTokenError:
-        return HTTPException(status_code=400, detail='bad token')
+        raise HTTPException(status_code=400, detail='bad token')
     except:
         raise HTTPException(status_code=500, detail='Database Error')
 

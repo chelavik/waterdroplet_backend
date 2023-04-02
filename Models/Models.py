@@ -7,7 +7,7 @@ class User(BaseModel):
     id_physic: Optional[int] = None
     id_sotrudnik: Optional[int] = None
     login: str
-    email: str
+    email: Optional[str] = None
     apitoken: Optional[str] = None
     tariff: Optional[str] = None
 
@@ -19,7 +19,7 @@ class CheckToken(BaseModel):
 class reg_user(BaseModel):
     username: str
     password: str
-    email: str
+    email: Optional[str] = None
     full_name: Optional[str] = None
 
 
@@ -49,3 +49,9 @@ class Article(BaseModel):
 class Service(BaseModel):
     service_name: str
     price: str
+
+
+class Worker(BaseModel):
+    login: str
+    phone: str
+    password: str
