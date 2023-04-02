@@ -7,7 +7,7 @@ class User(BaseModel):
     id_physic: Optional[int] = None
     id_sotrudnik: Optional[int] = None
     login: str
-    email: str
+    email: Optional[str] = None
     apitoken: Optional[str] = None
     tariff: Optional[str] = None
 
