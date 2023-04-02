@@ -283,19 +283,19 @@ class SQLDatabase:
         business_id = await self.get_business_id(username)
         user_c = self.users_conn.cursor()
         user_c.execute(f'SELECT id_physic, login, full_name, email, ipus, address, id_business from physic '
-                       f'WHERE id_business={business_id} '
-                       f'LIMIT 100 OFFSET {hundred*100};')
+                       f'WHERE id_business={business_id} AND hashed_password != "000000" '
+                       f'LIMIT 100 OFFSET {hundred * 100};')
         info = user_c.fetchall()
         return info
 
-
-    async def get_suspicious_validations(self, username):
+    async def get_suspicious_validations(self, username, hundred):
         business_id = await self.get_business_id(username)
-        print(business_id)
-        user_c = self.users_conn.cursor()
-        user_c.execute(f'SELECT id_physic from physic WHERE id_business={business_id}')
-        info = user_c.fetchall()
-        print(info)
+        validate_c = self.trans_conn.cursor()
+        validate_c.execute(f'SELECT id_physic, sotrudnik_photo_date from validate WHERE business_id={business_id} '
+                           f'LIMIT 100 OFFSET {hundred * 100};')
+        info = validate_c.fetchall()
+        return info
+
 
 # -----------------------------SQLITE----------------------------
 

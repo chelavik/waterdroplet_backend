@@ -42,7 +42,29 @@
 
 ## business
 - post("/get_business"): IN: body: Token. OUT: id_business, login, email, apitoken, tariff словарем / ошибка 401, если пользователь - не бизнес
-- post("/get_related_physics/{page_id}"): IN: body: Token; url: page_id. OUT: словарь ста пользователей от n•100 до n•100+100 
+- post("/get_related_physics/{page_id}"): IN: body: Token; url: page_id. OUT: словарь до ста пользователей от n•100 до n•100+100
+{
+  "physics": [
+    {
+      "id_physic": 4,
+      "login": "physic1",
+      "full_name": "string",
+      "email": "string",
+      "ipus": "ipu1",
+      "address": null,
+      "id_business": 2
+    },
+    {
+      "id_physic": 5,
+      "login": "physic2",
+      "full_name": "string",
+      "email": "string",
+      "ipus": "ipu1 ipu2",
+      "address": null,
+      "id_business": 2
+    }
+  ]
+}
 
 ## transactions
 - post("/add_transaction"): IN: body: Token; query: new_number: str, ipu: str. OUT: {'id_transaction': int, 'payment_sum': float}

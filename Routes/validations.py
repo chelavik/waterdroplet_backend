@@ -42,15 +42,13 @@ async def get_hundred_physics(token: Token, page_id: int):
         raise HTTPException(status_code=400, detail='bad token')
 
 
-
-
-@router.post('/suspicious_validations', tags=['business'])
-async def get_suspicious_validations(token: Token):
+@router.post('/suspicious_validations/{page_id}', tags=['business'])
+async def get_suspicious_validations(token: Token, page_id: int):
     try:
         username, user_type = unpack_token(token.access_token)
         if user_type == "business":
-            info = await SQLDatabase.get_suspicious_validations(username)
-            return JSONResponse({'sus': info})
+            info = await SQLDatabase.get_suspicious_validations(username, page_id)
+            return JSONResponse({'sus_validations': info})
         else:
             raise HTTPException(status_code=400, detail="bad user_type")
     except ExpiredSignatureError:
