@@ -31,6 +31,7 @@ async def get_hundred_physics(token: Token, page_id: int):
     try:
         username, user_type = unpack_token(token.access_token)
         if user_type == "business":
+            page_id -= 1
             info = await SQLDatabase.get_hundred_physics(username, page_id)
             return JSONResponse({'physics': info})
         else:
