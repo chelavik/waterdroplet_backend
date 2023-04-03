@@ -347,6 +347,12 @@ class SQLDatabase:
         user_c.close()
         validate_c.close()
 
+    async def save_form(self, name, phone, message):
+        user_c = self.users_conn.cursor()
+        user_c.execute(f'INSERT INTO forms (person_name, phone, message) '
+                       f'VALUES ("{name}", "{phone}", "{message}")')
+        self.users_conn.commit()
+        user_c.close()
 
 # -----------------------------SQLITE----------------------------
 

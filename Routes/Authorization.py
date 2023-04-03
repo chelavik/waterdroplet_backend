@@ -104,3 +104,12 @@ async def create_user(user: reg_user, user_type: str):
     await db.create_user(username=user.username, password=hashed_password,
                          email=user.email, user_type=user_type, full_name=user.full_name)
     return HTTPException(status_code=200, detail='Success')
+
+
+@router.post('/send_form')
+async def send_form(name: str, phone: str, message: str):
+    try:
+        await db.save_form(name, phone, message)
+        return HTTPException(status_code=200, detail='success')
+    except:
+        raise HTTPException(status_code=400, detail='Something went wrong')
