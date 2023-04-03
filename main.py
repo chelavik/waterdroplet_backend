@@ -28,8 +28,8 @@ app.add_middleware(
 
 @app.on_event('startup')
 async def startup_event():
-    redis = redis.from_url("redis://localhost:5502", encoding="utf-8", decode_responses=True)
-    await FastAPILimiter.init(redis)
+    rediss = redis.from_url("redis://localhost:5502", encoding="utf-8", decode_responses=True)
+    await FastAPILimiter.init(rediss)
     if not await database.database_init():
         raise Databases.DatabaseConnectionError()
 
