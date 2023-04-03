@@ -3,7 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from Utils.Hasher import HasherClass
 from Database import Databases
 from Routes import *
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi_limiter import FastAPILimiter
+
 
 database = Databases.DatabaseBaseClass()
 db = Databases.DatabaseClass()
@@ -27,6 +28,8 @@ app.add_middleware(
 
 @app.on_event('startup')
 async def startup_event():
+    redis = redis.from_url("redis://localhost:5502", encoding="utf-8", decode_responses=True)
+    await FastAPILimiter.init(redis)
     if not await database.database_init():
         raise Databases.DatabaseConnectionError()
 
