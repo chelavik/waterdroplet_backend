@@ -4,7 +4,7 @@ from Utils.Hasher import HasherClass
 from Database import Databases
 from Routes import *
 from fastapi_limiter import FastAPILimiter
-
+import redis.asyncio as redis
 
 database = Databases.DatabaseBaseClass()
 db = Databases.DatabaseClass()
