@@ -7,7 +7,7 @@ from jose.exceptions import ExpiredSignatureError
 from Models.Models import *
 from fastapi import HTTPException, APIRouter, status, Form, Depends
 from starlette.responses import JSONResponse
-from fastapi_limiter.depends import RateLimiter
+
 
 
 class BadTokenError(Exception): pass
@@ -80,7 +80,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 # --------------------------ROUTES-------------------------------
 
 
-@router.post("/login", tags=['user'], dependencies=[Depends(RateLimiter(times=2, seconds=5))])
+@router.post("/login", tags=['user'])
 async def login_for_access_token(user: auth):
     user = authenticate_user(user.username, user.password)
     if not user:
@@ -96,7 +96,7 @@ async def login_for_access_token(user: auth):
     return JSONResponse({"access_token": access_token, "token_type": "bearer"})
 
 
-@router.post('/register', tags=['user'], dependencies=[Depends(RateLimiter(times=2, seconds=5))])
+@router.post('/register', tags=['user'])
 async def create_user(user: reg_user, user_type: str):
     is_user = get_user(user.username)
     if is_user:
@@ -107,7 +107,7 @@ async def create_user(user: reg_user, user_type: str):
     return HTTPException(status_code=200, detail='Success')
 
 
-@router.post('/send_form', dependencies=[Depends(RateLimiter(times=2, seconds=5))])
+@router.post('/send_form')
 async def send_form(name: str, phone: str, message: str):
     try:
         await db.save_form(name, phone, message)

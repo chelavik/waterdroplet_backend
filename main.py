@@ -4,7 +4,6 @@ from Utils.Hasher import HasherClass
 from Database import Databases
 from Routes import *
 from fastapi_limiter import FastAPILimiter
-import redis.asyncio as redis
 
 database = Databases.DatabaseBaseClass()
 db = Databases.DatabaseClass()
@@ -28,8 +27,6 @@ app.add_middleware(
 
 @app.on_event('startup')
 async def startup_event():
-    rediss = redis.from_url("redis://localhost:5502", encoding="utf-8", decode_responses=True)
-    await FastAPILimiter.init(rediss)
     if not await database.database_init():
         raise Databases.DatabaseConnectionError()
 
