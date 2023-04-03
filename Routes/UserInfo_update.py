@@ -17,6 +17,8 @@ SQLDatabase = Databases.SQLDatabase()
 async def change_password(new_password: str, token: Token):
     try:
         username, user_type = unpack_token(token.access_token)
+        if len([i for i in new_password if i.isdigit()]) >= 2 or len([i for i in new_password if i.isupper()]) >= 1 or len(new_password) <= 8:
+            raise HTTPException(status_code=402, detail='password is not validated')
         hashed_password = Hasher.get_password_hash(new_password)
         await SQLDatabase.change_password(hashed_password, username, user_type)
         return HTTPException(status_code=200)
