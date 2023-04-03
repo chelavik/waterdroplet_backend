@@ -19,7 +19,7 @@
 - get('/get-article-by-id/{article_id}'): IN: query: article_id: int. OUT: одна статья по введенному айди
 - put('/edit-article/{article_id}'): IN: body: Token; query: article_id: int, article_text: str, article_name: str / None. OUT: код 200 / код 400
 - post('/post-article'): IN: body: Token, Article. OUT: код 200
-- delete('/delete-article/{article_id}': IN: body: Token; query: article_id: int. OUT: код 200
+- delete('/delete-article/{article_id}'): IN: body: Token; query: article_id: int. OUT: код 200
 - get('/get-all-services'): IN: список словарей модели Service
 - put('/edit-service-by-id/{service_id}'): IN: body: Token, Service; query: service_id: int. OUT: код 200
 - post('/post-service'): IN: body: Token, Service. OUT: код 200
@@ -29,7 +29,7 @@
 ## user
 - post("/register"): IN: body: модель auth; query: user_type: str. OUT: код 200 / код 400 (в связи с занятым лицевым счетом)
 - post("/login"): IN: body: модель auth. OUT: {"access_token": str, "token_type": "bearer"} / код 401
-- put('/change_password'): IN: body: Token ; query: new_password: str. OUT: код 200
+- put('/change_password'): IN: body: Token ; query: new_password: str. OUT: код 200 / код 402: не пройдена валидация пароля (min 8 символов, 2 цифры, 1 заглавная буква)
 - put('/change_email'): IN: body: Token ; query: new_email: str. OUT: код 200
 - post('/user_info'): IN: body: Token. output: словарь со всей информацией о пользователе / ошибка 400 если пользователь - не физик или работник. поскольку в роуте
 принимается и сотрудник, и физическое лицо, модели словарей разные. (бизнес-токен не принимается)
@@ -39,6 +39,7 @@
   "ipu1": "03/31/2023",
   "ipu2": "03/31/2023"
 } / ошибка 400, если пользователь - не физическое лицо. пока так, поскольку неизвестно в каком виде хранятся счетчики в бд
+- post('/send_form'): IN: query: name: str, phone: str, message: str. OUT: код 200 / код 500 - проблема бд.
 
 ## business
 - post("/get_business"): IN: body: Token. OUT: id_business, login, email, apitoken, tariff словарем / ошибка 401, если пользователь - не бизнес

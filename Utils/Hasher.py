@@ -1,9 +1,7 @@
 from passlib.context import CryptContext
 
-
 SECRET_KEY = '4cfbd1107dc91e5d8b0c1b988b0808499258ae2c8e3336f6aa225e1c122ffa0a'
 ALGORITHM = "HS256"
-
 
 
 class HasherClass:
