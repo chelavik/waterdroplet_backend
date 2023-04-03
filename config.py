@@ -1,4 +1,4 @@
-host = '185.185.70.161'  # Local IP address
+host = 'localhost'  # Local IP address
 port = 3306  # Local port
 
 
