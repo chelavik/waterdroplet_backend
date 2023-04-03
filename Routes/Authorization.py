@@ -112,4 +112,4 @@ async def send_form(name: str, phone: str, message: str):
         await db.save_form(name, phone, message)
         return HTTPException(status_code=200, detail='success')
     except:
-        raise HTTPException(status_code=400, detail='Something went wrong')
+        raise HTTPException(status_code=500, detail='Something went wrong')
