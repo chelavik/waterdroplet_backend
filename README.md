@@ -119,10 +119,21 @@
 
 {
   "username": "admin",
-  "password": "amogus"
+  "password": "admin"
 }
 - бизнес-аккаунт:
 {
   "username": "business_test",
   "password": "business"
 }
+- работники
+{
+  "worker": {
+    "login": "worker1",
+    "password": "worker"
+  }
+
+  "worker": {
+    "login": "worker2",
+    "password": "worker"
+  }
