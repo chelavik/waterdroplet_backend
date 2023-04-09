@@ -17,4 +17,3 @@ class HasherClass:
 
     def GetToken(self, HashedPassword: str) -> str:
         return self.TokenGenerate.hash(HashedPassword)
-
