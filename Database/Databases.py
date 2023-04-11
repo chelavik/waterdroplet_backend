@@ -301,7 +301,7 @@ class SQLDatabase:
         business_id = await self.get_business_id(username)
         validate_c = self.trans_conn.cursor()
         validate_c.execute(f'SELECT id_physic, sotrudnik_photo_date from validate WHERE id_business={business_id} '
-                           f'AND verdict=1'
+                           f'AND verdict=1 '
                            f'LIMIT 100 OFFSET {hundred * 100};')
         info = validate_c.fetchall()
         validate_c.close()
