@@ -82,7 +82,7 @@ class SQLDatabase:
     async def get_business(self, username, user_type):
         if user_type == 'business':
             user_c = self.users_conn.cursor()
-            user_c.execute(f"SELECT id_business, login, email, apitoken, tariff from business "
+            user_c.execute(f"SELECT id_business, login, email, apitoken, expiration_date from business "
                            f"WHERE login='{username}'")
             data = user_c.fetchone()
             user_c.close()
