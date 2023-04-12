@@ -9,6 +9,7 @@
 - AboutUs: about_text: str
 - Article: article_name: str, article_text: str
 - Service: service_name: str, price: str
+- Worker: login: str, phone: str, password: str
 
 
 ## site_info 
@@ -25,6 +26,46 @@
 - post('/post-service'): IN: body: Token, Service. OUT: код 200
 - delete('/delete-service/{service_id}'): IN: body: Token; query: service_id: int. OUT: код 200
 
+
+## workers (работает только для бизнес-аккаунта)
+### получаемые коды ответов: 
+- 412 - запрос не от бизнеса, 
+- 401 - неверный токен или срок его действия истек
+- 404 - работник с этим id не существует или прикреплен к др. бизнесу 
+- 402 - имя пользователя занято
+
+- post('/workers/get_all_workers'): IN: body: token: Token. OUT: пример. {
+  "workers": [
+    {
+      "id_sotrudnik": 3,
+      "login": "worker1"
+    },
+    {
+      "id_sotrudnik": 4,
+      "login": "worker2"
+    }
+  ]
+} / 412 / 401 
+- post('/workers/worker_info/{worker_id}'): IN: body: token:Token ; url: worker_id:int. 
+OUT: {
+  "worker": {
+    "id_sotrudnik": 3,
+    "id_business": 2,
+    "login": "worker1",
+    "phone": "+123",
+    "hashed_password": "worker"
+  }
+} / 401 / 412 / 404
+- delete('/workers/delete_worker/{worker_id}'): IN: body: token:Token ; url: worker_id:int.
+ OUT: код 200 / 401 / 404 / 402
+- post('/workers/create_worker'): IN: body: token:Token ; worker: Worker. OUT: 
+ код 200 / 412 / 404 / 401 / 402
+- put('/workers/edit_login/{worker_id}'): IN: body: token:Token; query: worker_id:int, login:str. OUT:
+ код 200 / 412 / 404 / 400 / 402
+- put('/workers/edit_phone/{worker_id}'): IN: body: token:Token; query: worker_id:int, phone:str. OUT:
+ код 200 / 412 / 404 / 400 
+- put('/workers/edit_password/{worker_id}'): IN: body: token:Token; query: worker_id:int, password:str. OUT:
+ код 200 / 412 / 404 / 400 
 
 ## user
 - post("/register"): IN: body: модель auth; query: user_type: str. OUT: код 200 / код 400 (в связи с занятым лицевым счетом)
@@ -63,13 +104,13 @@
       "address": null,
       "id_business": 2
     }
-  ] / 200 - success / 400 - bad user_type /
-401 - проблема с токеном
+  ] / 200 - success / 400 - bad user_type / 401 - проблема с токеном
 
 
 ## validations
-- post("/suspicious_validations/{page_id}"): IN: body: Token; url: page_id: int. OUT: 200 - success / 400 - bad user_type /
+- post("/suspicious_validations/{page_id}"): IN: body: Token; url: page_id: int. OUT: список  / 400 - bad user_type /
 401 - проблема с токеном
+- post("/first_ipu_value"): IN: body: Token; query: number: int, 
 
 - post('/get_related_address/{page_id}'): IN: body: Token; url: page_id: int. OUT: [
   {

@@ -21,13 +21,13 @@ async def get_all_workers(token: Token):
         username, user_type = unpack_token(token.access_token)
         if user_type == "business":
             info = await SQLDatabase.get_all_workers(username)
-            return JSONResponse({info})
+            return JSONResponse({'workers': info})
         else:
-            raise HTTPException(status_code=400, detail="bad user_type")
+            raise HTTPException(status_code=412, detail="bad user_type")
     except ExpiredSignatureError:
-        raise HTTPException(status_code=400, detail='token expired')
+        raise HTTPException(status_code=401, detail='token expired')
     except BadTokenError:
-        raise HTTPException(status_code=400, detail='bad token')
+        raise HTTPException(status_code=401, detail='bad token')
 
 
 @router.post('/workers/worker_info/{worker_id}', tags=['workers'])
@@ -38,13 +38,13 @@ async def get_worker_info(token: Token, worker_id: int):
             info = await SQLDatabase.get_worker_info(username, worker_id)
             return JSONResponse({'worker': info})
         else:
-            raise HTTPException(status_code=400, detail="bad user_type")
+            raise HTTPException(status_code=412, detail="bad user_type")
     except NotFoundError:
         raise HTTPException(status_code=404, detail='worker not found or not related to this business')
     except ExpiredSignatureError:
-        raise HTTPException(status_code=400, detail='token expired')
+        raise HTTPException(status_code=401, detail='token expired')
     except BadTokenError:
-        raise HTTPException(status_code=400, detail='bad token')
+        raise HTTPException(status_code=401, detail='bad token')
 
 
 @router.delete('/workers/delete_worker/{worker_id}', tags=['workers'])
@@ -55,13 +55,13 @@ async def delete_worker(token: Token, worker_id: int):
             await SQLDatabase.delete_worker(username, worker_id)
             return HTTPException(status_code=200)
         else:
-            raise HTTPException(status_code=400, detail="bad user_type")
+            raise HTTPException(status_code=412, detail="bad user_type")
     except NotFoundError:
         raise HTTPException(status_code=404, detail='worker not found')
     except ExpiredSignatureError:
-        raise HTTPException(status_code=400, detail='token expired')
+        raise HTTPException(status_code=401, detail='token expired')
     except BadTokenError:
-        raise HTTPException(status_code=400, detail='bad token')
+        raise HTTPException(status_code=401, detail='bad token')
 
 
 @router.post('/workers/create_worker', tags=['workers'])
@@ -72,7 +72,7 @@ async def create_worker(token: Token, worker: Worker):
             await SQLDatabase.create_worker(username, worker.login, worker.phone, worker.password)
             return HTTPException(status_code=200)
         else:
-            raise HTTPException(status_code=402, detail="bad user_type")
+            raise HTTPException(status_code=412, detail="bad user_type")
     except NotFoundError:
         raise HTTPException(status_code=404, detail='worker not found')
     except ExpiredSignatureError:
@@ -91,7 +91,7 @@ async def edit_worker_login(token: Token, worker_id: int, login: str):
             await SQLDatabase.edit_worker_login(username, worker_id, login)
             return HTTPException(status_code=200)
         else:
-            raise HTTPException(status_code=400, detail="bad user_type")
+            raise HTTPException(status_code=412, detail="bad user_type")
     except NotFoundError:
         raise HTTPException(status_code=404, detail='worker not found')
     except ExpiredSignatureError:
@@ -110,13 +110,13 @@ async def edit_worker_phone(token: Token, worker_id: int, phone: str):
             await SQLDatabase.edit_worker_phone(username, worker_id, phone)
             return HTTPException(status_code=200)
         else:
-            raise HTTPException(status_code=400, detail="bad user_type")
+            raise HTTPException(status_code=412, detail="bad user_type")
     except NotFoundError:
         raise HTTPException(status_code=404, detail='worker not found')
     except ExpiredSignatureError:
-        raise HTTPException(status_code=400, detail='token expired')
+        raise HTTPException(status_code=401, detail='token expired')
     except BadTokenError:
-        raise HTTPException(status_code=400, detail='bad token')
+        raise HTTPException(status_code=401, detail='bad token')
 
 
 @router.put('/workers/edit_password/{worker_id}', tags=['workers'])
@@ -127,13 +127,13 @@ async def edit_worker_password(token: Token, worker_id: int, password: str):
             await SQLDatabase.edit_worker_password(username, worker_id, password)
             return HTTPException(status_code=200)
         else:
-            raise HTTPException(status_code=400, detail="bad user_type")
+            raise HTTPException(status_code=412, detail="bad user_type")
     except NotFoundError:
         raise HTTPException(status_code=404, detail='worker not found')
     except ExpiredSignatureError:
-        raise HTTPException(status_code=400, detail='token expired')
+        raise HTTPException(status_code=401, detail='token expired')
     except BadTokenError:
-        raise HTTPException(status_code=400, detail='bad token')
+        raise HTTPException(status_code=401, detail='bad token')
 
 
 
