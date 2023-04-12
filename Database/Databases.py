@@ -85,6 +85,7 @@ class SQLDatabase:
             user_c.execute(f"SELECT id_business, login, email, apitoken, expiration_date from business "
                            f"WHERE login='{username}'")
             data = user_c.fetchone()
+            data['expiration_date'] = str(data['expiration_date'])
             user_c.close()
             return data
         else:
