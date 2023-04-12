@@ -97,7 +97,8 @@ async def login_for_access_token(user: auth):
         is_first = True
     else:
         is_first = False
-    return JSONResponse({"access_token": access_token, "token_type": "bearer", "first_enter": is_first})
+    return JSONResponse({"access_token": access_token, "token_type": "bearer",
+                         "first_enter": is_first, 'user_type': user.user_type})
 
 
 
