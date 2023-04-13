@@ -150,10 +150,7 @@ class SQLDatabase:
                            f"ORDER BY date DESC "
                            f"LIMIT 1")
         prev_number = validate_c.fetchone()
-        if not prev_number:
-            prev_number = 0
-        else:
-            prev_number = prev_number['prev_number']
+        prev_number = prev_number['new_number']
         validate_c.close()
         return prev_number
 
@@ -181,8 +178,8 @@ class SQLDatabase:
     async def first_value(self, username, ipu, new_number):
         validate_c = self.trans_conn.cursor()
         user_id, tariff = await self.get_user_id_tariff(username)
-        validate_c.execute(f"INSERT INTO transactions (date, id_physic, ipu, new_number) VALUES "
-                           f"(NOW(), {user_id}, '{ipu}', '{new_number}')")
+        validate_c.execute(f"INSERT INTO transactions (date, id_physic, ipu, prev_number, new_number, payment_sum, status) VALUES "
+                           f"(NOW(), {user_id}, '{ipu}', '000000', '{new_number}', 0, 0)")
         trans_conn.commit()
         validate_c.close()
 
@@ -194,10 +191,14 @@ class SQLDatabase:
                            f"id_physic, physic_photo_date, physic_number, verdict from validate"
                            f" WHERE id_business={user_id} AND id_validation={validation_id}")
         data = validate_c.fetchone()
+        if not data:
+            raise NotFoundError
         user_c.execute(f"SELECT full_name from physic where id_physic={data['id_physic']}")
         data['physic_name'] = (user_c.fetchone())['full_name']
         user_c.execute(f"SELECT full_name from sotrudnik where id_sotrudnik={data['sotrudnik_id']}")
-        data['physic_name'] = (user_c.fetchone())['full_name']
+        data['sotrudnik_name'] = (user_c.fetchone())['full_name']
+        data['sotrudnik_photo_date'] = str(data['sotrudnik_photo_date'])
+        data['physic_photo_date'] = str(data['physic_photo_date'])
         del data['sotrudnik_id'], data['id_physic']
         return data
     # ----------------------WORKERS-------------------------------------
@@ -323,6 +324,7 @@ class SQLDatabase:
     async def get_suspicious_validations(self, username, hundred):
         business_id = await self.get_business_id(username)
         validate_c = self.trans_conn.cursor()
+        print(f'SELECT id_physic, sotrudnik_photo_date from validate WHERE id_business={business_id} AND verdict=1 LIMIT 100 OFFSET {hundred * 100};')
         validate_c.execute(f'SELECT id_physic, sotrudnik_photo_date from validate WHERE id_business={business_id} '
                            f'AND verdict=1 '
                            f'LIMIT 100 OFFSET {hundred * 100};')

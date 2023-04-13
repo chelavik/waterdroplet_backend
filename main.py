@@ -4,6 +4,7 @@ from Utils.Hasher import HasherClass
 from Database import Databases
 from Routes import *
 from fastapi_limiter import FastAPILimiter
+import uvicorn
 
 database = Databases.DatabaseBaseClass()
 db = Databases.DatabaseClass()
@@ -46,3 +47,12 @@ app.include_router(UserInfo_update.router)
 app.include_router(Transactions.router)
 app.include_router(sotrudniki.router)
 app.include_router(validations.router)
+
+if __name__ == '__main__':
+    uvicorn.run("main:app",
+                host="waterdroplet.ru",
+                port=5502,
+                reload=True,
+		ssl_keyfile='/etc/letsencrypt/live/waterdroplet.ru/privkey.pem',
+        	ssl_certfile='/etc/letsencrypt/live/waterdroplet.ru/fullchain.pem'
+                )

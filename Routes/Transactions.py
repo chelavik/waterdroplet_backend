@@ -26,7 +26,7 @@ def count_sum(delta_number, tariff):
 @router.post('/add_transaction', tags=['transactions'])
 async def add_transaction(key: Secret_key, token: Token, new_number: str, ipu: str):
     try:
-        if Hasher.get_password_hash(Secret_key.key) != SECRET_KEY:
+        if not Hasher.verify_password('thisissupersecret', SECRET_KEY):
             raise HTTPException(status_code=403, detail='bad secret key')
         username, user_type = unpack_token(token.access_token)
         user_id, tariff = await SQLDatabase.get_user_id_tariff(username)
@@ -38,13 +38,15 @@ async def add_transaction(key: Secret_key, token: Token, new_number: str, ipu: s
         raise HTTPException(status_code=400, detail='token expired')
     except BadTokenError:
         raise HTTPException(status_code=400, detail='bad token')
+    except NotFoundError:
+        raise HTTPException(status_code=404, detail='ipu not found')
 
 
 @router.post('/trans_status', tags=['transactions'])
 async def change_trans_status(key: Secret_key, token: Token, trans_id: int, status: int):
     try:
         username, user_type = unpack_token(token.access_token)
-        if Hasher.get_password_hash(Secret_key.key) != SECRET_KEY:
+        if not Hasher.verify_password('thisissupersecret', SECRET_KEY):
             raise HTTPException(status_code=403, detail='bad secret key')
         await SQLDatabase.change_status(trans_id, status)
         return HTTPException(status_code=200)
@@ -55,9 +57,11 @@ async def change_trans_status(key: Secret_key, token: Token, trans_id: int, stat
 
 
 @router.post('/first_ipu_value', tags=['transactions'])
-async def add_first_value(token: Token, ipu: str, new_number: str):
+async def add_first_value(key: Secret_key, token: Token, ipu: str, new_number: str):
     try:
         username, user_type = unpack_token(token.access_token)
+        if not Hasher.verify_password('thisissupersecret', SECRET_KEY):
+            raise HTTPException(status_code=403, detail='bad secret key')
         if user_type == 'physic':
             await SQLDatabase.first_value(username, ipu, new_number)
             return HTTPException(status_code=200, detail='success')

@@ -93,7 +93,7 @@ async def login_for_access_token(user: auth):
     access_token = create_access_token(
         data={"login": user.login, "type": user.user_type}, expires_delta=access_token_expires
     )
-    if Hasher.verify_password('000000', user.hashed_password):
+    if Hasher.verify_password('00000000', user.hashed_password):
         is_first = True
     else:
         is_first = False
