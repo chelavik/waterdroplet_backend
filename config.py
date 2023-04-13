@@ -12,3 +12,5 @@ trans_password = 'ZS7bq|#%'
 db_trans = 'transactions'  # MySQL database name
 
 VALIDATION_CONST = 100
+
+SECRET_KEY = 'dihaughwpgwjgjensjdkvnduixhqui2jnfkw'

@@ -55,3 +55,7 @@ class Worker(BaseModel):
     login: str
     phone: str
     password: str
+
+
+class Secret_key(BaseModel):
+    key: str
