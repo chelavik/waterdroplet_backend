@@ -183,8 +183,23 @@ class SQLDatabase:
         user_id, tariff = await self.get_user_id_tariff(username)
         validate_c.execute(f"INSERT INTO transactions (date, id_physic, ipu, new_number) VALUES "
                            f"(NOW(), {user_id}, '{ipu}', '{new_number}')")
+        trans_conn.commit()
+        validate_c.close()
 
-
+    async def get_validation_logs(self, username, validation_id):
+        user_id, tariff = await self.get_user_id_tariff(username)
+        validate_c = self.trans_conn.cursor()
+        user_c = self.users_conn.cursor()
+        validate_c.execute(f"SELECT sotrudnik_id, sotrudnik_photo_date, sotrudnik_number, "
+                           f"id_physic, physic_photo_date, physic_number, verdict"
+                           f" WHERE id_business={user_id} AND id_validation={validation_id}")
+        data = validate_c.fetchone()
+        user_c.execute(f"SELECT full_name from physic where id_physic={data['id_physic']}")
+        data['physic_name'] = (user_c.fetchone())['full_name']
+        user_c.execute(f"SELECT full_name from sotrudnik where id_sotrudnik={data['sotrudnik_id']}")
+        data['physic_name'] = (user_c.fetchone())['full_name']
+        del data['sotrudnik_id'], data['id_physic']
+        return data
     # ----------------------WORKERS-------------------------------------
 
     async def get_business_id(self, username):

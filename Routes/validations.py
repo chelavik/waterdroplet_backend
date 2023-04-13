@@ -1,4 +1,5 @@
 from Database import Databases
+from Database.Databases import NotFoundError
 from Utils.Hasher import HasherClass
 from jose.exceptions import ExpiredSignatureError
 from Models.Models import *
@@ -101,3 +102,19 @@ async def new_validation(token: Token, sotr_number: int, ipu: str, address: str)
         raise HTTPException(status_code=401, detail='token expired')
     except BadTokenError:
         raise HTTPException(status_code=401, detail='bad token')
+
+
+@router.post('/get_validation_logs', tags=['transactions'])
+async def get_validation_logs(token: Token, validation_id: int):
+    try:
+        username, user_type = unpack_token(token.access_token)
+        if user_type != 'business':
+            raise HTTPException(status_code=403, detail='bad user_type')
+        data = SQLDatabase.get_validation_logs(username, validation_id)
+        return JSONResponse(data)
+    except ExpiredSignatureError:
+        raise HTTPException(status_code=400, detail='token expired')
+    except BadTokenError:
+        raise HTTPException(status_code=400, detail='bad token')
+    except NotFoundError:
+        raise HTTPException(status_code=404, detail='validation not found')

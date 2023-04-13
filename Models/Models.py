@@ -53,6 +53,7 @@ class Service(BaseModel):
 
 class Worker(BaseModel):
     login: str
+    full_name: str
     phone: str
     password: str
 

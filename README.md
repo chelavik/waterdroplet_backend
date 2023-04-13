@@ -9,7 +9,7 @@
 - AboutUs: about_text: str
 - Article: article_name: str, article_text: str
 - Service: service_name: str, price: str
-- Worker: login: str, phone: str, password: str
+- Worker: login: str, full_name:str, phone: str, password: str
 - Secret_key: key: str
 
 ## site_info 
@@ -130,10 +130,11 @@ OUT: {
 
 - post('/new_validation'): IN: body: Token; query: sotr_number: int, ipu: str, address: str. OUT: 200 - success / 400 - bad user_type /
 401 - проблема с токеном
+- post('/get_validation_logs'): IN: body: token: Token ; query: int.
 
 ## transactions
-- post("/add_transaction"): IN: body:  Token; query: new_number: str, ipu: str. OUT: {'id_transaction': int, 'payment_sum': float}
-- post("/trans_status"): IN: body:  Token; query: trans_id: int, status: int. OUT: код 200.
+- post("/add_transaction"): IN: body:  token: Token , key: Secret_key; query: new_number: str, ipu: str. OUT: {'id_transaction': int, 'payment_sum': float}
+- post("/trans_status"): IN: body: token: Token , key: Secret_key; query: trans_id: int, status: int. OUT: код 200.
 транзакция имеет 3 статуса, записываемых в бд цифрой. 0 - отклонена, 1 - ожидание, 2 - успех.
 
 
