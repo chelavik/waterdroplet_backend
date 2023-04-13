@@ -110,7 +110,7 @@ OUT: {
 ## validations
 - post("/suspicious_validations/{page_id}"): IN: body: Token; url: page_id: int. OUT: список  / 400 - bad user_type /
 401 - проблема с токеном
-- post("/first_ipu_value"): IN: body: Token; query: number: int, 
+- post("/first_ipu_value"): IN: body: Token; query: number: int
 
 - post('/get_related_address/{page_id}'): IN: body: Token; url: page_id: int. OUT: [
   {
@@ -130,7 +130,16 @@ OUT: {
 
 - post('/new_validation'): IN: body: Token; query: sotr_number: int, ipu: str, address: str. OUT: 200 - success / 400 - bad user_type /
 401 - проблема с токеном
-- post('/get_validation_logs'): IN: body: token: Token ; query: int.
+- post('/get_validation_logs'): IN: body: token: Token ; query: int. OUT: 
+{
+  "sotrudnik_photo_date": "2023-04-02 20:05:51",
+  "sotrudnik_number": "1010",
+  "physic_photo_date": "2023-03-31 21:17:44",
+  "physic_number": "1000",
+  "verdict": 0,
+  "physic_name": "string",
+  "sotrudnik_name": "PAVLOV H.A."
+} / 400 - проблема токена / 403 - bad user_type / 404 - не найдена валидация по id
 
 ## transactions
 - post("/add_transaction"): IN: body:  token: Token , key: Secret_key; query: new_number: str, ipu: str. OUT: {'id_transaction': int, 'payment_sum': float}
