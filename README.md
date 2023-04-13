@@ -10,7 +10,7 @@
 - Article: article_name: str, article_text: str
 - Service: service_name: str, price: str
 - Worker: login: str, phone: str, password: str
-
+- Secret_key: key: str
 
 ## site_info 
 - post/put/delete запросы выполнятся лишь при токене от пользователя с ником admin
@@ -34,7 +34,7 @@
 - 404 - работник с этим id не существует или прикреплен к др. бизнесу 
 - 402 - имя пользователя занято
 
-- post('/workers/get_all_workers'): IN: body: token: Token. OUT: пример. {
+- post('/workers/get_all_workers'): IN: body: Token. OUT: пример. {
   "workers": [
     {
       "id_sotrudnik": 3,
@@ -46,7 +46,7 @@
     }
   ]
 } / 412 / 401 
-- post('/workers/worker_info/{worker_id}'): IN: body: token:Token ; url: worker_id:int. 
+- post('/workers/worker_info/{worker_id}'): IN: body: Token ; url: worker_id:int. 
 OUT: {
   "worker": {
     "id_sotrudnik": 3,
@@ -56,15 +56,15 @@ OUT: {
     "hashed_password": "worker"
   }
 } / 401 / 412 / 404
-- delete('/workers/delete_worker/{worker_id}'): IN: body: token:Token ; url: worker_id:int.
+- delete('/workers/delete_worker/{worker_id}'): IN: body: Token ; url: worker_id:int.
  OUT: код 200 / 401 / 404 / 402
-- post('/workers/create_worker'): IN: body: token:Token ; worker: Worker. OUT: 
+- post('/workers/create_worker'): IN: body: Token ; worker: Worker. OUT: 
  код 200 / 412 / 404 / 401 / 402
-- put('/workers/edit_login/{worker_id}'): IN: body: token:Token; query: worker_id:int, login:str. OUT:
+- put('/workers/edit_login/{worker_id}'): IN: body: Token; query: worker_id:int, login:str. OUT:
  код 200 / 412 / 404 / 400 / 402
-- put('/workers/edit_phone/{worker_id}'): IN: body: token:Token; query: worker_id:int, phone:str. OUT:
+- put('/workers/edit_phone/{worker_id}'): IN: body: Token; query: worker_id:int, phone:str. OUT:
  код 200 / 412 / 404 / 400 
-- put('/workers/edit_password/{worker_id}'): IN: body: token:Token; query: worker_id:int, password:str. OUT:
+- put('/workers/edit_password/{worker_id}'): IN: body: Token; query: worker_id:int, password:str. OUT:
  код 200 / 412 / 404 / 400 
 
 ## user
@@ -132,8 +132,8 @@ OUT: {
 401 - проблема с токеном
 
 ## transactions
-- post("/add_transaction"): IN: body: Token; query: new_number: str, ipu: str. OUT: {'id_transaction': int, 'payment_sum': float}
-- post("/trans_status"): IN: body: Token; query: trans_id: int, status: int. OUT: код 200.
+- post("/add_transaction"): IN: body:  Token; query: new_number: str, ipu: str. OUT: {'id_transaction': int, 'payment_sum': float}
+- post("/trans_status"): IN: body:  Token; query: trans_id: int, status: int. OUT: код 200.
 транзакция имеет 3 статуса, записываемых в бд цифрой. 0 - отклонена, 1 - ожидание, 2 - успех.
 
 

@@ -146,7 +146,7 @@ class SQLDatabase:
 
     async def get_last_number(self, user_id, ipu):
         validate_c = self.trans_conn.cursor()
-        validate_c.execute(f"SELECT prev_number from transactions WHERE id_physic={user_id} AND ipu='{ipu}' "
+        validate_c.execute(f"SELECT new_number from transactions WHERE id_physic={user_id} AND ipu='{ipu}' "
                            f"ORDER BY date DESC "
                            f"LIMIT 1")
         prev_number = validate_c.fetchone()
@@ -177,6 +177,13 @@ class SQLDatabase:
         validate_c.execute(f"UPDATE transactions set status={status} WHERE id_transaction={trans_id}")
         self.trans_conn.commit()
         validate_c.close()
+
+    async def first_value(self, username, ipu, new_number):
+        validate_c = self.trans_conn.cursor()
+        user_id, tariff = await self.get_user_id_tariff(username)
+        validate_c.execute(f"INSERT INTO transactions (date, id_physic, ipu, new_number) VALUES "
+                           f"(NOW(), {user_id}, '{ipu}', '{new_number}')")
+
 
     # ----------------------WORKERS-------------------------------------
 
