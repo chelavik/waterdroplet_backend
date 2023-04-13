@@ -190,7 +190,7 @@ class SQLDatabase:
         user_id = await self.get_business_id(username)
         validate_c = self.trans_conn.cursor()
         user_c = self.users_conn.cursor()
-        validate_c.execute(f"SELECT id_sotrudnik, sotrudnik_photo_date, sotrudnik_number, "
+        validate_c.execute(f"SELECT sotrudnik_id, sotrudnik_photo_date, sotrudnik_number, "
                            f"id_physic, physic_photo_date, physic_number, verdict from validate"
                            f" WHERE id_business={user_id} AND id_validation={validation_id}")
         data = validate_c.fetchone()
