@@ -110,7 +110,7 @@ async def get_validation_logs(token: Token, validation_id: int):
         username, user_type = unpack_token(token.access_token)
         if user_type != 'business':
             raise HTTPException(status_code=403, detail='bad user_type')
-        data = SQLDatabase.get_validation_logs(username, validation_id)
+        data = await SQLDatabase.get_validation_logs(username, validation_id)
         return JSONResponse(data)
     except ExpiredSignatureError:
         raise HTTPException(status_code=400, detail='token expired')
