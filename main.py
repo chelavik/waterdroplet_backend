@@ -53,6 +53,6 @@ if __name__ == '__main__':
                 host="waterdroplet.ru",
                 port=5502,
                 reload=True,
-		ssl_keyfile='/etc/letsencrypt/live/waterdroplet.ru/privkey.pem',
-        	ssl_certfile='/etc/letsencrypt/live/waterdroplet.ru/fullchain.pem'
+                ssl_keyfile='/etc/letsencrypt/live/waterdroplet.ru/privkey.pem',
+                ssl_certfile='/etc/letsencrypt/live/waterdroplet.ru/fullchain.pem'
                 )

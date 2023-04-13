@@ -108,9 +108,14 @@ OUT: {
 
 
 ## validations
-- post("/suspicious_validations/{page_id}"): IN: body: Token; url: page_id: int. OUT: список  / 400 - bad user_type /
+- post("/suspicious_validations/{page_id}"): IN: body: Token; url: page_id: int. OUT: [
+  {
+    "id_physic": 5,
+    "sotrudnik_photo_date": "2023-04-02 20:06:07"
+  }
+] / 400 - bad user_type /
 401 - проблема с токеном
-- post("/first_ipu_value"): IN: body: Token; query: number: int
+- post("/first_ipu_value"): IN: body: token: Token , key: Secret_key; query: number: str, ipu: str. OUT: 200 / 403 / 400/ 404
 
 - post('/get_related_address/{page_id}'): IN: body: Token; url: page_id: int. OUT: [
   {
