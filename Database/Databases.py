@@ -191,7 +191,7 @@ class SQLDatabase:
         validate_c = self.trans_conn.cursor()
         user_c = self.users_conn.cursor()
         validate_c.execute(f"SELECT id_sotrudnik, sotrudnik_photo_date, sotrudnik_number, "
-                           f"id_physic, physic_photo_date, physic_number, verdict"
+                           f"id_physic, physic_photo_date, physic_number, verdict from validate"
                            f" WHERE id_business={user_id} AND id_validation={validation_id}")
         data = validate_c.fetchone()
         user_c.execute(f"SELECT full_name from physic where id_physic={data['id_physic']}")
