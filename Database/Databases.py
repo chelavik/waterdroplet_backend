@@ -197,7 +197,9 @@ class SQLDatabase:
         user_c.execute(f"SELECT full_name from physic where id_physic={data['id_physic']}")
         data['physic_name'] = (user_c.fetchone())['full_name']
         user_c.execute(f"SELECT full_name from sotrudnik where id_sotrudnik={data['sotrudnik_id']}")
-        data['physic_name'] = (user_c.fetchone())['full_name']
+        data['sotrudnik_name'] = (user_c.fetchone())['full_name']
+        data['sotrudnik_photo_date'] = str(data['sotrudnik_photo_date'])
+        data['physic_photo_date'] = str(data['physic_photo_date'])
         del data['sotrudnik_id'], data['id_physic']
         return data
     # ----------------------WORKERS-------------------------------------
