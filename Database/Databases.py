@@ -187,7 +187,7 @@ class SQLDatabase:
         validate_c.close()
 
     async def get_validation_logs(self, username, validation_id):
-        user_id, tariff = await self.get_user_id_tariff(username)
+        user_id, tariff = await self.get_business_id(username)
         validate_c = self.trans_conn.cursor()
         user_c = self.users_conn.cursor()
         validate_c.execute(f"SELECT sotrudnik_id, sotrudnik_photo_date, sotrudnik_number, "
