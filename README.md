@@ -175,13 +175,17 @@ OUT: {
 
 {
   "username": "admin",
-  "password": "admin"
+  "password": "Password11"
 }
 - бизнес-аккаунт:
 {
   "username": "business_test",
-  "password": "business"
+  "password": "Business11"
 }
+
+
+
+
 - работники
 {
   "worker": {
