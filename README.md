@@ -172,6 +172,9 @@ OUT: {
   "username": "physic2",
   "password": "physic"
 }
+- {"username": "newbie",
+  "password": "00000000"
+}
 
 {
   "username": "admin",
@@ -182,6 +185,8 @@ OUT: {
   "username": "business_test",
   "password": "Business11"
 }
+- {"username": "new_business",
+  "password": "00000000"
 
 
 
