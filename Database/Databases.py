@@ -82,7 +82,7 @@ class SQLDatabase:
     async def get_business(self, username, user_type):
         if user_type == 'business':
             user_c = self.users_conn.cursor()
-            user_c.execute(f"SELECT id_business, login, email, apitoken, expiration_date from business "
+            user_c.execute(f"SELECT id_business, login, company_name, email, apitoken, expiration_date from business "
                            f"WHERE login='{username}'")
             data = user_c.fetchone()
             data['expiration_date'] = str(data['expiration_date'])
