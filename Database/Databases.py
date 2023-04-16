@@ -79,7 +79,8 @@ class SQLDatabase:
             data = user_c.fetchone()
         elif user_type == 'sotrudnik':
             user_c = self.users_conn.cursor()
-            user_c.execute(f"SELECT id_sotrudnik, id_business, login from sotrudnik WHERE login='{username}'")
+            user_c.execute(f"SELECT id_sotrudnik, id_business, login, full_name "
+                           f"from sotrudnik WHERE login='{username}'")
             data = user_c.fetchone()
         else:
             raise BadUserError
@@ -340,7 +341,7 @@ class SQLDatabase:
         return info
 
     async def get_all_addresses(self, username):
-        business_id = await self.get_sotr_business()
+        business_id = await self.get_sotr_business(username)
         user_c = self.users_conn.cursor()
         user_c.execute(f'SELECT address from physic WHERE id_business={business_id}')
         info = user_c.fetchall()
