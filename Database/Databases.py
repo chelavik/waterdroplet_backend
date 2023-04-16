@@ -343,8 +343,9 @@ class SQLDatabase:
 
     async def get_ipus_by_address(self, address):
         user_c = self.users_conn.cursor()
-        user_c.execute(f'SELECT ipus from physic WHERE address="{address}"')
+        user_c.execute(f'SELECT ipus, id_physic from physic WHERE address="{address}"')
         info = user_c.fetchone()
+
         user_c.close()
         return info
 

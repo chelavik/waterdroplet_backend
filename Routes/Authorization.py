@@ -93,10 +93,10 @@ async def login_for_access_token(user: auth):
     access_token = create_access_token(
         data={"login": user.login, "type": user.user_type}, expires_delta=access_token_expires
     )
-    if Hasher.verify_password('00000000', user.hashed_password):
-        is_first = True
-    else:
-        is_first = False
+    is_first = False
+    if not (user.user_type == 'sotrudnik'):
+        if Hasher.verify_password('00000000', user.hashed_password):
+            is_first = True
     return JSONResponse({"access_token": access_token, "token_type": "bearer",
                          "first_enter": is_first, 'user_type': user.user_type})
 
