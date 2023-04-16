@@ -127,10 +127,10 @@ OUT: {
 ] / 200 - success / 400 - bad user_type /
 401 - проблема с токеном
 
-- post('/get_ipus_by_address'): IN: body: Token; query: address: str. OUT: [
-  "ipu1",
-  "ipu2"
-] / 200 - success / 400 - bad user_type /
+- post('/get_ipus_by_address'): IN: body: Token; query: address: str. OUT: {
+  "ipu1": "04/14/2023",
+  "ipu2": "None"
+} / 200 - success / 400 - bad user_type /
 401 - проблема с токеном
 
 - post('/new_validation'): IN: body: Token; query: sotr_number: int, ipu: str, address: str. OUT: 200 - success / 400 - bad user_type /
