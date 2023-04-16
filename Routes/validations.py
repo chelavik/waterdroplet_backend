@@ -82,7 +82,8 @@ async def get_ipus_by_address(token: Token, address: str):
     try:
         username, user_type = unpack_token(token.access_token)
         if user_type == "sotrudnik":
-            info = await SQLDatabase.get_ipus_by_address(address)
+            info = await SQLDatabase.get_ipus(user_type='sotrudnik',
+                                              username=SQLDatabase.get_username_by_address(address))
             output = info['ipus'].split()
             return JSONResponse(output)
         else:

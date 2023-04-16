@@ -52,6 +52,13 @@ class SQLDatabase:
         self.trans_conn = trans_conn
 
     # ---------------------------USERS-----------------------------------------------
+
+    async def get_username_by_address(self, address):
+        user_c = self.users_conn.cursor()
+        user_c.execute(f"SELECT login from physic where address='{address}'")
+        info = user_c.fetchone()
+        return info['login']
+
     async def change_password(self, new_password, username, user_type):
         user_c = self.users_conn.cursor()
         user_c.execute(f"UPDATE {user_type} set hashed_password='{new_password}' WHERE login = '{username}'")
