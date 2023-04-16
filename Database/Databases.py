@@ -339,6 +339,14 @@ class SQLDatabase:
         validate_c.close()
         return info
 
+    async def get_all_addresses(self, username):
+        business_id = await self.get_sotr_business()
+        user_c = self.users_conn.cursor()
+        user_c.execute(f'SELECT address from physic WHERE id_business={business_id}')
+        info = user_c.fetchall()
+        user_c.close()
+        return info
+
     async def get_addresses(self, username, hundred):
         business_id = await self.get_sotr_business(username)
         user_c = self.users_conn.cursor()

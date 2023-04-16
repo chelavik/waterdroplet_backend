@@ -127,6 +127,17 @@ OUT: {
 ] / 200 - success / 400 - bad user_type /
 401 - проблема с токеном
 
+- post('/get_all_related_addresses/'): безлимитный вариант получения для предыдущей функции.
+IN: body: Token. OUT: [
+  {
+    "address": "улица abc d 123, kv 1"
+  },
+  {
+    "address": "улица defc d 13, kv 55"
+  }
+]
+
+
 - post('/get_ipus_by_address'): IN: body: Token; query: address: str. OUT: {
   "ipu1": "04/14/2023",
   "ipu2": "None"
