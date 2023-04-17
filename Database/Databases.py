@@ -127,14 +127,13 @@ class SQLDatabase:
             data = {}
             user_c.execute(f"SELECT ipus from physic WHERE login='{username}'")
             ipus = (user_c.fetchone())['ipus'].split()
-
             for i in ipus:
                 try:
                     if user_type == 'physic':
                         validate_c.execute(f"SELECT date from transactions WHERE id_physic={user_id} AND ipu='{i}' "
                                            f"ORDER BY date DESC "
                                            f"LIMIT 1")
-                    if user_type == 'sotrudnik':
+                    elif user_type == 'sotrudnik':
                         validate_c.excecute(f"SELECT sotrudnik_photo_date from validate WHERE id_physic={user_id} AND ipu='{i}' "
                                             f"ORDER BY sotrudnik_photo_date DESC "
                                             f"LIMIT 1")

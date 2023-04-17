@@ -100,7 +100,7 @@ async def get_ipus_by_address(token: Token, address: str):
         username, user_type = unpack_token(token.access_token)
         if user_type == "sotrudnik":
             username = await SQLDatabase.get_username_by_address(address)
-            info = await SQLDatabase.get_ipus(username, 'physic')
+            info = await SQLDatabase.get_ipus(username, 'sotrudnik')
             return JSONResponse(info)
         else:
             raise HTTPException(status_code=400, detail="bad user_type")
