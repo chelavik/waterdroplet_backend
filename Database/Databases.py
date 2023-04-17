@@ -121,19 +121,25 @@ class SQLDatabase:
 
     async def get_ipus(self, username, user_type):
         try:
-            if user_type != 'physic':
-                raise BadUserError
             user_c = self.users_conn.cursor()
             validate_c = self.trans_conn.cursor()
             user_id, tariff = await self.get_user_id_tariff(username)
             data = {}
             user_c.execute(f"SELECT ipus from physic WHERE login='{username}'")
             ipus = (user_c.fetchone())['ipus'].split()
+
             for i in ipus:
                 try:
-                    validate_c.execute(f"SELECT date from transactions WHERE id_physic={user_id} AND ipu='{i}' "
-                                       f"ORDER BY date DESC "
-                                       f"LIMIT 1")
+                    if user_type == 'physic':
+                        validate_c.execute(f"SELECT date from transactions WHERE id_physic={user_id} AND ipu='{i}' "
+                                           f"ORDER BY date DESC "
+                                           f"LIMIT 1")
+                    if user_type == 'sotrudnik':
+                        validate_c.excecute(f"SELECT sotrudnik_photo_date from validate WHERE id_physic={user_id} AND ipu='{i}' "
+                                            f"ORDER BY sotrudnik_photo_date DESC "
+                                            f"LIMIT 1")
+                    else:
+                        raise BadUserError
                     date = (validate_c.fetchone())['date'].strftime('%m/%d/%Y')
                     data[i] = date
                 except:
@@ -191,8 +197,9 @@ class SQLDatabase:
     async def first_value(self, username, ipu, new_number):
         validate_c = self.trans_conn.cursor()
         user_id, tariff = await self.get_user_id_tariff(username)
-        validate_c.execute(f"INSERT INTO transactions (date, id_physic, ipu, prev_number, new_number, payment_sum, status) VALUES "
-                           f"(NOW(), {user_id}, '{ipu}', '000000', '{new_number}', 0, 0)")
+        validate_c.execute(
+            f"INSERT INTO transactions (date, id_physic, ipu, prev_number, new_number, payment_sum, status) VALUES "
+            f"(NOW(), {user_id}, '{ipu}', '000000', '{new_number}', 0, 0)")
         trans_conn.commit()
         validate_c.close()
 
@@ -214,6 +221,7 @@ class SQLDatabase:
         data['physic_photo_date'] = str(data['physic_photo_date'])
         del data['sotrudnik_id'], data['id_physic']
         return data
+
     # ----------------------WORKERS-------------------------------------
 
     async def get_business_id(self, username):
@@ -337,7 +345,8 @@ class SQLDatabase:
     async def get_suspicious_validations(self, username, hundred):
         business_id = await self.get_business_id(username)
         validate_c = self.trans_conn.cursor()
-        print(f'SELECT id_physic, sotrudnik_photo_date from validate WHERE id_business={business_id} AND verdict=1 LIMIT 100 OFFSET {hundred * 100};')
+        print(
+            f'SELECT id_physic, sotrudnik_photo_date from validate WHERE id_business={business_id} AND verdict=1 LIMIT 100 OFFSET {hundred * 100};')
         validate_c.execute(f'SELECT id_physic, sotrudnik_photo_date from validate WHERE id_business={business_id} '
                            f'AND verdict=1 '
                            f'LIMIT 100 OFFSET {hundred * 100};')
@@ -357,7 +366,7 @@ class SQLDatabase:
         business_id = await self.get_sotr_business(username)
         user_c = self.users_conn.cursor()
         user_c.execute(f'SELECT address from physic WHERE id_business={business_id} '
-                       f'LIMIT 100 OFFSET {hundred*100}')
+                       f'LIMIT 100 OFFSET {hundred * 100}')
         info = user_c.fetchall()
         user_c.close()
         return info
@@ -386,13 +395,14 @@ class SQLDatabase:
         physic_photo_date, physic_number = data['date'], data['new_number']
         user_c.execute(f'SELECT id_sotrudnik from sotrudnik WHERE login="{username}"')
         id_sotr = (user_c.fetchone())['id_sotrudnik']
-        if int(sotr_number)-int(physic_number) > config.VALIDATION_CONST:
+        if (int(sotr_number) - int(physic_number) > config.VALIDATION_CONST) or (
+                int(sotr_number) - int(physic_number) < 0):
             verdict = 1
         else:
             verdict = 0
-        validate_c.execute(f'INSERT INTO validate (id_physic, id_business, physic_photo_date, physic_number, '
+        validate_c.execute(f'INSERT INTO validate (id_physic, id_business, ipu, physic_photo_date, physic_number, '
                            f'sotrudnik_id, sotrudnik_photo_date, sotrudnik_number, verdict) '
-                           f'VALUES ({id_physic}, {id_business}, "{physic_photo_date}", "{physic_number}", '
+                           f'VALUES ({id_physic}, {id_business}, "{ipu}", "{physic_photo_date}", "{physic_number}", '
                            f'{id_sotr}, NOW(), "{sotr_number}", {verdict})')
         trans_conn.commit()
         user_c.close()
@@ -404,6 +414,7 @@ class SQLDatabase:
                        f'VALUES ("{name}", "{phone}", "{message}")')
         self.users_conn.commit()
         user_c.close()
+
 
 # -----------------------------SQLITE----------------------------
 
