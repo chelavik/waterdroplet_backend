@@ -144,9 +144,9 @@ IN: body: Token. OUT: [
 } / 200 - success / 400 - bad user_type /
 401 - проблема с токеном
 
-- post('/new_validation'): IN: body: Token; query: sotr_number: int, ipu: str, address: str. OUT: 200 - success / 400 - bad user_type /
+- post('/new_validation'): IN: body: Token; query: sotr_number: str, ipu: str, address: str. OUT: 200 - success / 400 - bad user_type /
 401 - проблема с токеном
-- post('/get_validation_logs'): IN: body: token: Token ; query: int. OUT: 
+- post('/get_validation_logs'): IN: body: token: Token ; query: validation_id: int. OUT: 
 {
   "sotrudnik_photo_date": "2023-04-02 20:05:51",
   "sotrudnik_number": "1010",
