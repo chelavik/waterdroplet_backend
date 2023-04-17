@@ -33,7 +33,7 @@ async def add_transaction(key: Secret_key, token: Token, new_number: str, ipu: s
             raise HTTPException(status_code=401, detail='bad user_type - physic needed')
         user_id, tariff = await SQLDatabase.get_user_id_tariff(username)
         prev_number = await SQLDatabase.get_last_number(user_id, ipu)
-        if new_number <= prev_number:
+        if int(new_number) <= int(prev_number):
             raise HTTPException(status_code=403, detail='new_number is less than previous')
         trans_id = await SQLDatabase.add_transaction(user_id, prev_number, new_number, ipu,
                                                      count_sum(int(new_number) - int(prev_number), tariff))
