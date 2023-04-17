@@ -27,10 +27,14 @@ def count_sum(delta_number, tariff):
 async def add_transaction(key: Secret_key, token: Token, new_number: str, ipu: str):
     try:
         if not Hasher.verify_password(key.key, SECRET_KEY):
-            raise HTTPException(status_code=403, detail='bad secret key')
+            raise HTTPException(status_code=400, detail='bad secret key')
         username, user_type = unpack_token(token.access_token)
+        if not user_type == 'physic':
+            raise HTTPException(status_code=401, detail='bad user_type - physic needed')
         user_id, tariff = await SQLDatabase.get_user_id_tariff(username)
         prev_number = await SQLDatabase.get_last_number(user_id, ipu)
+        if new_number <= prev_number:
+            raise HTTPException(status_code=403, detail='new_number is less than previous')
         trans_id = await SQLDatabase.add_transaction(user_id, prev_number, new_number, ipu,
                                                      count_sum(int(new_number) - int(prev_number), tariff))
         return JSONResponse(trans_id)

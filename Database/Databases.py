@@ -25,6 +25,9 @@ class BadUserError(DatabaseError): pass
 class BadUsernameError(DatabaseError): pass
 
 
+class BadTransactionNumberError(DatabaseError): pass
+
+
 # -----------------MYSQL_CONNECTIONS-----------------------
 users_conn = pymysql.connect(
     host=config.host,
@@ -158,6 +161,8 @@ class SQLDatabase:
                            f"ORDER BY date DESC "
                            f"LIMIT 1")
         prev_number = validate_c.fetchone()
+        if not prev_number:
+            raise NotFoundError
         prev_number = prev_number['new_number']
         validate_c.close()
         return prev_number
