@@ -61,7 +61,7 @@ async def get_suspicious_validations(token: Token, page_id: int):
         raise HTTPException(status_code=401, detail='bad token')
 
 
-@router.post('/get_all_related_address/', tags=['sotrudnik'])
+@router.post('/get_all_related_addresses/', tags=['sotrudnik'])
 async def get_all_related_addresses(token: Token):
     try:
         username, user_type = unpack_token(token.access_token)
