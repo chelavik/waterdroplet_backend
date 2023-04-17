@@ -139,7 +139,7 @@ class SQLDatabase:
                     elif user_type == 'sotrudnik':
                         validate_c.excecute(
                             f"SELECT sotrudnik_photo_date from validate WHERE id_physic={user_id} AND ipu='{i}' "
-                            f"ORDER BY sotrudnik_photo_date "
+                            f"ORDER BY date "
                             f"DESC LIMIT 1)")
                         date = (validate_c.fetchone())['sotrudnik_photo_date'].strftime('%m/%d/%Y')
                     else:
