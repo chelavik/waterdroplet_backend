@@ -127,7 +127,7 @@ OUT: {
 ] / 200 - success / 400 - bad user_type /
 401 - проблема с токеном
 
-- post('/get_all_related_addresses/'): безлимитный вариант получения для предыдущей функции.
+- post('/get_all_related_addresses'): безлимитный вариант получения для предыдущей функции.
 IN: body: Token. OUT: [
   {
     "address": "улица abc d 123, kv 1"
