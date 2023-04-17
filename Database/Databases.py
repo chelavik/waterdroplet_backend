@@ -133,13 +133,15 @@ class SQLDatabase:
                         validate_c.execute(f"SELECT date from transactions WHERE id_physic={user_id} AND ipu='{i}' "
                                            f"ORDER BY date DESC "
                                            f"LIMIT 1")
+                        date = (validate_c.fetchone())['date'].strftime('%m/%d/%Y')
                     elif user_type == 'sotrudnik':
-                        validate_c.excecute(f"SELECT sotrudnik_photo_date from validate WHERE id_physic={user_id} AND ipu='{i}' "
-                                            f"ORDER BY sotrudnik_photo_date DESC "
-                                            f"LIMIT 1")
+                        validate_c.excecute(
+                            f"SELECT sotrudnik_photo_date from validate WHERE id_physic={user_id} AND ipu='{i}' "
+                            f"ORDER BY sotrudnik_photo_date "
+                            f"DESC LIMIT 1)")
+                        date = (validate_c.fetchone())['sotrudnik_photo_date'].strftime('%m/%d/%Y')
                     else:
                         raise BadUserError
-                    date = (validate_c.fetchone())['date'].strftime('%m/%d/%Y')
                     data[i] = date
                 except:
                     data[i] = 'None'
