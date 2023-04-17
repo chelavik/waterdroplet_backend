@@ -60,6 +60,8 @@ class SQLDatabase:
         user_c = self.users_conn.cursor()
         user_c.execute(f"SELECT login from physic where address='{address}'")
         info = user_c.fetchone()
+        if not info:
+            raise NotFoundError
         return info['login']
 
     async def change_password(self, new_password, username, user_type):

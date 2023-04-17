@@ -108,6 +108,8 @@ async def get_ipus_by_address(token: Token, address: str):
         raise HTTPException(status_code=401, detail='token expired')
     except BadTokenError:
         raise HTTPException(status_code=401, detail='bad token')
+    except NotFoundError:
+        raise HTTPException(status_code=404, detail='user by address not found')
 
 
 @router.post('/new_validation', tags=['sotrudnik'])
