@@ -377,20 +377,19 @@ class SQLDatabase:
         user_c = self.users_conn.cursor()
         user_c.execute(f'SELECT ipus, id_physic from physic WHERE address="{address}"')
         info = user_c.fetchone()
-
         user_c.close()
         return info
 
     async def add_validation(self, username, sotr_number, ipu, address):
         validate_c = self.trans_conn.cursor()
         user_c = self.users_conn.cursor()
-        user_c.execute(f'SELECT id_physic, id_business from physic where address="{address}"')
+        user_c.execute(f'SELECT id_physic, id_business from physic where address="{address}" and ipu="{ipu}"')
         data = user_c.fetchone()
         if not data:
             raise NotFoundError
         id_physic, id_business = data['id_physic'], data['id_business']
         validate_c.execute(f'SELECT date, new_number from transactions WHERE id_physic={id_physic} AND ipu="{ipu}" '
-                           f'ORDER BY date ASC LIMIT 1')
+                           f'ORDER BY date DESC LIMIT 1')
         data = validate_c.fetchone()
 
         user_c.execute(f'SELECT id_sotrudnik from sotrudnik WHERE login="{username}"')
@@ -411,13 +410,6 @@ class SQLDatabase:
                                f'sotrudnik_id, sotrudnik_photo_date, sotrudnik_number, verdict) '
                                f'VALUES ({id_physic}, {id_business}, "{ipu}", "{physic_photo_date}", "{physic_number}", '
                                f'{id_sotr}, NOW(), "{sotr_number}", {verdict})')
-
-
-
-        validate_c.execute(f'INSERT INTO validate (id_physic, id_business, ipu, physic_photo_date, physic_number, '
-                           f'sotrudnik_id, sotrudnik_photo_date, sotrudnik_number, verdict) '
-                           f'VALUES ({id_physic}, {id_business}, "{ipu}", "{physic_photo_date}", "{physic_number}", '
-                           f'{id_sotr}, NOW(), "{sotr_number}", {verdict})')
         trans_conn.commit()
         user_c.close()
         validate_c.close()
