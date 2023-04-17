@@ -136,15 +136,14 @@ class SQLDatabase:
                                            f"ORDER BY date DESC "
                                            f"LIMIT 1")
                         date = (validate_c.fetchone())['date'].strftime('%m/%d/%Y')
+                        data[i] = date
                     elif user_type == 'sotrudnik':
-                        validate_c.excecute(
-                            f"SELECT sotrudnik_photo_date from validate WHERE id_physic={user_id} AND ipu='{i}' "
-                            f"ORDER BY date "
-                            f"DESC LIMIT 1)")
+                        validate_c.execute(
+                            f"SELECT sotrudnik_photo_date from validate WHERE id_physic={user_id} AND ipu='{i}' ORDER BY sotrudnik_photo_date DESC LIMIT 1")
                         date = (validate_c.fetchone())['sotrudnik_photo_date'].strftime('%m/%d/%Y')
+                        data[i] = date
                     else:
                         raise BadUserError
-                    data[i] = date
                 except:
                     data[i] = 'None'
             user_c.close()
@@ -393,16 +392,28 @@ class SQLDatabase:
         validate_c.execute(f'SELECT date, new_number from transactions WHERE id_physic={id_physic} AND ipu="{ipu}" '
                            f'ORDER BY date ASC LIMIT 1')
         data = validate_c.fetchone()
-        if not data:
-            raise NotFoundError
-        physic_photo_date, physic_number = data['date'], data['new_number']
+
         user_c.execute(f'SELECT id_sotrudnik from sotrudnik WHERE login="{username}"')
         id_sotr = (user_c.fetchone())['id_sotrudnik']
-        if (int(sotr_number) - int(physic_number) > config.VALIDATION_CONST) or (
-                int(sotr_number) - int(physic_number) < 0):
-            verdict = 1
+        if not data:
+            validate_c.execute(f'INSERT INTO validate (id_physic, id_business, ipu, '
+                               f'sotrudnik_id, sotrudnik_photo_date, sotrudnik_number, verdict) '
+                               f'VALUES ({id_physic}, {id_business}, "{ipu}", '
+                               f'{id_sotr}, NOW(), "{sotr_number}", 2)')
         else:
-            verdict = 0
+            physic_photo_date, physic_number = data['date'], data['new_number']
+            if (int(sotr_number) - int(physic_number) > config.VALIDATION_CONST) or (
+                    int(sotr_number) - int(physic_number) < 0):
+                verdict = 1
+            else:
+                verdict = 0
+            validate_c.execute(f'INSERT INTO validate (id_physic, id_business, ipu, physic_photo_date, physic_number, '
+                               f'sotrudnik_id, sotrudnik_photo_date, sotrudnik_number, verdict) '
+                               f'VALUES ({id_physic}, {id_business}, "{ipu}", "{physic_photo_date}", "{physic_number}", '
+                               f'{id_sotr}, NOW(), "{sotr_number}", {verdict})')
+
+
+
         validate_c.execute(f'INSERT INTO validate (id_physic, id_business, ipu, physic_photo_date, physic_number, '
                            f'sotrudnik_id, sotrudnik_photo_date, sotrudnik_number, verdict) '
                            f'VALUES ({id_physic}, {id_business}, "{ipu}", "{physic_photo_date}", "{physic_number}", '
