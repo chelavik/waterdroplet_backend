@@ -383,15 +383,15 @@ class SQLDatabase:
     async def add_validation(self, username, sotr_number, ipu, address):
         validate_c = self.trans_conn.cursor()
         user_c = self.users_conn.cursor()
-        user_c.execute(f'SELECT id_physic, id_business from physic where address="{address}" and ipu="{ipu}"')
+        user_c.execute(f'SELECT id_physic, id_business, ipus from physic where address="{address}"')
         data = user_c.fetchone()
-        if not data:
+        ipus = data['ipus'].split()
+        if not data or (ipu not in ipus):
             raise NotFoundError
         id_physic, id_business = data['id_physic'], data['id_business']
         validate_c.execute(f'SELECT date, new_number from transactions WHERE id_physic={id_physic} AND ipu="{ipu}" '
                            f'ORDER BY date DESC LIMIT 1')
         data = validate_c.fetchone()
-
         user_c.execute(f'SELECT id_sotrudnik from sotrudnik WHERE login="{username}"')
         id_sotr = (user_c.fetchone())['id_sotrudnik']
         if not data:
