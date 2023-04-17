@@ -122,6 +122,8 @@ async def new_validation(token: Token, sotr_number: int, ipu: str, address: str)
         raise HTTPException(status_code=401, detail='token expired')
     except BadTokenError:
         raise HTTPException(status_code=401, detail='bad token')
+    except NotFoundError:
+        raise HTTPException(status_code=404, detail='address or ipu not found')
 
 
 @router.post('/get_validation_logs', tags=['transactions'])

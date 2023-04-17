@@ -375,10 +375,14 @@ class SQLDatabase:
         user_c = self.users_conn.cursor()
         user_c.execute(f'SELECT id_physic, id_business from physic where address="{address}"')
         data = user_c.fetchone()
+        if not data:
+            raise NotFoundError
         id_physic, id_business = data['id_physic'], data['id_business']
         validate_c.execute(f'SELECT date, new_number from transactions WHERE id_physic={id_physic} AND ipu="{ipu}" '
                            f'ORDER BY date ASC LIMIT 1')
         data = validate_c.fetchone()
+        if not data:
+            raise NotFoundError
         physic_photo_date, physic_number = data['date'], data['new_number']
         user_c.execute(f'SELECT id_sotrudnik from sotrudnik WHERE login="{username}"')
         id_sotr = (user_c.fetchone())['id_sotrudnik']
