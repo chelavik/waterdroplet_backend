@@ -56,6 +56,14 @@ class SQLDatabase:
 
     # ---------------------------USERS-----------------------------------------------
 
+    async def get_user_by_address(self, address):
+        user_c = self.users_conn.cursor()
+        user_c.execute(f"SELECT full_name, login FROM physic WHERE address='{address}'")
+        info = user_c.fetchone()
+        if not info:
+            raise NotFoundError
+        return info
+
     async def get_username_by_address(self, address):
         user_c = self.users_conn.cursor()
         user_c.execute(f"SELECT login from physic where address='{address}'")

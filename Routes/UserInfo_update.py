@@ -17,7 +17,8 @@ SQLDatabase = Databases.SQLDatabase()
 async def change_password(new_password: str, token: Token):
     try:
         username, user_type = unpack_token(token.access_token)
-        if len([i for i in new_password if i.isdigit()]) < 2 or len([i for i in new_password if i.isupper()]) < 1 or len(new_password) < 8:
+        if len([i for i in new_password if i.isdigit()]) < 2 or len(
+                [i for i in new_password if i.isupper()]) < 1 or len(new_password) < 8:
             raise HTTPException(status_code=402, detail='password is not validated')
         hashed_password = Hasher.get_password_hash(new_password)
         await SQLDatabase.change_password(hashed_password, username, user_type)
@@ -76,6 +77,22 @@ async def get_business(token: Token):
         return JSONResponse(info)
     except Databases.BadUserError:
         raise HTTPException(status_code=400, detail='incorrect user for route')
+    except ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail='token expired')
+    except BadTokenError:
+        raise HTTPException(status_code=400, detail='bad token')
+
+
+@router.post('/get_user_by_address', tags=['sotrudnik'])
+async def get_user_by_address(token: Token, address: str):
+    try:
+        username, user_type = unpack_token(token.access_token)
+        if user_type != 'sotrudnik':
+            raise HTTPException(status_code=400, detail='incorrect user for route')
+        info = await SQLDatabase.get_user_by_address(address)
+        return JSONResponse(info)
+    except Databases.NotFoundError:
+        raise HTTPException(status_code=404, detail='user by address not found')
     except ExpiredSignatureError:
         raise HTTPException(status_code=401, detail='token expired')
     except BadTokenError:
