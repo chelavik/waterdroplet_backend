@@ -81,6 +81,7 @@ OUT: {
 - post('/get_user_by_address'): IN: body: token:Token; query: address: str. OUT: {
   "full_name": "IVANOV IVAN IVANOVICH",
   "login": "physic2"
+  "email": "string"
 } - login - номер договора  / 400 - пользователь - не сотрудник / 404 - не найден пользователь по адресу / 401 - плохой токен
 ## business
 - post("/get_business"): IN: body: Token. OUT: id_business, login, email, apitoken, expiration_date словарем / ошибка 401, если пользователь - не бизнес
