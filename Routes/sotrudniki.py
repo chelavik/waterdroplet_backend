@@ -89,7 +89,7 @@ async def edit_worker(token: Token, worker_id: int, login: str, phone: str, pass
         username, user_type = unpack_token(token.access_token)
         if user_type == "business":
             await SQLDatabase.edit_worker(username, worker_id, login, phone, password)
-            return HTTPException(status_code=200)
+            return HTTPException(status_code=200, detail="success")
         else:
             raise HTTPException(status_code=412, detail="bad user_type")
     except NotFoundError:

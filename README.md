@@ -60,12 +60,9 @@ OUT: {
  OUT: код 200 / 401 / 404 / 402
 - post('/workers/create_worker'): IN: body: Token ; worker: Worker. OUT: 
  код 200 / 412 / 404 / 401 / 402
-- put('/workers/edit_login/{worker_id}'): IN: body: Token; query: worker_id:int, login:str. OUT:
- код 200 / 412 / 404 / 400 / 402
-- put('/workers/edit_phone/{worker_id}'): IN: body: Token; query: worker_id:int, phone:str. OUT:
- код 200 / 412 / 404 / 400 
-- put('/workers/edit_password/{worker_id}'): IN: body: Token; query: worker_id:int, password:str. OUT:
- код 200 / 412 / 404 / 400 
+- put('/workers/edit_worker/{worker_id}'): IN: body: token: Token; query: worker_id: int, login: str, phone: str, password: str. OUT:
+ код 200 / 412 - bad user_type - ожидается юр.лицо / 404 - не найден работник с таким id / 400 - проблема токена / 402 - такой логин занят
+
 
 ## user
 - post("/register"): IN: body: модель auth; query: user_type: str. OUT: код 200 / код 400 (в связи с занятым лицевым счетом)
