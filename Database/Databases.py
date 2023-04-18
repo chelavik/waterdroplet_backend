@@ -288,44 +288,15 @@ class SQLDatabase:
             user_c.close()
             raise BadUsernameError
 
-    async def edit_worker_login(self, username, worker_id, new_login):
-        business_id = await self.get_business_id(username)
-        user_c = self.users_conn.cursor()
-        user_c.execute(f'SELECT id_sotrudnik from sotrudnik where login="{new_login}"')
-        if not user_c.fetchone():
-            user_c.execute(f'SELECT id_sotrudnik from sotrudnik '
-                           f'WHERE id_sotrudnik={worker_id} '
-                           f'AND id_business={business_id}')
-            if user_c.fetchone():
-                user_c.execute(f'UPDATE sotrudnik set login="{new_login}" '
-                               f'WHERE id_sotrudnik={worker_id} AND id_business = {business_id}')
-                self.users_conn.commit()
-            else:
-                raise NotFoundError
-        else:
-            raise BadUsernameError
 
-    async def edit_worker_phone(self, username, worker_id, phone):
+    async def edit_worker(self, username, worker_id, login, phone, password):
         business_id = await self.get_business_id(username)
         user_c = self.users_conn.cursor()
         user_c.execute(f'SELECT id_sotrudnik from sotrudnik '
                        f'WHERE id_sotrudnik={worker_id} '
                        f'AND id_business={business_id}')
         if user_c.fetchone():
-            user_c.execute(f'UPDATE sotrudnik set phone="{phone}" '
-                           f'WHERE id_sotrudnik={worker_id} AND id_business = {business_id}')
-            self.users_conn.commit()
-        else:
-            raise NotFoundError
-
-    async def edit_worker_password(self, username, worker_id, password):
-        business_id = await self.get_business_id(username)
-        user_c = self.users_conn.cursor()
-        user_c.execute(f'SELECT id_sotrudnik from sotrudnik '
-                       f'WHERE id_sotrudnik={worker_id} '
-                       f'AND id_business={business_id}')
-        if user_c.fetchone():
-            user_c.execute(f'UPDATE sotrudnik set hashed_password="{password}" '
+            user_c.execute(f'UPDATE sotrudnik set hashed_password="{password}", login="{login}", phone="{phone}" '
                            f'WHERE id_sotrudnik={worker_id} AND id_business = {business_id}')
             self.users_conn.commit()
         else:

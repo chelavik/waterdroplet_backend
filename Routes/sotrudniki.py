@@ -83,12 +83,12 @@ async def create_worker(token: Token, worker: Worker):
         raise HTTPException(status_code=402, detail="username occupied")
 
 
-@router.put('/workers/edit_login/{worker_id}', tags=['workers'])
-async def edit_worker_login(token: Token, worker_id: int, login: str):
+@router.put('/workers/edit_worker/{worker_id}', tags=['workers'])
+async def edit_worker(token: Token, worker_id: int, login: str, phone: str, password: str):
     try:
         username, user_type = unpack_token(token.access_token)
         if user_type == "business":
-            await SQLDatabase.edit_worker_login(username, worker_id, login)
+            await SQLDatabase.edit_worker(username, worker_id, login, phone, password)
             return HTTPException(status_code=200)
         else:
             raise HTTPException(status_code=412, detail="bad user_type")
@@ -102,38 +102,6 @@ async def edit_worker_login(token: Token, worker_id: int, login: str):
         raise HTTPException(status_code=402, detail="username occupied")
 
 
-@router.put('/workers/edit_phone/{worker_id}', tags=['workers'])
-async def edit_worker_phone(token: Token, worker_id: int, phone: str):
-    try:
-        username, user_type = unpack_token(token.access_token)
-        if user_type == "business":
-            await SQLDatabase.edit_worker_phone(username, worker_id, phone)
-            return HTTPException(status_code=200)
-        else:
-            raise HTTPException(status_code=412, detail="bad user_type")
-    except NotFoundError:
-        raise HTTPException(status_code=404, detail='worker not found')
-    except ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail='token expired')
-    except BadTokenError:
-        raise HTTPException(status_code=401, detail='bad token')
-
-
-@router.put('/workers/edit_password/{worker_id}', tags=['workers'])
-async def edit_worker_password(token: Token, worker_id: int, password: str):
-    try:
-        username, user_type = unpack_token(token.access_token)
-        if user_type == "business":
-            await SQLDatabase.edit_worker_password(username, worker_id, password)
-            return HTTPException(status_code=200)
-        else:
-            raise HTTPException(status_code=412, detail="bad user_type")
-    except NotFoundError:
-        raise HTTPException(status_code=404, detail='worker not found')
-    except ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail='token expired')
-    except BadTokenError:
-        raise HTTPException(status_code=401, detail='bad token')
 
 
 
