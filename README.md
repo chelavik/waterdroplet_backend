@@ -81,9 +81,12 @@ OUT: {
   "ipu2": "03/31/2023"
 } / ошибка 400, если пользователь - не физическое лицо. пока так, поскольку неизвестно в каком виде хранятся счетчики в бд
 - post('/send_form'): IN: query: name: str, phone: str, message: str. OUT: код 200 / код 500 - проблема бд.
-
+- post('/get_user_by_address'): IN: body: token:Token; query: address: str. OUT: {
+  "full_name": "IVANOV IVAN IVANOVICH",
+  "login": "physic2"
+} - login - номер договора  / 400 - пользователь - не сотрудник / 404 - не найден пользователь по адресу / 401 - плохой токен
 ## business
-- post("/get_business"): IN: body: Token. OUT: id_business, login, email, apitoken, tariff словарем / ошибка 401, если пользователь - не бизнес
+- post("/get_business"): IN: body: Token. OUT: id_business, login, email, apitoken, expiration_date словарем / ошибка 401, если пользователь - не бизнес
 - post("/get_related_physics/{page_id}"): IN: body: Token; url: page_id: int. OUT: словарь до ста пользователей от n•100 до n•100+100
 [
     {

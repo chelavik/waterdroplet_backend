@@ -96,4 +96,4 @@ async def get_user_by_address(token: Token, address: str):
     except ExpiredSignatureError:
         raise HTTPException(status_code=401, detail='token expired')
     except BadTokenError:
-        raise HTTPException(status_code=400, detail='bad token')
+        raise HTTPException(status_code=401, detail='bad token')
