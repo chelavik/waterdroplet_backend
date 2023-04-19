@@ -274,20 +274,29 @@ class SQLDatabase:
         self.users_conn.commit()
         user_c.close()
 
-    async def create_worker(self, username, login, phone, password):
-        business_id = await self.get_business_id(username)
-        user_c = self.users_conn.cursor()
-        user_c.execute(f'SELECT id_sotrudnik from sotrudnik where login="{login}"')
-        if not user_c.fetchone():
-            user_c.execute(f'INSERT INTO sotrudnik '
-                           f'(id_business, login, phone, hashed_password)'
-                           f'VALUES ({business_id}, "{login}", "{phone}", "{password}")')
-            self.users_conn.commit()
-            user_c.close()
-        else:
-            user_c.close()
+    async def create_worker(self, full_name, login, phone, password):
+        business_id = await self.get_business_id(login)
+        if not self.check_login(login):
             raise BadUsernameError
+        user_c = self.users_conn.cursor()
+        user_c.execute(f'INSERT INTO sotrudnik '
+                       f'(id_business, login, phone, hashed_password, full_name)'
+                       f'VALUES ({business_id}, "{login}", "{phone}", "{password}", "{full_name}")')
+        self.users_conn.commit()
+        user_c.close()
 
+    async def check_login(self, login):
+        user_c = self.users_conn.cursor()
+        user_c.execute(f"SELECT id_business from business where login='{login}'")
+        if not user_c.fetchone():
+            user_c.execute(f"SELECT id_physic from physic where login='{login}'")
+            if not user_c.fetchone():
+                user_c.execute(f"SELECT id_sotrudnik from sotrudnik where login='{login}'")
+                if not user_c.fetchone():
+                    user_c.close()
+                    return True
+        user_c.close()
+        raise False
 
     async def edit_worker(self, username, worker_id, login, phone, password, full_name):
         business_id = await self.get_business_id(username)

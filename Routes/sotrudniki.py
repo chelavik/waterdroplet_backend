@@ -69,7 +69,7 @@ async def create_worker(token: Token, worker: Worker):
     try:
         username, user_type = unpack_token(token.access_token)
         if user_type == "business":
-            await SQLDatabase.create_worker(username, worker.login, worker.phone, worker.password)
+            await SQLDatabase.create_worker(worker.full_name, worker.login, worker.phone, worker.password)
             return HTTPException(status_code=200)
         else:
             raise HTTPException(status_code=412, detail="bad user_type")
@@ -79,7 +79,7 @@ async def create_worker(token: Token, worker: Worker):
         raise HTTPException(status_code=401, detail='token expired')
     except BadTokenError:
         raise HTTPException(status_code=401, detail='bad token')
-    except BadUserError:
+    except BadUsernameError:
         raise HTTPException(status_code=402, detail="username occupied")
 
 
@@ -87,6 +87,8 @@ async def create_worker(token: Token, worker: Worker):
 async def edit_worker(token: Token, worker_id: int, login: str, phone: str, password: str, full_name: str):
     try:
         username, user_type = unpack_token(token.access_token)
+        if login == 'admin':
+            raise HTTPException(status_code=402, detail='username can not be "admin"')
         if user_type == "business":
             await SQLDatabase.edit_worker(username, worker_id, login, phone, password, full_name)
             return HTTPException(status_code=200, detail="success")
@@ -100,6 +102,7 @@ async def edit_worker(token: Token, worker_id: int, login: str, phone: str, pass
         raise HTTPException(status_code=400, detail='bad token')
     except BadUsernameError:
         raise HTTPException(status_code=402, detail="username occupied")
+
 
 
 
