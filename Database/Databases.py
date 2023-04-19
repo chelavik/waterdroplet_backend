@@ -289,14 +289,15 @@ class SQLDatabase:
             raise BadUsernameError
 
 
-    async def edit_worker(self, username, worker_id, login, phone, password):
+    async def edit_worker(self, username, worker_id, login, phone, password, full_name):
         business_id = await self.get_business_id(username)
         user_c = self.users_conn.cursor()
         user_c.execute(f'SELECT id_sotrudnik from sotrudnik '
                        f'WHERE id_sotrudnik={worker_id} '
                        f'AND id_business={business_id}')
         if user_c.fetchone():
-            user_c.execute(f'UPDATE sotrudnik set hashed_password="{password}", login="{login}", phone="{phone}" '
+            user_c.execute(f'UPDATE sotrudnik set hashed_password="{password}", login="{login}", phone="{phone}", '
+                           f'full_name="{full_name}" '
                            f'WHERE id_sotrudnik={worker_id} AND id_business = {business_id}')
             self.users_conn.commit()
         else:

@@ -38,11 +38,11 @@
   "workers": [
     {
       "id_sotrudnik": 3,
-      "login": "worker1"
+      "full_name": "PAVLOV H.A."
     },
     {
       "id_sotrudnik": 4,
-      "login": "worker2"
+      "login": "IVANOV I.I."
     }
   ]
 } / 412 / 401 
@@ -60,7 +60,7 @@ OUT: {
  OUT: код 200 / 401 / 404 / 402
 - post('/workers/create_worker'): IN: body: Token ; worker: Worker. OUT: 
  код 200 / 412 / 404 / 401 / 402
-- put('/workers/edit_worker/{worker_id}'): IN: body: token: Token; query: worker_id: int, login: str, phone: str, password: str. OUT:
+- put('/workers/edit_worker/{worker_id}'): IN: body: token: Token; query: worker_id: int, login: str, phone: str, password: str, full_name: str. OUT:
  код 200 / 412 - bad user_type - ожидается юр.лицо / 404 - не найден работник с таким id / 400 - проблема токена / 402 - такой логин занят
 
 
