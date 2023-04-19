@@ -69,12 +69,12 @@ async def create_worker(token: Token, worker: Worker):
     try:
         username, user_type = unpack_token(token.access_token)
         if user_type == "business":
-            await SQLDatabase.create_worker(worker.full_name, worker.login, worker.phone, worker.password)
+            await SQLDatabase.create_worker(username, worker.full_name, worker.login, worker.phone, worker.password)
             return HTTPException(status_code=200)
         else:
             raise HTTPException(status_code=412, detail="bad user_type")
     except NotFoundError:
-        raise HTTPException(status_code=404, detail='worker not found')
+        raise HTTPException(status_code=404, detail='business not found')
     except ExpiredSignatureError:
         raise HTTPException(status_code=401, detail='token expired')
     except BadTokenError:
