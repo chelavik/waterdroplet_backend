@@ -250,6 +250,7 @@ class SQLDatabase:
             return id['id_business']
         else:
             return False
+
     async def get_all_workers(self, username):
         business_id = await self.get_business_id(username)
         user_c = self.users_conn.cursor()
@@ -349,16 +350,22 @@ class SQLDatabase:
         validate_c.close()
         return info
 
-    async def get_all_addresses(self, username):
-        business_id = await self.get_sotr_business(username)
+    async def get_all_addresses(self, username, user_type):
+        if user_type == 'sotrudnik':
+            business_id = await self.get_sotr_business(username)
+        else:
+            business_id = await self.get_business_id(username)
         user_c = self.users_conn.cursor()
         user_c.execute(f'SELECT address from physic WHERE id_business={business_id}')
         info = user_c.fetchall()
         user_c.close()
         return info
 
-    async def get_addresses(self, username, hundred):
-        business_id = await self.get_sotr_business(username)
+    async def get_addresses(self, username, hundred, user_type):
+        if user_type == 'sotrudnik':
+            business_id = await self.get_sotr_business(username)
+        else:
+            business_id = await self.get_business_id(username)
         user_c = self.users_conn.cursor()
         user_c.execute(f'SELECT address from physic WHERE id_business={business_id} '
                        f'LIMIT 100 OFFSET {hundred * 100}')

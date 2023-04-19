@@ -65,8 +65,8 @@ async def get_suspicious_validations(token: Token, page_id: int):
 async def get_all_related_addresses(token: Token):
     try:
         username, user_type = unpack_token(token.access_token)
-        if user_type == "sotrudnik":
-            info = await SQLDatabase.get_all_addresses(username)
+        if user_type == "sotrudnik" or user_type == 'business':
+            info = await SQLDatabase.get_all_addresses(username, user_type)
             return JSONResponse(info)
         else:
             raise HTTPException(status_code=400, detail="bad user_type")
@@ -82,9 +82,9 @@ async def get_all_related_addresses(token: Token):
 async def get_related_address(token: Token, page_id: int):
     try:
         username, user_type = unpack_token(token.access_token)
-        if user_type == "sotrudnik":
+        if user_type == "sotrudnik" or user_type == "business":
             page_id -= 1
-            info = await SQLDatabase.get_addresses(username, page_id)
+            info = await SQLDatabase.get_addresses(username, page_id, user_type)
             return JSONResponse(info)
         else:
             raise HTTPException(status_code=400, detail="bad user_type")
