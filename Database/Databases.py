@@ -251,7 +251,7 @@ class SQLDatabase:
     async def get_all_workers(self, username):
         business_id = await self.get_business_id(username)
         user_c = self.users_conn.cursor()
-        user_c.execute(f"SELECT id_sotrudnik, login FROM sotrudnik WHERE id_business={business_id}")
+        user_c.execute(f"SELECT id_sotrudnik, full_name FROM sotrudnik WHERE id_business={business_id}")
         data = user_c.fetchall()
         user_c.close()
         return data
