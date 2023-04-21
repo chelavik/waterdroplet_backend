@@ -347,11 +347,11 @@ class SQLDatabase:
                            f'LIMIT 100 OFFSET {hundred * 100};')
         info = validate_c.fetchall()
         user_info = []
-        for user in info:
-            user_c.execute(f'SELECT full_name from physic WHERE id_physic={info[0]}')
+        for validation in info:
+            user_c.execute(f'SELECT full_name from physic WHERE id_physic={validation[0]}')
             result = user_c.fetchone()
-            user_dict = {'validation_id': info[0], 'physic_id': info[1],
-                         'validation_date': info[2], 'full_name': result[0]}
+            user_dict = {'validation_id': validation[0], 'physic_id': validation[1],
+                         'validation_date': validation[2], 'full_name': result[0]}
             user_info.append(user_dict)
         validate_c.close()
         user_c.close()
