@@ -348,10 +348,29 @@ class SQLDatabase:
         info = validate_c.fetchall()
         user_info = []
         for validation in info:
-            user_c.execute(f'SELECT full_name from physic WHERE id_physic={validation[0]}')
+            user_c.execute(f'SELECT full_name from physic WHERE id_physic={validation["id_physic"]}')
             result = user_c.fetchone()
-            user_dict = {'validation_id': validation[0], 'physic_id': validation[1],
-                         'validation_date': validation[2], 'full_name': result[0]}
+            user_dict = {'validation_id': validation["id_validation"],
+                         'validation_date': validation["sotrudnik_photo_date"], 'full_name': result["full_name"]}
+            user_info.append(user_dict)
+        validate_c.close()
+        user_c.close()
+        return user_info
+
+    async def get_all_validations(self, username, hundred):
+        business_id = await self.get_business_id(username)
+        user_c = self.users_conn.cursor()
+        validate_c = self.trans_conn.cursor()
+        validate_c.execute(
+            f'SELECT id_validation, id_physic, sotrudnik_photo_date from validate WHERE id_business={business_id} '
+            f'LIMIT 100 OFFSET {hundred * 100};')
+        info = validate_c.fetchall()
+        user_info = []
+        for validation in info:
+            user_c.execute(f'SELECT full_name from physic WHERE id_physic={validation["id_physic"]}')
+            result = user_c.fetchone()
+            user_dict = {'validation_id': validation["id_validation"],
+                         'validation_date': validation["sotrudnik_photo_date"], 'full_name': result["full_name"]}
             user_info.append(user_dict)
         validate_c.close()
         user_c.close()
