@@ -109,13 +109,32 @@ OUT: {
 
 
 ## validations
-- post("/suspicious_validations/{page_id}"): IN: body: Token; url: page_id: int. OUT: [
+- post('/get_all_validations/{page_id}') IN: body: token:Token; url: page_id: int. out: [
   {
-    "id_physic": 5,
-    "sotrudnik_photo_date": "2023-04-02 20:06:07"
-  }
-] / 400 - bad user_type /
-401 - проблема с токеном
+    "validation_id": 2,
+    "validation_date": "2023-04-02 20:05:51",
+    "full_name": "IVANOV IVAN IVANOVICH"
+  },
+  {
+    "validation_id": 3,
+    "validation_date": "2023-04-02 20:06:07",
+    "full_name": "IVANOV IVAN IVANOVICH"
+  },...
+]
+
+
+- post("/suspicious_validations/{page_id}"): IN: body: Token; url: page_id: int. OUT:[
+  {
+    "validation_id": 3,
+    "validation_date": "2023-04-02 20:06:07",
+    "full_name": "IVANOV IVAN IVANOVICH"
+  },
+  {
+    "validation_id": 19,
+    "validation_date": "2023-04-17 22:56:16",
+    "full_name": "IVANOV IVAN IVANOVICH"
+  }, ... 
+] / 400 - bad user_type / 401 - проблема с токеном
 - post("/first_ipu_value"): IN: body: token: Token , key: Secret_key; query: number: str, ipu: str. OUT: 200 / 403 / 400/ 404
 
 - post('/get_related_address/{page_id}'): IN: body: Token; url: page_id: int. OUT: [
@@ -136,7 +155,7 @@ IN: body: Token. OUT: [
   {
     "address": "улица defc d 13, kv 55"
   }
-]
+] 
 
 
 - post('/get_ipus_by_address'): IN: body: Token; query: address: str. OUT: {
@@ -193,7 +212,7 @@ IN: body: Token. OUT: [
   "username": "admin",
   "password": "Password11"
 }
-- бизнес-аккаунт:
+- бизнес-аккаунт: 
 {
   "username": "business_test",
   "password": "Business11"
