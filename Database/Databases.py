@@ -340,15 +340,22 @@ class SQLDatabase:
 
     async def get_suspicious_validations(self, username, hundred):
         business_id = await self.get_business_id(username)
+        user_c = self.users_conn.cursor()
         validate_c = self.trans_conn.cursor()
-        print(
-            f'SELECT id_physic, sotrudnik_photo_date from validate WHERE id_business={business_id} AND verdict=1 LIMIT 100 OFFSET {hundred * 100};')
-        validate_c.execute(f'SELECT id_physic, sotrudnik_photo_date from validate WHERE id_business={business_id} '
+        validate_c.execute(f'SELECT id_validation, id_physic, sotrudnik_photo_date from validate WHERE id_business={business_id} '
                            f'AND verdict=1 '
                            f'LIMIT 100 OFFSET {hundred * 100};')
         info = validate_c.fetchall()
+        user_info = []
+        for user in info:
+            user_c.execute(f'SELECT full_name from physic WHERE id_physic={info[0]}')
+            result = user_c.fetchone()
+            user_dict = {'validation_id': info[0], 'physic_id': info[1],
+                         'validation_date': info[2], 'full_name': result[0]}
+            user_info.append(user_dict)
         validate_c.close()
-        return info
+        user_c.close()
+        return user_info
 
     async def get_all_addresses(self, username, user_type):
         if user_type == 'sotrudnik':
