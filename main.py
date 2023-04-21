@@ -36,6 +36,8 @@ async def startup_event():
 async def shutdown_event():
     try:
         await database.database_uninit()
+        Databases.users_conn.close()
+        Databases.trans_conn.close()
     except:
         ...
 
