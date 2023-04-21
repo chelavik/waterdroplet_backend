@@ -48,6 +48,7 @@ async def get_all_validations(token: Token, page_id: int):
     try:
         username, user_type = unpack_token(token.access_token)
         if user_type == "business":
+            page_id -= 1
             info = await SQLDatabase.get_all_validations(username, page_id)
             for dictionary in info:
                 dictionary['validation_date'] = str(dictionary['validation_date'])
