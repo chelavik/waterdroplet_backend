@@ -1,4 +1,5 @@
 import asyncio, aiomysql, pymysql
+import datetime
 from typing import Any
 from databases import Database
 from Utils import Hasher
@@ -342,9 +343,10 @@ class SQLDatabase:
         business_id = await self.get_business_id(username)
         user_c = self.users_conn.cursor()
         validate_c = self.trans_conn.cursor()
-        validate_c.execute(f'SELECT id_validation, id_physic, sotrudnik_photo_date from validate WHERE id_business={business_id} '
-                           f'AND verdict=1 '
-                           f'LIMIT 100 OFFSET {hundred * 100};')
+        validate_c.execute(
+            f'SELECT id_validation, id_physic, sotrudnik_photo_date from validate WHERE id_business={business_id} '
+            f'AND verdict=1 '
+            f'LIMIT 100 OFFSET {hundred * 100};')
         info = validate_c.fetchall()
         user_info = []
         for validation in info:
@@ -429,15 +431,16 @@ class SQLDatabase:
                                f'{id_sotr}, NOW(), "{sotr_number}", 2)')
         else:
             physic_photo_date, physic_number = data['date'], data['new_number']
-            if (int(sotr_number) - int(physic_number) > config.VALIDATION_CONST) or (
+            if (int(sotr_number) - int(physic_number) > (config.VALIDATION_CONST *
+                                                         int((datetime.datetime.now() - physic_photo_date).days))) or (
                     int(sotr_number) - int(physic_number) < 0):
                 verdict = 1
             else:
                 verdict = 0
             validate_c.execute(f'INSERT INTO validate (id_physic, id_business, ipu, physic_photo_date, physic_number, '
                                f'sotrudnik_id, sotrudnik_photo_date, sotrudnik_number, verdict) '
-                               f'VALUES ({id_physic}, {id_business}, "{ipu}", "{physic_photo_date}", "{physic_number}", '
-                               f'{id_sotr}, NOW(), "{sotr_number}", {verdict})')
+                               f'VALUES ({id_physic}, {id_business}, "{ipu}", "{physic_photo_date}", "{physic_number}",'
+                               f' {id_sotr}, NOW(), "{sotr_number}", {verdict})')
         trans_conn.commit()
         user_c.close()
         validate_c.close()
