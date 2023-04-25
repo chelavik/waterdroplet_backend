@@ -279,7 +279,7 @@ class SQLDatabase:
         user_c.close()
 
     async def create_worker(self, business_name, full_name, login, phone, password):
-        if not self.check_login(login):
+        if not await self.check_login(login):
             raise BadUsernameError
         business_id = await self.get_business_id(business_name)
         if not business_id:
