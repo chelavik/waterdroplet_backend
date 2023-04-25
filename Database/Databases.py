@@ -302,7 +302,7 @@ class SQLDatabase:
                     user_c.close()
                     return True
         user_c.close()
-        raise False
+        return False
 
     async def edit_worker(self, username, worker_id, login, phone, password, full_name):
         business_id = await self.get_business_id(username)
