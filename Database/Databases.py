@@ -334,7 +334,7 @@ class SQLDatabase:
         user_c = self.users_conn.cursor()
         user_c.execute(f'SELECT id_physic, login, full_name, email, ipus, address, id_business from physic '
                        f'WHERE id_business={business_id} AND hashed_password != "00000000" '
-                       f'LIMIT 100 OFFSET {hundred * 100};')
+                       f'LIMIT 15 OFFSET {hundred * 15};')
         info = user_c.fetchall()
         user_c.close()
         return info
@@ -346,7 +346,7 @@ class SQLDatabase:
         validate_c.execute(
             f'SELECT id_validation, id_physic, sotrudnik_photo_date from validate WHERE id_business={business_id} '
             f'AND verdict=1 '
-            f'LIMIT 100 OFFSET {hundred * 100};')
+            f'LIMIT 15 OFFSET {hundred * 15};')
         info = validate_c.fetchall()
         user_info = []
         for validation in info:
@@ -365,7 +365,7 @@ class SQLDatabase:
         validate_c = self.trans_conn.cursor()
         validate_c.execute(
             f'SELECT id_validation, id_physic, sotrudnik_photo_date from validate WHERE id_business={business_id} '
-            f'LIMIT 100 OFFSET {hundred * 100};')
+            f'LIMIT 15 OFFSET {hundred * 15};')
         info = validate_c.fetchall()
         user_info = []
         for validation in info:
@@ -396,7 +396,7 @@ class SQLDatabase:
             business_id = await self.get_business_id(username)
         user_c = self.users_conn.cursor()
         user_c.execute(f'SELECT address from physic WHERE id_business={business_id} '
-                       f'LIMIT 100 OFFSET {hundred * 100}')
+                       f'LIMIT 15 OFFSET {hundred * 15}')
         info = user_c.fetchall()
         user_c.close()
         return info
