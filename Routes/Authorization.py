@@ -89,6 +89,8 @@ async def login_for_access_token(user: auth):
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    if user.user_type == "business":
+        raise HTTPException(status_code=400, detail='bad user_type')
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"login": user.login, "type": user.user_type}, expires_delta=access_token_expires
@@ -100,6 +102,27 @@ async def login_for_access_token(user: auth):
     return JSONResponse({"access_token": access_token, "token_type": "bearer",
                          "first_enter": is_first, 'user_type': user.user_type})
 
+
+@router.post("/login_business", tags=['user'])
+async def login_for_business(user: auth):
+    user = authenticate_user(user.username, user.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    if user.user_type != "business":
+        raise HTTPException(status_code=400, detail='bad user_type')
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"login": user.login, "type": user.user_type}, expires_delta=access_token_expires
+    )
+    is_first = False
+    if Hasher.verify_password('00000000', user.hashed_password):
+        is_first = True
+    return JSONResponse({"access_token": access_token, "token_type": "bearer",
+                         "first_enter": is_first, 'user_type': user.user_type})
 
 
 @router.post('/register', tags=['user'])
