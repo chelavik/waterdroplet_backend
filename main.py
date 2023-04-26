@@ -35,9 +35,10 @@ async def startup_event():
 @app.on_event('shutdown')
 async def shutdown_event():
     try:
-        await database.database_uninit()
         Databases.users_conn.close()
         Databases.trans_conn.close()
+        await database.database_uninit()
+
     except:
         ...
 
