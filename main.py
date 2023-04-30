@@ -2,6 +2,7 @@ from fastapi import HTTPException, Depends, FastAPI, APIRouter, status
 from fastapi.middleware.cors import CORSMiddleware
 from Utils.Hasher import HasherClass
 from Database import Databases
+from Database.Databases import users_conn, trans_conn
 from Routes import *
 from fastapi_limiter import FastAPILimiter
 import uvicorn
@@ -35,8 +36,8 @@ async def startup_event():
 @app.on_event('shutdown')
 async def shutdown_event():
     try:
-        Databases.users_conn.close()
-        Databases.trans_conn.close()
+        users_conn.close()
+        trans_conn.close()
         await database.database_uninit()
 
     except:
