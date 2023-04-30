@@ -39,9 +39,8 @@ async def shutdown_event():
         users_conn.close()
         trans_conn.close()
         await database.database_uninit()
-
     except:
-        ...
+        print('closing connections failed')
 
 
 # ---------------------------------ROUTERS---------------------------
