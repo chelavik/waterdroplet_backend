@@ -225,15 +225,9 @@ IN: body: Token. OUT: [
 
 
 - работники
-{
-  "worker": {
-    "login": "worker1",
-    "password": "worker"
-  }
-
   "worker": {
     "login": "worker2",
-    "password": "worker"
+    "password": "Password11"
   }
 
 # сервер
