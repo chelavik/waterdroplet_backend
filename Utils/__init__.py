@@ -1,3 +1,3 @@
 from Utils import Hasher
 
-__all__ = ['Hasher']
+__all__ = ['Hasher', 'Env', 'QRscanner']
