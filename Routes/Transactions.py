@@ -25,6 +25,15 @@ def count_sum(delta_number, tariff):
     return delta_number * tariff
 
 
+headers = requests.utils.default_headers()
+
+headers.update(
+    {
+        'User-Agent': 'My User Agent 1.0',
+    }
+)
+
+
 # --------------------ROUTES-----------------------
 
 
@@ -94,7 +103,7 @@ async def scan_photo(photo: UploadFile = File(...), key: str = Form()):
     files = {"upload_image": (photo.filename, content)}
     print('checking photo...')
     number_result = requests.post(url='http://185.185.70.161:5500/get_number',
-                                  data=data, files=files)
+                                  data=data, files=files, headers=headers)
     print('photo checked')
     if number_result.status_code == 200:
         res = number_result.json()  # цифры на счетчике
@@ -102,10 +111,11 @@ async def scan_photo(photo: UploadFile = File(...), key: str = Form()):
         print(res['number'], info[1], info[0])
         if res == "":
             raise HTTPException(status_code=404, detail='number not found')
-        transaction_result = requests.post(url='http://185.185.70.161:5001/add_transaction',
+        transaction_result = requests.post(url='https://waterdroplet.ru:5502/add_transaction',
                                            params={'new_number': res['number'], 'ipu': info[1], 'login': info[0]},
-                                           json={"key": SECRET_KEY})
+                                           json={"key": key}, headers=headers)
         print('request done')
+        print(transaction_result.json())
         if transaction_result.status_code == 200:
             transaction_result = transaction_result.json()
             print(transaction_result)
