@@ -58,9 +58,8 @@ async def add_transaction(key: Secret_key, login: str, new_number: str, ipu: str
 
 
 @router.post('/trans_status', tags=['transactions'])
-async def change_trans_status(key: Secret_key, token: Token, trans_id: int, status: int):
+async def change_trans_status(key: Secret_key, trans_id: int, status: int):
     try:
-        username, user_type = unpack_token(token.access_token)
         if not Hasher.verify_password(key.key, SECRET_KEY):
             raise HTTPException(status_code=403, detail='bad secret key')
         await SQLDatabase.change_status(trans_id, status)
@@ -103,7 +102,7 @@ async def scan_photo(photo: UploadFile = File(...), key: str = Form()):
     files = {"upload_image": (photo.filename, content)}
     print('checking photo...')
     number_result = requests.post(url='http://185.185.70.161:5500/get_number',
-                                  data=data, files=files, headers=headers)
+                                  data=data, files=files)
     print('photo checked')
     if number_result.status_code == 200:
         res = number_result.json()  # цифры на счетчике
@@ -113,7 +112,7 @@ async def scan_photo(photo: UploadFile = File(...), key: str = Form()):
             raise HTTPException(status_code=404, detail='number not found')
         transaction_result = requests.post(url='https://waterdroplet.ru:5502/add_transaction',
                                            params={'new_number': res['number'], 'ipu': info[1], 'login': info[0]},
-                                           json={"key": key}, headers=headers)
+                                           json={"key": key})
         print('request done')
         print(transaction_result.json())
         if transaction_result.status_code == 200:
