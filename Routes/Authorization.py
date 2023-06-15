@@ -9,7 +9,6 @@ from fastapi import HTTPException, APIRouter, status, Form, Depends
 from starlette.responses import JSONResponse
 
 
-
 class BadTokenError(Exception): pass
 
 

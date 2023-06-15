@@ -179,10 +179,9 @@ IN: body: Token. OUT: [
 } / 400 - проблема токена / 403 - bad user_type / 404 - не найдена валидация по id
 
 ## transactions
-- post("/add_transaction"): IN: body:  token: Token , key: Secret_key; query: new_number: str, ipu: str. OUT: {'id_transaction': int, 'payment_sum': float} 
-/ 403 - новое значение меньше предыдущего / 400 - проблема токена или секретного ключа / 404 - нет такого ipu / 401 - bad user_type (нужен физик)
-- post("/trans_status"): IN: body: token: Token , key: Secret_key; query: trans_id: int, status: int. OUT: код 200.
-транзакция имеет 3 статуса, записываемых в бд цифрой. 0 - отклонена, 1 - ожидание, 2 - успех.
+- post("/scan_photo"): IN: form-data: key: str, photo: File. OUT: 403 - неверный ключ (секретный ключ); 200 - возвращается transaction_id.
+- post("/trans_status"): IN: body: key: Secret_key; query: trans_id: int, status: int. OUT: код 200.
+транзакция имеет 3 статуса, записываемых в бд цифрой. -1 - отклонена, 0 - создана, 1 - ожидание, 2 - успех.
 
 
 # порты

@@ -189,7 +189,7 @@ class SQLDatabase:
         validate_c.execute(f"INSERT INTO transactions "
                            f"(date, id_physic, ipu, prev_number, new_number, payment_sum, status) "
                            f"VALUES (NOW(), {user_id}, '{ipu}', '{prev_number}', '{new_number}', "
-                           f"{payment_sum}, 1)")
+                           f"{payment_sum}, 0)")
         self.trans_conn.commit()
         validate_c.execute(
             f"SELECT id_transaction, payment_sum from transactions WHERE id_physic={user_id} AND ipu='{ipu}' "
@@ -201,7 +201,7 @@ class SQLDatabase:
 
     async def change_status(self, trans_id: int, status: int):
         validate_c = self.trans_conn.cursor()
-        validate_c.execute(f"UPDATE transactions set status={status} WHERE id_transaction={trans_id}")
+        validate_c.execute(f"UPDATE transactions set status={status}, date=NOW() WHERE id_transaction={trans_id}")
         self.trans_conn.commit()
         validate_c.close()
 
@@ -452,7 +452,9 @@ class SQLDatabase:
         self.users_conn.commit()
         user_c.close()
 
-
+    async def delete_transactions(self):
+        trans_c = self.trans_conn.cursor()
+        trans_c.execute()
 # -----------------------------SQLITE----------------------------
 
 
