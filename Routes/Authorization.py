@@ -51,6 +51,7 @@ def get_user(login: str):
         user['user_type'] = 'physic'
         return UserInDB(**user)
     user['user_type'] = 'business'
+    c.close()
     return UserInDB(**user)
 
 
