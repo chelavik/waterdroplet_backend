@@ -34,13 +34,9 @@ headers.update(
 )
 
 
-# --------------------ROUTES-----------------------
-
-
-@router.post('/add_transaction', tags=['transactions'])
-async def add_transaction(key: Secret_key, login: str, new_number: str, ipu: str):
+async def add_transaction(key: str, login: str, new_number: str, ipu: str):
     try:
-        if not Hasher.verify_password(key.key, SECRET_KEY):
+        if not Hasher.verify_password(key, SECRET_KEY):
             raise HTTPException(status_code=400, detail='bad secret key')
         user_id, tariff = await SQLDatabase.get_user_id_tariff(login)
         prev_number = await SQLDatabase.get_last_number(user_id, ipu)
@@ -49,13 +45,11 @@ async def add_transaction(key: Secret_key, login: str, new_number: str, ipu: str
         trans_id = await SQLDatabase.add_transaction(user_id, prev_number, new_number, ipu,
                                                      count_sum(int(new_number) - int(prev_number), tariff))
         return JSONResponse(trans_id)
-    except ExpiredSignatureError:
-        raise HTTPException(status_code=400, detail='token expired')
-    except BadTokenError:
-        raise HTTPException(status_code=400, detail='bad token')
     except NotFoundError:
         raise HTTPException(status_code=404, detail='ipu not found')
 
+
+# --------------------ROUTES-----------------------
 
 @router.post('/trans_status', tags=['transactions'])
 async def change_trans_status(key: Secret_key, trans_id: int, status: int):
@@ -95,8 +89,7 @@ async def scan_photo(photo: UploadFile = File(...), key: str = Form()):
         raise HTTPException(status_code=403, detail='bad secret key')
     content = await photo.read()
     nparr = numpy.frombuffer(content, numpy.uint8)
-    info = scanQR(nparr)
-    info = Encrypter.decrypt_qrinfo(info)
+    info = Encrypter.decrypt_qrinfo(scanQR(nparr))
     info = info.split(sep='.')  # договор, счетчик
     data = {"token": "apitokentest"}
     files = {"upload_image": (photo.filename, content)}
@@ -107,16 +100,12 @@ async def scan_photo(photo: UploadFile = File(...), key: str = Form()):
     if number_result.status_code == 200:
         res = number_result.json()  # цифры на счетчике
         print('got number,', res)
-        print(res['number'], info[1], info[0])
         if res == "":
-            raise HTTPException(status_code=404, detail='number not found')
-        transaction_result = requests.post(url='https://waterdroplet.ru:5502/add_transaction',
-                                           params={'new_number': res['number'], 'ipu': info[1], 'login': info[0]},
-                                           json={"key": key})
-        print('request done')
-        print(transaction_result.json())
-        if transaction_result.status_code == 200:
-            transaction_result = transaction_result.json()
-            print(transaction_result)
-            return transaction_result
-    print('no result')
+            raise HTTPException(status_code=404, detail='number not found on photo')
+        try:
+            print('making pre-transaction...')
+            trans_id = await add_transaction(key=SECRET_KEY, login=info[0], new_number=res['number'], ipu=info[1])
+            print('done!')
+            return trans_id
+        except NotFoundError:
+            raise HTTPException(status_code=404, detail='ipu not found')
