@@ -13,3 +13,5 @@ VALIDATION_CONST = 100
 
 SECRET_KEY = '$2b$12$1smi1wC2W.tNOY5Tuu4shumq3Mi65kFH4bW296AT1NfeKqGxFRSqi'  # thisissupersecret
 ENCRYPTION_KEY = b'5SoLsR3_tMsKkk2AGODf8CqkECiI5g6uezHuWC-kgwY='
+
+iputoken = 'apitokentest'

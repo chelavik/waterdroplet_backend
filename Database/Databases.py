@@ -29,6 +29,9 @@ class BadUsernameError(DatabaseError): pass
 class BadTransactionNumberError(DatabaseError): pass
 
 
+class BadIpuDeltaError(DatabaseError): pass
+
+
 # -----------------MYSQL_CONNECTIONS-----------------------
 users_conn = pymysql.connect(
     host=config.host,
@@ -210,9 +213,15 @@ class SQLDatabase:
         user_id, tariff = await self.get_user_id_tariff(username)
         validate_c.execute(
             f"INSERT INTO transactions (date, id_physic, ipu, prev_number, new_number, payment_sum, status) VALUES "
-            f"(NOW(), {user_id}, '{ipu}', '000000', '{new_number}', 0, 0)")
+            f"(NOW(), {user_id}, '{ipu}', '000000', '{new_number}', 0, -1)")
         trans_conn.commit()
+        validate_c.execute(
+            f"SELECT id_transaction, payment_sum from transactions WHERE id_physic={user_id} AND ipu='{ipu}' "
+            f"ORDER BY date DESC "
+            f"LIMIT 1")
+        data = validate_c.fetchone()
         validate_c.close()
+        return data
 
     async def get_validation_logs(self, username, validation_id):
         user_id = await self.get_business_id(username)
@@ -455,6 +464,8 @@ class SQLDatabase:
     async def delete_transactions(self):
         trans_c = self.trans_conn.cursor()
         trans_c.execute()
+
+
 # -----------------------------SQLITE----------------------------
 
 

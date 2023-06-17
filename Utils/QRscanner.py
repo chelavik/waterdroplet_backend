@@ -1,8 +1,10 @@
 from pyzbar import pyzbar
 import cv2
+import numpy
 
 
-def scanQR(nparr) -> str:
+def scanQR(content) -> str:
+    nparr = numpy.frombuffer(content, numpy.uint8)
     all_data = []
     img = cv2.imdecode(nparr, cv2.IMREAD_GRAYSCALE)
     qrcodes = pyzbar.decode(img)
