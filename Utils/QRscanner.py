@@ -12,4 +12,7 @@ def scanQR(content) -> str:
         qrcodeData = qrcode.data.decode('utf-8')
         if qrcode.type == "QRCODE":
             all_data.append(qrcodeData.split('&')[0])
-    return all_data[0]
+    try:
+        return all_data[0]
+    except IndexError:
+        return ''

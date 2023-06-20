@@ -68,10 +68,13 @@ async def scan_photo(photo: UploadFile = File(...), key: str = Form()):
     if not Hasher.verify_password(key, SECRET_KEY):
         raise HTTPException(status_code=403, detail='bad secret key')
     content = await photo.read()
-    info = Encrypter.decrypt_qrinfo(scanQR(content)).split(sep='.')  # договор, счетчик
+    qr_info = scanQR(content)
+    if qr_info == '':
+        raise HTTPException(status_code=404, detail='QR-code not found on photo')
+    info = Encrypter.decrypt_qrinfo(qr_info).split(sep='.')  # договор, счетчик
     data = {"token": iputoken}
     files = {"upload_image": (photo.filename, content)}
-    number_result = requests.post(url='http://185.185.70.161:5500/get_number',
+    number_result = requests.post(url='https://api.waterdroplet.ru/get_number',
                                   data=data, files=files)
     if number_result.status_code == 200:
         res = number_result.json()  # цифры на счетчике
@@ -82,3 +85,5 @@ async def scan_photo(photo: UploadFile = File(...), key: str = Form()):
             return trans_id
         except BadIpuDeltaError:
             raise HTTPException(status_code=403, detail='New value is less than previous or its same')
+    else:
+        raise HTTPException(status_code=500, detail='API service Error')
