@@ -84,6 +84,6 @@ async def scan_photo(photo: UploadFile = File(...), key: str = Form()):
             trans_id = await add_transaction(key=SECRET_KEY, login=info[0], new_number=res['number'], ipu=info[1])
             return trans_id
         except BadIpuDeltaError:
-            raise HTTPException(status_code=403, detail='New value is less than previous or its same')
+            raise HTTPException(status_code=417, detail='New value is less than previous or its same')
     else:
         raise HTTPException(status_code=500, detail='API service Error')

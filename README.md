@@ -179,19 +179,18 @@ IN: body: Token. OUT: [
 } / 400 - проблема токена / 403 - bad user_type / 404 - не найдена валидация по id
 
 ## transactions
-- post("/scan_photo"): IN: form-data: key: str, photo: File. OUT: 403 - неверный ключ (секретный ключ); 200 - возвращается transaction_id.
-- post("/trans_status"): IN: body: key: Secret_key; query: trans_id: int, status: int. OUT: код 200.
+- post("/scan_photo"): IN: form-data: key: str, photo: File. OUT: 403 - неверный ключ (секретный ключ) / 
+404 - не найден qr_code или цифры на счетчике / 417 - значение на счетчике совпадает с предыдущим или меньше него / 200 - возвращается id_transaction: int, payment_sum: int, first_value: boolean 
+- post("/trans_status"): IN: body: key: Secret_key; query: trans_id: int, status: int. OUT: код 200 - успех / 403 - неверный ключ / 500 - ошибка сервера
 транзакция имеет 3 статуса, записываемых в бд цифрой. -1 - отклонена, 0 - создана, 1 - ожидание, 2 - успех.
 
 
-# порты
-- 3306 : mysql_db
+# серверы
+- 185.185.70.161:3306 : mysql_db
 
-- 5502: Backend (main)
-- 5500: api (main)
-
-- 5001: Backend_test
-- 5000: api_test
+- Backend: backend.waterdroplet.ru / 45.91.8.231 / 
+- API: api.waterdroplet.ru / 45.91.8.156 / 
+- Frontend: waterdroplet.ru / 45.91.8.59 /
 
 
 # тестовые пользователи в бд
