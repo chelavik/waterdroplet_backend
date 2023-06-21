@@ -180,7 +180,8 @@ IN: body: Token. OUT: [
 
 ## transactions
 - post("/scan_photo"): IN: form-data: key: str, photo: File. OUT: 403 - неверный ключ (секретный ключ) / 
-404 - не найден qr_code или цифры на счетчике / 417 - значение на счетчике совпадает с предыдущим или меньше него / 200 - возвращается id_transaction: int, payment_sum: int, first_value: boolean 
+404 - не найден qr_code или на нем не распознаны необходимые данные / 417 - значение на счетчике совпадает с предыдущим или меньше него; значение счетчика не распознано 
+ / 200 - возвращается id_transaction: int, payment_sum: int, first_value: boolean 
 - post("/trans_status"): IN: body: key: Secret_key; query: trans_id: int, status: int. OUT: код 200 - успех / 403 - неверный ключ / 500 - ошибка сервера
 транзакция имеет 3 статуса, записываемых в бд цифрой. -1 - отклонена, 0 - создана, 1 - ожидание, 2 - успех.
 

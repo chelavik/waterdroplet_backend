@@ -11,6 +11,7 @@ from fastapi import HTTPException, APIRouter, UploadFile, Form, File
 from Routes.Authorization import unpack_token, BadTokenError
 from Database.Databases import NotFoundError, BadIpuDeltaError
 from config import SECRET_KEY, iputoken
+from cryptography.fernet import InvalidToken
 
 Database = Databases.DatabaseBaseClass()
 router = APIRouter()
@@ -63,6 +64,16 @@ async def change_trans_status(key: Secret_key, trans_id: int, status: int):
     except:
         raise HTTPException(status_code=500, detail='Server Error')
 
+@router.post('/trans_status', tags=['transactions'])
+async def change_trans_status(key: Secret_key, trans_id: int, status: int):
+    try:
+        if not Hasher.verify_password(key.key, SECRET_KEY):
+            raise HTTPException(status_code=403, detail='bad secret key')
+        await SQLDatabase.change_status(trans_id, status)
+        return HTTPException(status_code=200)
+    except:
+        raise HTTPException(status_code=500, detail='Server Error')
+
 @router.post('/scan_photo', tags=['test'])
 async def scan_photo(photo: UploadFile = File(...), key: str = Form()):
     if not Hasher.verify_password(key, SECRET_KEY):
@@ -71,7 +82,10 @@ async def scan_photo(photo: UploadFile = File(...), key: str = Form()):
     qr_info = scanQR(content)
     if qr_info == '':
         raise HTTPException(status_code=404, detail='QR-code not found on photo')
-    info = Encrypter.decrypt_qrinfo(qr_info).split(sep='.')  # договор, счетчик
+    try:
+        info = Encrypter.decrypt_qrinfo(qr_info).split(sep='.')  # договор, счетчик
+    except InvalidToken:
+        raise HTTPException(status_code=404, detail='QR-code wrong info')
     data = {"token": iputoken}
     files = {"upload_image": (photo.filename, content)}
     number_result = requests.post(url='https://api.waterdroplet.ru/get_number',
@@ -79,7 +93,7 @@ async def scan_photo(photo: UploadFile = File(...), key: str = Form()):
     if number_result.status_code == 200:
         res = number_result.json()  # цифры на счетчике
         if res == "":
-            raise HTTPException(status_code=404, detail='number not found on photo')
+            raise HTTPException(status_code=417, detail='number not found on photo')
         try:
             trans_id = await add_transaction(key=SECRET_KEY, login=info[0], new_number=res['number'], ipu=info[1])
             return trans_id
