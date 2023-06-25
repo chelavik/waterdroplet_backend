@@ -200,6 +200,8 @@ class SQLDatabase:
             f"ORDER BY date DESC "
             f"LIMIT 1")
         data = validate_c.fetchone()
+        data['number']=data['new_number']
+        del data['new_number']
         validate_c.close()
         return data
 
@@ -222,6 +224,8 @@ class SQLDatabase:
             f"ORDER BY date DESC "
             f"LIMIT 1")
         data = validate_c.fetchone()
+        data['number'] = data['new_number']
+        del data['new_number']
         validate_c.close()
         return data
 
