@@ -37,8 +37,6 @@ headers.update(
 
 async def add_transaction(key: str, login: str, new_number: str, ipu: str):
     try:
-        if not Hasher.verify_password(key, SECRET_KEY):
-            raise HTTPException(status_code=400, detail='bad secret key')
         user_id, tariff = await SQLDatabase.get_user_id_tariff(login)
         prev_number = await SQLDatabase.get_last_number(user_id, ipu)
         if int(new_number) <= int(prev_number):
@@ -54,15 +52,6 @@ async def add_transaction(key: str, login: str, new_number: str, ipu: str):
 
 # --------------------ROUTES-----------------------
 
-@router.post('/trans_status', tags=['transactions'])
-async def change_trans_status(key: Secret_key, trans_id: int, status: int):
-    try:
-        if not Hasher.verify_password(key.key, SECRET_KEY):
-            raise HTTPException(status_code=403, detail='bad secret key')
-        await SQLDatabase.change_status(trans_id, status)
-        return HTTPException(status_code=200)
-    except:
-        raise HTTPException(status_code=500, detail='Server Error')
 
 @router.post('/trans_status', tags=['transactions'])
 async def change_trans_status(key: Secret_key, trans_id: int, status: int):
@@ -95,8 +84,8 @@ async def scan_photo(photo: UploadFile = File(...), key: str = Form()):
         if res == "":
             raise HTTPException(status_code=417, detail='number not found on photo')
         try:
-            trans_id = await add_transaction(key=SECRET_KEY, login=info[0], new_number=res['number'], ipu=info[1])
-            return trans_id
+            info = await add_transaction(key=SECRET_KEY, login=info[0], new_number=res['number'], ipu=info[1])
+            return info
         except BadIpuDeltaError:
             raise HTTPException(status_code=417, detail='New value is less than previous or its same')
     else:

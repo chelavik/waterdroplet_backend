@@ -195,7 +195,8 @@ class SQLDatabase:
                            f"{payment_sum}, 0)")
         self.trans_conn.commit()
         validate_c.execute(
-            f"SELECT id_transaction, payment_sum from transactions WHERE id_physic={user_id} AND ipu='{ipu}' "
+            f"SELECT id_transaction, payment_sum, new_number from transactions "
+            f"WHERE id_physic={user_id} AND ipu='{ipu}' "
             f"ORDER BY date DESC "
             f"LIMIT 1")
         data = validate_c.fetchone()
@@ -216,7 +217,8 @@ class SQLDatabase:
             f"(NOW(), {user_id}, '{ipu}', '000000', '{new_number}', 0, -1)")
         trans_conn.commit()
         validate_c.execute(
-            f"SELECT id_transaction, payment_sum from transactions WHERE id_physic={user_id} AND ipu='{ipu}' "
+            f"SELECT id_transaction, payment_sum, new_number from transactions "
+            f"WHERE id_physic={user_id} AND ipu='{ipu}' "
             f"ORDER BY date DESC "
             f"LIMIT 1")
         data = validate_c.fetchone()
