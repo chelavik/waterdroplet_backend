@@ -393,6 +393,28 @@ class SQLDatabase:
         user_c.close()
         return user_info
 
+    async def get_transactions_logs(self, username, hundred):
+        business_id = await self.get_business_id(username)
+        user_c = self.users_conn.cursor()
+        validate_c = self.trans_conn.cursor()
+        validate_c.execute(
+            f'SELECT id_transaction, id_physic, prev_number, new_number, date, ipu '
+            f'from transactions WHERE id_business={business_id} '
+            f'LIMIT 15 OFFSET {hundred * 15};')
+        info = validate_c.fetchall()
+        user_info = []
+        for transaction in info:
+            user_c.execute(f'SELECT full_name from physic WHERE id_physic={transaction["id_physic"]}')
+            result = user_c.fetchone()
+            user_dict = {'transaction_id': transaction["id_transaction"], 'full_name': result["full_name"],
+                         'transaction_date': transaction["date"], 'ipu': transaction['ipu'],
+                         'prev_number': transaction["prev_number"], 'new_number': transaction["new_number"]
+                         }
+            user_info.append(user_dict)
+        validate_c.close()
+        user_c.close()
+        return user_info
+
     async def get_all_addresses(self, username, user_type):
         if user_type == 'sotrudnik':
             business_id = await self.get_sotr_business(username)
