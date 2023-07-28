@@ -29,8 +29,8 @@ def count_sum(delta_number, tariff):
     return delta_number * tariff
 
 
-def set_verdict(user_id: int, ipu: str):
-    info = await SQLDatabase.get_last_values(user_id, ipu)
+async def set_verdict(user_id: int, ipu: str):
+    # info = await SQLDatabase.get_last_values(user_id, ipu)
     # Делаем умный подсчет с помощью мат. модели
     # возврат 1 или 0
     return random.randint(0, 1)

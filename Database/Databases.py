@@ -133,6 +133,14 @@ class SQLDatabase:
         else:
             raise BadUserError
 
+    async def get_last_values(self, user_id: int, ipu: str):
+        validate_c = self.trans_conn.cursor()
+        validate_c.execute(f'SELECT new_number FROM transactions WHERE id_physic = {user_id} '
+                           f'AND ipu = "{ipu}" ORDER BY `date` DESC LIMIT 15;')
+        info = validate_c.fetchall()
+        validate_c.close()
+        return info
+
     async def get_ipus(self, username, user_type):
         try:
             user_c = self.users_conn.cursor()
