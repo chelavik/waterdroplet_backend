@@ -184,7 +184,9 @@ IN: body: Token. OUT: [
  / 200 - возвращается id_transaction: int, payment_sum: int, first_value: boolean 
 - post("/trans_status"): IN: body: key: Secret_key; query: trans_id: int, status: int. OUT: код 200 - успех / 403 - неверный ключ / 500 - ошибка сервера
 транзакция имеет 3 статуса, записываемых в бд цифрой. -1 - отклонена, 0 - создана, 1 - ожидание, 2 - успех.
-- post('/get_transactions_logs/{page_id}'): IN: token: Token, page_id: int; OUT: list(dict("transaction_id": int, "full_name": str, "transaction_date": str, "ipu": str, "prev_number": str, "new_number": str), ...) / 
+- post('/get_transactions_logs/{page_id}'): IN: token: Token, page_id: int; OUT: list(dict("transaction_id": int, "full_name": str, "transaction_date": str, "ipu": str, "prev_number": str, "new_number": str, "verdict": boolean), ...) / 
+400 - bad user type / 401 - проблема токена
+- post('/get_suspicious_transactions_logs/{page_id}'): IN: token: Token, page_id: int; OUT: list(dict("transaction_id": int, "full_name": str, "transaction_date": str, "ipu": str, "prev_number": str, "new_number": str, "verdict": 1), ...) / 
 400 - bad user type / 401 - проблема токена
 - post('/save_file'): IN: token: Token; OUT: файл-лог data.xlsx - отчет по транзакциям у юр. лица/ 400 / 401 
 

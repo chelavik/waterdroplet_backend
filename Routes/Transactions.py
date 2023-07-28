@@ -1,18 +1,20 @@
-import numpy
+import random
 import requests
+
+from cryptography.fernet import InvalidToken
+from fastapi import HTTPException, APIRouter, UploadFile, Form, File
 from fastapi.responses import FileResponse
+from jose.exceptions import ExpiredSignatureError
+from openpyxl import Workbook
+from starlette.responses import JSONResponse
+
 from Database import Databases
+from Database.Databases import NotFoundError, BadIpuDeltaError
+from Models.Models import *
+from Routes.Authorization import unpack_token, BadTokenError
 from Utils.Hasher import HasherClass, EncryptionClass
 from Utils.QRscanner import scanQR
-from jose.exceptions import ExpiredSignatureError
-from Models.Models import *
-from starlette.responses import JSONResponse
-from fastapi import HTTPException, APIRouter, UploadFile, Form, File
-from Routes.Authorization import unpack_token, BadTokenError
-from Database.Databases import NotFoundError, BadIpuDeltaError
 from config import SECRET_KEY, iputoken
-from cryptography.fernet import InvalidToken
-from openpyxl import Workbook
 
 Database = Databases.DatabaseBaseClass()
 router = APIRouter()
@@ -25,6 +27,13 @@ Encrypter = EncryptionClass()
 
 def count_sum(delta_number, tariff):
     return delta_number * tariff
+
+
+def set_verdict(user_id: int, ipu: str):
+    info = await SQLDatabase.get_last_values(user_id, ipu)
+    # Делаем умный подсчет с помощью мат. модели
+    # возврат 1 или 0
+    return random.randint(0, 1)
 
 
 headers = requests.utils.default_headers()
@@ -44,7 +53,8 @@ async def add_transaction(key: str, login: str, new_number: str, ipu: str):
             if int(new_number) != int(prev_number) or not Hasher.verify_password(key, SECRET_KEY):
                 raise BadIpuDeltaError
         trans_id = await SQLDatabase.add_transaction(user_id, prev_number, new_number, ipu,
-                                                     count_sum(int(new_number) - int(prev_number) / 1000, tariff))
+                                                     count_sum(int(new_number) - int(prev_number) / 1000,
+                                                               tariff, set_verdict(user_id, ipu)))
         trans_id['first_value'] = False
         return JSONResponse(trans_id)
     except NotFoundError:
@@ -67,7 +77,7 @@ async def change_trans_status(key: Secret_key, trans_id: int, status: int):
         raise HTTPException(status_code=500, detail='Server Error')
 
 
-@router.post('/scan_photo', tags=['test'])
+@router.post('/scan_photo', tags=['transactions'])
 async def scan_photo(photo: UploadFile = File(...), key: str = Form()):
     if not Hasher.verify_password(key, SECRET_KEY):
         raise HTTPException(status_code=403, detail='bad secret key')
@@ -114,6 +124,24 @@ async def get_transactions_logs(token: Token, page_id: int):
         raise HTTPException(status_code=401, detail='bad token')
 
 
+@router.post('/get_suspicious_transactions_logs/{page_id}', tags=['transactions'])
+async def get_suspicious_transactions_logs(token: Token, page_id: int):
+    try:
+        username, user_type = unpack_token(token.access_token)
+        if user_type == "business":
+            page_id -= 1
+            info = await SQLDatabase.get_sus_transactions_logs(username, page_id)
+            for dictionary in info:
+                dictionary['transaction_date'] = str(dictionary['transaction_date'])
+            return JSONResponse(info)
+        else:
+            raise HTTPException(status_code=400, detail="bad user_type")
+    except ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail='token expired')
+    except BadTokenError:
+        raise HTTPException(status_code=401, detail='bad token')
+
+
 @router.post('/save_file', tags=['transactions'])
 async def save_file(token: Token):
     try:
@@ -123,7 +151,7 @@ async def save_file(token: Token):
             offset = 0
             workbook = Workbook()
             sheet = workbook.active
-            headers = ['transaction_id', 'full_name', 'transaction_date', 'ipu', 'prev_number', 'new_number']
+            headers = ['transaction_id', 'full_name', 'transaction_date', 'ipu', 'prev_number', 'new_number', 'verdict']
             sheet.append(headers)
 
             while True:

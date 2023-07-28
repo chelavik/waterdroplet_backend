@@ -187,7 +187,7 @@ class SQLDatabase:
         validate_c.close()
         return prev_number
 
-    async def add_transaction(self, user_id, prev_number, new_number, ipu, payment_sum):
+    async def add_transaction(self, user_id, prev_number, new_number, ipu, payment_sum, verdict):
         user_c = self.users_conn.cursor()
         user_c.execute(f"SELECT id_business from physic WHERE id_physic={user_id}")
         business_id = user_c.fetchone()
@@ -195,7 +195,7 @@ class SQLDatabase:
         validate_c.execute(f"INSERT INTO transactions "
                            f"(date, id_physic, id_business, ipu, prev_number, new_number, payment_sum, status, ) "
                            f"VALUES (NOW(), {user_id}, {business_id}, '{ipu}', '{prev_number}', '{new_number}', "
-                           f"{payment_sum}, 0)")
+                           f"{payment_sum}, 0, {verdict})")
         self.trans_conn.commit()
         validate_c.execute(
             f"SELECT id_transaction, payment_sum, new_number from transactions "
@@ -203,7 +203,7 @@ class SQLDatabase:
             f"ORDER BY date DESC "
             f"LIMIT 1")
         data = validate_c.fetchone()
-        data['number']=data['new_number']
+        data['number'] = data['new_number']
         del data['new_number']
         validate_c.close()
         return data
@@ -401,7 +401,7 @@ class SQLDatabase:
         user_c = self.users_conn.cursor()
         validate_c = self.trans_conn.cursor()
         validate_c.execute(
-            f'SELECT id_transaction, id_physic, prev_number, new_number, date, ipu '
+            f'SELECT id_transaction, id_physic, prev_number, new_number, date, ipu, verdict '
             f'from transactions WHERE id_business={business_id} '
             f'LIMIT 15 OFFSET {hundred * 15};')
         info = validate_c.fetchall()
@@ -411,7 +411,31 @@ class SQLDatabase:
             result = user_c.fetchone()
             user_dict = {'transaction_id': transaction["id_transaction"], 'full_name': result["full_name"],
                          'transaction_date': transaction["date"], 'ipu': transaction['ipu'],
-                         'prev_number': transaction["prev_number"], 'new_number': transaction["new_number"]
+                         'prev_number': transaction["prev_number"], 'new_number': transaction["new_number"],
+                         'verdict': transaction["verdict"]
+                         }
+            user_info.append(user_dict)
+        validate_c.close()
+        user_c.close()
+        return user_info
+
+    async def get_sus_transactions_logs(self, username, hundred):
+        business_id = await self.get_business_id(username)
+        user_c = self.users_conn.cursor()
+        validate_c = self.trans_conn.cursor()
+        validate_c.execute(
+            f'SELECT id_transaction, id_physic, prev_number, new_number, date, ipu, verdict '
+            f'from transactions WHERE id_business={business_id} and verdict=1 '
+            f'LIMIT 15 OFFSET {hundred * 15};')
+        info = validate_c.fetchall()
+        user_info = []
+        for transaction in info:
+            user_c.execute(f'SELECT full_name from physic WHERE id_physic={transaction["id_physic"]}')
+            result = user_c.fetchone()
+            user_dict = {'transaction_id': transaction["id_transaction"], 'full_name': result["full_name"],
+                         'transaction_date': transaction["date"], 'ipu': transaction['ipu'],
+                         'prev_number': transaction["prev_number"], 'new_number': transaction["new_number"],
+                         'verdict': transaction["verdict"]
                          }
             user_info.append(user_dict)
         validate_c.close()
