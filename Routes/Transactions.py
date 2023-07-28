@@ -104,7 +104,7 @@ async def get_transactions_logs(token: Token, page_id: int):
             page_id -= 1
             info = await SQLDatabase.get_transactions_logs(username, page_id)
             for dictionary in info:
-                dictionary['date'] = str(dictionary['date'])
+                dictionary['transaction_date'] = str(dictionary['transaction_date'])
             return JSONResponse(info)
         else:
             raise HTTPException(status_code=400, detail="bad user_type")
@@ -123,14 +123,18 @@ async def save_file(token: Token):
             offset = 0
             workbook = Workbook()
             sheet = workbook.active
-            sheet.append(['id', 'ФИО', 'Дата', 'Счетчик', 'Пред. показание', 'Новое показание'])
+            headers = ['transaction_id', 'full_name', 'transaction_date', 'ipu', 'prev_number', 'new_number']
+            sheet.append(headers)
 
             while True:
                 data = await SQLDatabase.get_transactions_logs(username, offset)
+                for dictionary in data:
+                    dictionary['transaction_date'] = str(dictionary['transaction_date'])
                 if not data:
                     break
                 for row in data:
-                    sheet.append(row)
+                    row_data = [row[col] for col in headers]
+                    sheet.append(row_data)
                 offset += PAGE_SIZE
 
             file_path = 'data.xlsx'

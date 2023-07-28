@@ -188,10 +188,13 @@ class SQLDatabase:
         return prev_number
 
     async def add_transaction(self, user_id, prev_number, new_number, ipu, payment_sum):
+        user_c = self.users_conn.cursor()
+        user_c.execute(f"SELECT id_business from physic WHERE id_physic={user_id}")
+        business_id = user_c.fetchone()
         validate_c = self.trans_conn.cursor()
         validate_c.execute(f"INSERT INTO transactions "
-                           f"(date, id_physic, ipu, prev_number, new_number, payment_sum, status) "
-                           f"VALUES (NOW(), {user_id}, '{ipu}', '{prev_number}', '{new_number}', "
+                           f"(date, id_physic, id_business, ipu, prev_number, new_number, payment_sum, status, ) "
+                           f"VALUES (NOW(), {user_id}, {business_id}, '{ipu}', '{prev_number}', '{new_number}', "
                            f"{payment_sum}, 0)")
         self.trans_conn.commit()
         validate_c.execute(
