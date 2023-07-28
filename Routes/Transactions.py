@@ -29,7 +29,7 @@ def count_sum(delta_number, tariff):
     return delta_number * tariff
 
 
-async def set_verdict(user_id: int, ipu: str):
+async def set_verdict(user_id: int, ipu: str, new_number: str):
     # info = await SQLDatabase.get_last_values(user_id, ipu)
     # Делаем умный подсчет с помощью мат. модели
     # возврат 1 или 0
@@ -53,8 +53,8 @@ async def add_transaction(key: str, login: str, new_number: str, ipu: str):
             if int(new_number) != int(prev_number) or not Hasher.verify_password(key, SECRET_KEY):
                 raise BadIpuDeltaError
         trans_id = await SQLDatabase.add_transaction(user_id, prev_number, new_number, ipu,
-                                                     count_sum(int(new_number) - int(prev_number) / 1000,
-                                                               tariff, set_verdict(user_id, ipu)))
+                                                     count_sum((int(new_number) - int(prev_number)) / 1000, tariff),
+                                                     set_verdict(user_id, ipu, new_number))
         trans_id['first_value'] = False
         return JSONResponse(trans_id)
     except NotFoundError:
