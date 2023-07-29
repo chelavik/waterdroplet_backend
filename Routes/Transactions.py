@@ -195,13 +195,14 @@ async def save_file(token: Token):
                        "physic_photo_date", "physic_number", "verdict"]
             await insert_info(func_name='get_all_validations', username=username, sheet=sheet, headers=headers)
 
-            sheet = workbook.create_sheet('Проверки сотрудников (подозрительные)')
+            sheet = workbook.create_sheet('Проверки (подозрительные)')
             sheet.append(["№ проверки", "Имя сотрудника", "Дата проверки", "Значение сотрудника", "ФИО клиента",
                           "Дата показаний", "Значение клиента", "Подозрительность"])
             await insert_info(func_name='get_suspicious_validations', username=username, sheet=sheet, headers=headers)
 
             file_path = 'data.xlsx'
             workbook.save(file_path)
+            workbook.close()
             return FileResponse(file_path, filename='data.xlsx')
 
         else:
