@@ -175,14 +175,16 @@ async def save_file(token: Token):
         username, user_type = unpack_token(token.access_token)
         if user_type == "business":
             workbook = Workbook()
-            sheet = workbook.create_sheet(title='Все показания')
+
+            sheet = workbook.active
+            sheet.title = 'Все транзакции'
             sheet.append(['№ транзакции', 'ФИО', 'Дата', 'Счетчик', 'пред. значение', 'новое значение', 'подозрительность'])
             headers = ['transaction_id', 'full_name', 'transaction_date', 'ipu', 'prev_number', 'new_number', 'verdict']
             await insert_info(func_name='get_transactions_logs', username=username, sheet=sheet, headers=headers)
 
             sheet = workbook.create_sheet('Подозрительные транзакции')
             sheet.append(['№ транзакции', 'ФИО', 'Дата', 'Счетчик', 'пред. значение', 'новое значение', 'подозрительность'])
-            await insert_info(func_name='get_transactions_logs', username=username, sheet=sheet, headers=headers)
+            await insert_info(func_name='get_sus_transactions_logs', username=username, sheet=sheet, headers=headers)
 
             sheet = workbook.create_sheet('Проверки сотрудников')
             sheet.append(["№ проверки", "Имя сотрудника", "Дата проверки", "Значение сотрудника", "ФИО клиента",
