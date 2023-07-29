@@ -44,13 +44,15 @@ async def insert_info(func_name, username, sheet, headers):
         data = await used_function(username, offset)
         if not data:
             break
-        if used_function == 'get_all_validations' or used_function == 'get_suspicious_validations':
+        if func_name == 'get_all_validations' or func_name == 'get_suspicious_validations':
             ids = []
             for dictionary in data:
                 ids.append(dictionary["validation_id"])
             data = []
             for id in ids:
-                data.append(await SQLDatabase.get_validation_logs(username, id))
+                info = await SQLDatabase.get_validation_logs(username, id)
+                info['validation_id'] = id
+                data.append(info)
         else:
             for dictionary in data:
                 dictionary['transaction_date'] = str(dictionary['transaction_date'])
@@ -189,8 +191,8 @@ async def save_file(token: Token):
             sheet = workbook.create_sheet('Проверки сотрудников')
             sheet.append(["№ проверки", "Имя сотрудника", "Дата проверки", "Значение сотрудника", "ФИО клиента",
                           "Дата показаний", "Значение клиента", "Подозрительность"])
-            headers = ["sotrudnik_name", "sotrudnik_photo_date", "sotrudnik_number", "physic_name", "physic_photo_date",
-                       "physic_number", "verdict"]
+            headers = ["validation_id", "sotrudnik_name", "sotrudnik_photo_date", "sotrudnik_number", "physic_name",
+                       "physic_photo_date", "physic_number", "verdict"]
             await insert_info(func_name='get_all_validations', username=username, sheet=sheet, headers=headers)
 
             sheet = workbook.create_sheet('Проверки сотрудников (подозрительные)')
