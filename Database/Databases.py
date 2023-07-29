@@ -350,7 +350,7 @@ class SQLDatabase:
         business_id = await self.get_business_id(username)
         user_c = self.users_conn.cursor()
         user_c.execute(f'SELECT id_physic, contract_number, full_name, email, ipus, address, id_business from physic '
-                       f'WHERE id_business={business_id} AND hashed_password != "00000000"')
+                       f'WHERE id_business={business_id}')
         info = user_c.fetchall()
         user_c.close()
         return info
@@ -359,7 +359,7 @@ class SQLDatabase:
         business_id = await self.get_business_id(username)
         user_c = self.users_conn.cursor()
         user_c.execute(f'SELECT id_physic, contract_number, full_name, email, ipus, address, id_business from physic '
-                       f'WHERE id_business={business_id} AND hashed_password != "00000000" '
+                       f'WHERE id_business={business_id}'
                        f'LIMIT 15 OFFSET {hundred * 15};')
         info = user_c.fetchall()
         user_c.close()
