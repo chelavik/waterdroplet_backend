@@ -36,6 +36,25 @@ async def set_verdict(user_id: int, ipu: str, new_number: str):
     return random.randint(0, 1)
 
 
+async def insert_info(func_name, username, sheet, headers):
+    PAGE_SIZE = 15
+    offset = 0
+    used_function = getattr(SQLDatabase, func_name)
+    while True:
+        data = await used_function(username, offset)
+        for dictionary in data:
+            dictionary['transaction_date'] = str(dictionary['transaction_date'])
+        if not data:
+            break
+        for row in data:
+            row_data = [row[col] for col in headers]
+            sheet.append(row_data)
+        offset += PAGE_SIZE
+
+
+
+# ----------------------------------------------------
+
 headers = requests.utils.default_headers()
 
 headers.update(
@@ -147,23 +166,12 @@ async def save_file(token: Token):
     try:
         username, user_type = unpack_token(token.access_token)
         if user_type == "business":
-            PAGE_SIZE = 15
-            offset = 0
             workbook = Workbook()
             sheet = workbook.active
-            headers = ['transaction_id', 'full_name', 'transaction_date', 'ipu', 'prev_number', 'new_number', 'verdict']
-            sheet.append(headers)
 
-            while True:
-                data = await SQLDatabase.get_transactions_logs(username, offset)
-                for dictionary in data:
-                    dictionary['transaction_date'] = str(dictionary['transaction_date'])
-                if not data:
-                    break
-                for row in data:
-                    row_data = [row[col] for col in headers]
-                    sheet.append(row_data)
-                offset += PAGE_SIZE
+            sheet.append(['№ транзакции', 'ФИО', 'Дата', 'Счетчик', 'пред. значение', 'новое значение', 'подозрительность'])
+            headers = ['transaction_id', 'full_name', 'transaction_date', 'ipu', 'prev_number', 'new_number', 'verdict']
+            await insert_info(func_name='get_transactions_logs', username=username, sheet=sheet, headers=headers)
 
             file_path = 'data.xlsx'
             workbook.save(file_path)

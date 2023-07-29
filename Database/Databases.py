@@ -359,7 +359,7 @@ class SQLDatabase:
         business_id = await self.get_business_id(username)
         user_c = self.users_conn.cursor()
         user_c.execute(f'SELECT id_physic, contract_number, full_name, email, ipus, address, id_business from physic '
-                       f'WHERE id_business={business_id}'
+                       f'WHERE id_business={business_id} '
                        f'LIMIT 15 OFFSET {hundred * 15};')
         info = user_c.fetchall()
         user_c.close()
@@ -410,7 +410,7 @@ class SQLDatabase:
         validate_c = self.trans_conn.cursor()
         validate_c.execute(
             f'SELECT id_transaction, id_physic, prev_number, new_number, date, ipu, verdict '
-            f'from transactions WHERE id_business={business_id} and status=2'
+            f'from transactions WHERE id_business={business_id} and status=2 '
             f'LIMIT 15 OFFSET {hundred * 15};')
         info = validate_c.fetchall()
         user_info = []
@@ -433,7 +433,7 @@ class SQLDatabase:
         validate_c = self.trans_conn.cursor()
         validate_c.execute(
             f'SELECT id_transaction, id_physic, prev_number, new_number, date, ipu, verdict '
-            f'from transactions WHERE id_business={business_id} and verdict=1 and status=2'
+            f'from transactions WHERE id_business={business_id} and verdict=1 and status=2 '
             f'LIMIT 15 OFFSET {hundred * 15};')
         info = validate_c.fetchall()
         user_info = []
@@ -524,9 +524,6 @@ class SQLDatabase:
         self.users_conn.commit()
         user_c.close()
 
-    async def delete_transactions(self):
-        trans_c = self.trans_conn.cursor()
-        trans_c.execute()
 
 
 # -----------------------------SQLITE----------------------------
