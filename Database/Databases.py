@@ -91,7 +91,7 @@ class SQLDatabase:
     async def get_user(self, username, user_type):
         if user_type == 'physic':
             user_c = self.users_conn.cursor()
-            user_c.execute(f"SELECT id_physic, login, full_name, email, address, id_business"
+            user_c.execute(f"SELECT id_physic, contract_number, full_name, email, address, id_business"
                            f" from physic WHERE login='{username}'")
             data = user_c.fetchone()
         elif user_type == 'sotrudnik':
@@ -119,8 +119,8 @@ class SQLDatabase:
     async def create_user(self, username, password, email, user_type, full_name):
         if user_type == 'physic':
             user_c = self.users_conn.cursor()
-            user_c.execute(f"INSERT INTO {user_type} (login, email, hashed_password, full_name)"
-                           f" VALUES ('{username}', '{email}', '{password}', '{full_name}')")
+            user_c.execute(f"INSERT INTO {user_type} (contract_number, email, full_name)"
+                           f" VALUES ('{username}', '{email}', '{full_name}')")
             self.users_conn.commit()
             user_c.close()
         elif user_type == 'business':
@@ -147,7 +147,7 @@ class SQLDatabase:
             validate_c = self.trans_conn.cursor()
             user_id, tariff = await self.get_user_id_tariff(username)
             data = {}
-            user_c.execute(f"SELECT ipus from physic WHERE login='{username}'")
+            user_c.execute(f"SELECT ipus from physic WHERE contract_number='{username}'")
             ipus = (user_c.fetchone())['ipus'].split()
             for i in ipus:
                 try:
@@ -174,7 +174,7 @@ class SQLDatabase:
 
     async def get_user_id_tariff(self, username):
         user_c = self.users_conn.cursor()
-        user_c.execute(f"SELECT id_physic, id_business from physic where login='{username}'")
+        user_c.execute(f"SELECT id_physic, id_business from physic where contract_number='{username}'")
         id = user_c.fetchone()
         user_c.execute(f"SELECT tariff from business where id_business={id['id_business']}")
         tariff = user_c.fetchone()
@@ -321,7 +321,7 @@ class SQLDatabase:
         user_c = self.users_conn.cursor()
         user_c.execute(f"SELECT id_business from business where login='{login}'")
         if not user_c.fetchone():
-            user_c.execute(f"SELECT id_physic from physic where login='{login}'")
+            user_c.execute(f"SELECT id_physic from physic where contract_number='{login}'")
             if not user_c.fetchone():
                 user_c.execute(f"SELECT id_sotrudnik from sotrudnik where login='{login}'")
                 if not user_c.fetchone():
@@ -349,7 +349,7 @@ class SQLDatabase:
     async def get_related_physics(self, username):
         business_id = await self.get_business_id(username)
         user_c = self.users_conn.cursor()
-        user_c.execute(f'SELECT id_physic, login, full_name, email, ipus, address, id_business from physic '
+        user_c.execute(f'SELECT id_physic, contract_number, full_name, email, ipus, address, id_business from physic '
                        f'WHERE id_business={business_id} AND hashed_password != "00000000"')
         info = user_c.fetchall()
         user_c.close()
@@ -358,7 +358,7 @@ class SQLDatabase:
     async def get_hundred_physics(self, username, hundred: int):
         business_id = await self.get_business_id(username)
         user_c = self.users_conn.cursor()
-        user_c.execute(f'SELECT id_physic, login, full_name, email, ipus, address, id_business from physic '
+        user_c.execute(f'SELECT id_physic, contract_number, full_name, email, ipus, address, id_business from physic '
                        f'WHERE id_business={business_id} AND hashed_password != "00000000" '
                        f'LIMIT 15 OFFSET {hundred * 15};')
         info = user_c.fetchall()

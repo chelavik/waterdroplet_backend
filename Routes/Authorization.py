@@ -38,7 +38,7 @@ def get_user(login: str):
     user = c.fetchone()
 
     if not user:
-        c.execute(f"SELECT * FROM physic WHERE login='{login}'")
+        c.execute(f"SELECT * FROM physic WHERE contract_number='{login}'")
         user = c.fetchone()
         if not user:
             c.execute(f"SELECT * FROM sotrudnik WHERE login='{login}'")
@@ -97,8 +97,7 @@ async def login_for_access_token(user: auth):
     )
     is_first = False
     if not (user.user_type == 'sotrudnik'):
-        if Hasher.verify_password('00000000', user.hashed_password):
-            is_first = True
+        raise HTTPException(status_code=403, detail='physics have no longer accounts')
     return JSONResponse({"access_token": access_token, "token_type": "bearer",
                          "first_enter": is_first, 'user_type': user.user_type})
 
