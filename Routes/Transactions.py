@@ -42,10 +42,18 @@ async def insert_info(func_name, username, sheet, headers):
     used_function = getattr(SQLDatabase, func_name)
     while True:
         data = await used_function(username, offset)
-        for dictionary in data:
-            dictionary['transaction_date'] = str(dictionary['transaction_date'])
         if not data:
             break
+        if used_function == 'get_all_validations' or used_function == 'get_suspicious_validations':
+            ids = []
+            for dictionary in data:
+                ids.append(dictionary["validation_id"])
+            data = []
+            for id in ids:
+                data.append(await SQLDatabase.get_validation_logs(username, id))
+        else:
+            for dictionary in data:
+                dictionary['transaction_date'] = str(dictionary['transaction_date'])
         for row in data:
             row_data = [row[col] for col in headers]
             sheet.append(row_data)
@@ -167,11 +175,26 @@ async def save_file(token: Token):
         username, user_type = unpack_token(token.access_token)
         if user_type == "business":
             workbook = Workbook()
-            sheet = workbook.active
-
+            sheet = workbook.create_sheet(title='Все показания')
             sheet.append(['№ транзакции', 'ФИО', 'Дата', 'Счетчик', 'пред. значение', 'новое значение', 'подозрительность'])
             headers = ['transaction_id', 'full_name', 'transaction_date', 'ipu', 'prev_number', 'new_number', 'verdict']
             await insert_info(func_name='get_transactions_logs', username=username, sheet=sheet, headers=headers)
+
+            sheet = workbook.create_sheet('Подозрительные транзакции')
+            sheet.append(['№ транзакции', 'ФИО', 'Дата', 'Счетчик', 'пред. значение', 'новое значение', 'подозрительность'])
+            await insert_info(func_name='get_transactions_logs', username=username, sheet=sheet, headers=headers)
+
+            sheet = workbook.create_sheet('Проверки сотрудников')
+            sheet.append(["№ проверки", "Имя сотрудника", "Дата проверки", "Значение сотрудника", "ФИО клиента",
+                          "Дата показаний", "Значение клиента", "Подозрительность"])
+            headers = ["sotrudnik_name", "sotrudnik_photo_date", "sotrudnik_number", "physic_name", "physic_photo_date",
+                       "physic_number", "verdict"]
+            await insert_info(func_name='get_all_validations', username=username, sheet=sheet, headers=headers)
+
+            sheet = workbook.create_sheet('Проверки сотрудников (подозрительные)')
+            sheet.append(["№ проверки", "Имя сотрудника", "Дата проверки", "Значение сотрудника", "ФИО клиента",
+                          "Дата показаний", "Значение клиента", "Подозрительность"])
+            await insert_info(func_name='get_suspicious_validations', username=username, sheet=sheet, headers=headers)
 
             file_path = 'data.xlsx'
             workbook.save(file_path)

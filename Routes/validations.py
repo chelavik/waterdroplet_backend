@@ -130,7 +130,7 @@ async def get_ipus_by_address(token: Token, address: str):
 
 
 @router.post('/new_validation', tags=['sotrudnik'])
-async def new_validation(token: Token, sotr_number: int, ipu: str, address: str):
+async def new_validation(token: Token, sotr_number: str, ipu: str, address: str):
     try:
         username, user_type = unpack_token(token.access_token)
         if not user_type == "sotrudnik":
