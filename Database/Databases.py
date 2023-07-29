@@ -409,7 +409,7 @@ class SQLDatabase:
         user_c = self.users_conn.cursor()
         validate_c = self.trans_conn.cursor()
         validate_c.execute(
-            f'SELECT id_transaction, id_physic, prev_number, new_number, date, ipu, verdict '
+            f'SELECT id_transaction, id_physic, prev_number, new_number, date, ipu, payment_sum, verdict '
             f'from transactions WHERE id_business={business_id} and status=2 '
             f'LIMIT 15 OFFSET {hundred * 15};')
         info = validate_c.fetchall()
@@ -432,7 +432,7 @@ class SQLDatabase:
         user_c = self.users_conn.cursor()
         validate_c = self.trans_conn.cursor()
         validate_c.execute(
-            f'SELECT id_transaction, id_physic, prev_number, new_number, date, ipu, verdict '
+            f'SELECT id_transaction, id_physic, prev_number, new_number, date, ipu, payment_sum, verdict '
             f'from transactions WHERE id_business={business_id} and verdict=1 and status=2 '
             f'LIMIT 15 OFFSET {hundred * 15};')
         info = validate_c.fetchall()
