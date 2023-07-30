@@ -47,12 +47,18 @@ async def set_verdict(user_id: int, ipu: str, new_number: str):
         else:
             date_diff = int((dictionary['date'] - first_date).days)
             num_diff = int(dictionary['new_number']) - first_number
-            diff += num_diff / date_diff
+            if date_diff == 0:
+                diff = 130
+            else:
+                diff += num_diff / date_diff
             first_date = dictionary['date']
             first_number = int(dictionary['new_number'])
+
         counter += 1
     if len(info) == 3:
         diff /= 2
+    if int((datetime.datetime.now() - info[-1]['date']).days):
+        return "Не подозрительно"
     if (abs(int((datetime.datetime.now() - info[-1]['date']).days) * diff - (int(new_number) - int(info[-1]['new_number'])))) / abs(int(new_number) - int(info[-1]['new_number'])) < 0.3:
         return "Не подозрительно"
     else:
