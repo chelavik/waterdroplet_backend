@@ -37,9 +37,9 @@ async def set_verdict(user_id: int, ipu: str, new_number: str):
     diff = 0
     if len(info) == 1:
         if (abs(int((datetime.datetime.now() - info[0]['date']).days) * 130 - (int(new_number) - int(info[0]['new_number'])))) / (int(new_number) - int(info[0]['new_number'])) < 0.3:
-            return 0
+            return "Не подозрительно"
         else:
-            return 1
+            return "Подозрительно"
     for dictionary in info:
         if counter == 0:
             first_date = dictionary['date']
