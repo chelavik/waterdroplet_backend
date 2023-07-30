@@ -35,7 +35,7 @@ async def set_verdict(user_id: int, ipu: str, new_number: str):
     counter = 0
     diff = 0
     if len(info) == 1:
-        if (abs(int((datetime.datetime.now() - info[0]['date']).days) * 130 - (int(new_number) - info[0]['new_number']))) / (int(new_number) - info[0]['new_number']) < 0.3:
+        if (abs(int((datetime.datetime.now() - info[0]['date']).days) * 130 - (int(new_number) - int(info[0]['new_number'])))) / (int(new_number) - int(info[0]['new_number'])) < 0.3:
             return 0
         else:
             return 1
@@ -52,7 +52,7 @@ async def set_verdict(user_id: int, ipu: str, new_number: str):
         counter += 1
     if len(info) == 3:
         diff /= 2
-    if (abs(int((datetime.datetime.now() - info[-1]['date']).days) * diff - (int(new_number) - info[-1]['new_number']))) / (int(new_number) - info[-1]['new_number']) < 0.3:
+    if (abs(int((datetime.datetime.now() - info[-1]['date']).days) * diff - (int(new_number) - int(info[-1]['new_number'])))) / abs(int(new_number) - int(info[-1]['new_number'])) < 0.3:
         return 0
     else:
         return 1
@@ -137,7 +137,7 @@ async def scan_photo(photo: UploadFile = File(...), key: str = Form()):
     if qr_info == '':
         raise HTTPException(status_code=404, detail='QR-code not found on photo')
     try:
-        info = Encrypter.decrypt_qrinfo(qr_info).split(sep='.')  # договор, счетчик
+        info = Encrypter.decrypt_qrinfo(qr_info).split(sep=';')  # договор, счетчик
     except InvalidToken:
         raise HTTPException(status_code=404, detail='QR-code wrong info')
     data = {"token": iputoken}
