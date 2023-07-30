@@ -227,7 +227,7 @@ class SQLDatabase:
         user_id, tariff = await self.get_user_id_tariff(username)
         validate_c.execute(
             f"INSERT INTO transactions (date, id_physic, ipu, prev_number, new_number, payment_sum, status) VALUES "
-            f"(NOW(), {user_id}, '{ipu}', '000000', '{new_number}', 0, -1)")
+            f"(NOW(), {user_id}, '{ipu}', '00000000', '{new_number}', 0, -1)")
         trans_conn.commit()
         validate_c.execute(
             f"SELECT id_transaction, payment_sum, new_number from transactions "
