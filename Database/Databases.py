@@ -198,12 +198,12 @@ class SQLDatabase:
     async def add_transaction(self, user_id, prev_number, new_number, ipu, payment_sum, verdict):
         user_c = self.users_conn.cursor()
         user_c.execute(f"SELECT id_business from physic WHERE id_physic={user_id}")
-        business_id = user_c.fetchone()
+        business_id = user_c.fetchone()['id_business']
         validate_c = self.trans_conn.cursor()
         validate_c.execute(f"INSERT INTO transactions "
-                           f"(date, id_physic, id_business, ipu, prev_number, new_number, payment_sum, status, ) "
-                           f"VALUES (NOW(), {user_id}, {business_id}, '{ipu}', '{prev_number}', '{new_number}', "
-                           f"{payment_sum}, 0, {verdict})")
+                           f"(date, id_physic, id_business, ipu, prev_number, new_number, payment_sum, status, verdict)"
+                           f" VALUES (NOW(), {user_id}, {business_id}, '{ipu}', '{prev_number}', '{new_number}', "
+                           f"{payment_sum}, 0, '{verdict}')")
         self.trans_conn.commit()
         validate_c.execute(
             f"SELECT id_transaction, payment_sum, new_number from transactions "
@@ -226,8 +226,8 @@ class SQLDatabase:
         validate_c = self.trans_conn.cursor()
         user_id, tariff = await self.get_user_id_tariff(username)
         validate_c.execute(
-            f"INSERT INTO transactions (date, id_physic, ipu, prev_number, new_number, payment_sum, status) VALUES "
-            f"(NOW(), {user_id}, '{ipu}', '00000000', '{new_number}', 0, -1)")
+            f"INSERT INTO transactions (date, id_physic, ipu, prev_number, new_number, payment_sum, status, verdict) VALUES "
+            f"(NOW(), {user_id}, '{ipu}', '00000000', '{new_number}', 0, -1, 'Не подозрительно')")
         trans_conn.commit()
         validate_c.execute(
             f"SELECT id_transaction, payment_sum, new_number from transactions "
@@ -371,7 +371,7 @@ class SQLDatabase:
         validate_c = self.trans_conn.cursor()
         validate_c.execute(
             f'SELECT id_validation, id_physic, sotrudnik_photo_date from validate WHERE id_business={business_id} '
-            f'AND verdict=1 '
+            f'AND verdict="Подозрительно" '
             f'LIMIT 15 OFFSET {hundred * 15};')
         info = validate_c.fetchall()
         user_info = []
@@ -433,7 +433,7 @@ class SQLDatabase:
         validate_c = self.trans_conn.cursor()
         validate_c.execute(
             f'SELECT id_transaction, id_physic, prev_number, new_number, date, ipu, payment_sum, verdict '
-            f'from transactions WHERE id_business={business_id} and verdict=1 and status=2 '
+            f'from transactions WHERE id_business={business_id} and verdict="Подозрительно" and status=2 '
             f'LIMIT 15 OFFSET {hundred * 15};')
         info = validate_c.fetchall()
         user_info = []
@@ -506,13 +506,13 @@ class SQLDatabase:
             if (int(sotr_number) - int(physic_number) > (config.VALIDATION_CONST *
                                                          int((datetime.datetime.now() - physic_photo_date).days))) or (
                     int(sotr_number) - int(physic_number) < 0):
-                verdict = 1
+                verdict = 'Подозрительно'
             else:
-                verdict = 0
+                verdict = 'Не подозрительно'
             validate_c.execute(f'INSERT INTO validate (id_physic, id_business, ipu, physic_photo_date, physic_number, '
                                f'sotrudnik_id, sotrudnik_photo_date, sotrudnik_number, verdict) '
                                f'VALUES ({id_physic}, {id_business}, "{ipu}", "{physic_photo_date}", "{physic_number}",'
-                               f' {id_sotr}, NOW(), "{sotr_number}", {verdict})')
+                               f' {id_sotr}, NOW(), "{sotr_number}", "{verdict}")')
         trans_conn.commit()
         user_c.close()
         validate_c.close()

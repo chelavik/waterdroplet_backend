@@ -32,6 +32,7 @@ def count_sum(delta_number, tariff):
 
 async def set_verdict(user_id: int, ipu: str, new_number: str):
     info = (await SQLDatabase.get_last_values(user_id, ipu)).reverse()
+    info = list(reversed(info))
     counter = 0
     diff = 0
     if len(info) == 1:
@@ -53,9 +54,9 @@ async def set_verdict(user_id: int, ipu: str, new_number: str):
     if len(info) == 3:
         diff /= 2
     if (abs(int((datetime.datetime.now() - info[-1]['date']).days) * diff - (int(new_number) - int(info[-1]['new_number'])))) / abs(int(new_number) - int(info[-1]['new_number'])) < 0.3:
-        return 0
+        return "Не подозрительно"
     else:
-        return 1
+        return "Подозрительно"
 
 
 async def insert_info(func_name, username, sheet, headers):
@@ -105,7 +106,7 @@ async def add_transaction(key: str, login: str, new_number: str, ipu: str):
                 raise BadIpuDeltaError
         trans_id = await SQLDatabase.add_transaction(user_id, prev_number, new_number, ipu,
                                                      count_sum((int(new_number) - int(prev_number)) / 1000, tariff),
-                                                     set_verdict(user_id, ipu, new_number))
+                                                     await set_verdict(user_id, ipu, new_number))
         trans_id['first_value'] = False
         return JSONResponse(trans_id)
     except NotFoundError:
