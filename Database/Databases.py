@@ -136,7 +136,7 @@ class SQLDatabase:
     async def get_last_values(self, user_id: int, ipu: str):
         validate_c = self.trans_conn.cursor()
         validate_c.execute(f'SELECT new_number, date FROM transactions WHERE id_physic = {user_id} '
-                           f'AND ipu = "{ipu}" ORDER BY `date` DESC LIMIT 3;')
+                           f'AND ipu = "{ipu}" and status = 2 ORDER BY `date` DESC LIMIT 3;')
         info = validate_c.fetchall()
         validate_c.close()
         return info
@@ -227,7 +227,7 @@ class SQLDatabase:
         user_id, tariff = await self.get_user_id_tariff(username)
         validate_c.execute(
             f"INSERT INTO transactions (date, id_physic, ipu, prev_number, new_number, payment_sum, status, verdict) VALUES "
-            f"(NOW(), {user_id}, '{ipu}', '00000000', '{new_number}', 0, -1, 'Не подозрительно')")
+            f"(NOW(), {user_id}, '{ipu}', '00000000', '{new_number}', 0, 2, 'Не подозрительно')")
         trans_conn.commit()
         validate_c.execute(
             f"SELECT id_transaction, payment_sum, new_number from transactions "
