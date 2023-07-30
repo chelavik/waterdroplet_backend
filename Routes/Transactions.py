@@ -31,7 +31,7 @@ def count_sum(delta_number, tariff):
 
 
 async def set_verdict(user_id: int, ipu: str, new_number: str):
-    info = (await SQLDatabase.get_last_values(user_id, ipu)).reverse()
+    info = (await SQLDatabase.get_last_values(user_id, ipu))
     info = list(reversed(info))
     counter = 0
     diff = 0
