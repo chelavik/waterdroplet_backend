@@ -203,7 +203,7 @@ class SQLDatabase:
         validate_c.execute(f"INSERT INTO transactions "
                            f"(date, id_physic, id_business, ipu, prev_number, new_number, payment_sum, status, verdict)"
                            f" VALUES (NOW(), {user_id}, {business_id}, '{ipu}', '{prev_number}', '{new_number}', "
-                           f"{payment_sum}, 0, '{verdict}')")
+                           f"{payment_sum}, 2, '{verdict}')")
         self.trans_conn.commit()
         validate_c.execute(
             f"SELECT id_transaction, payment_sum, new_number from transactions "
