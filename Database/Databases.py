@@ -62,7 +62,7 @@ class SQLDatabase:
 
     async def get_user_by_address(self, address):
         user_c = self.users_conn.cursor()
-        user_c.execute(f"SELECT full_name, login, email FROM physic WHERE address='{address}'")
+        user_c.execute(f"SELECT full_name, contract_number, email FROM physic WHERE address='{address}'")
         info = user_c.fetchone()
         if not info:
             raise NotFoundError
@@ -70,11 +70,11 @@ class SQLDatabase:
 
     async def get_username_by_address(self, address):
         user_c = self.users_conn.cursor()
-        user_c.execute(f"SELECT login from physic where address='{address}'")
+        user_c.execute(f"SELECT contract_number from physic where address='{address}'")
         info = user_c.fetchone()
         if not info:
             raise NotFoundError
-        return info['login']
+        return info['contract_number']
 
     async def change_password(self, new_password, username, user_type):
         user_c = self.users_conn.cursor()
@@ -92,7 +92,7 @@ class SQLDatabase:
         if user_type == 'physic':
             user_c = self.users_conn.cursor()
             user_c.execute(f"SELECT id_physic, contract_number, full_name, email, address, id_business"
-                           f" from physic WHERE login='{username}'")
+                           f" from physic WHERE contract_number='{username}'")
             data = user_c.fetchone()
         elif user_type == 'sotrudnik':
             user_c = self.users_conn.cursor()
@@ -135,8 +135,8 @@ class SQLDatabase:
 
     async def get_last_values(self, user_id: int, ipu: str):
         validate_c = self.trans_conn.cursor()
-        validate_c.execute(f'SELECT new_number FROM transactions WHERE id_physic = {user_id} '
-                           f'AND ipu = "{ipu}" ORDER BY `date` DESC LIMIT 15;')
+        validate_c.execute(f'SELECT new_number, date FROM transactions WHERE id_physic = {user_id} '
+                           f'AND ipu = "{ipu}" ORDER BY `date` DESC LIMIT 3;')
         info = validate_c.fetchall()
         validate_c.close()
         return info
@@ -420,7 +420,7 @@ class SQLDatabase:
             user_dict = {'transaction_id': transaction["id_transaction"], 'full_name': result["full_name"],
                          'transaction_date': transaction["date"], 'ipu': transaction['ipu'],
                          'prev_number': transaction["prev_number"], 'new_number': transaction["new_number"],
-                         'verdict': transaction["verdict"]
+                         'payment_sum': transaction["payment_sum"], 'verdict': transaction["verdict"]
                          }
             user_info.append(user_dict)
         validate_c.close()
@@ -443,7 +443,7 @@ class SQLDatabase:
             user_dict = {'transaction_id': transaction["id_transaction"], 'full_name': result["full_name"],
                          'transaction_date': transaction["date"], 'ipu': transaction['ipu'],
                          'prev_number': transaction["prev_number"], 'new_number': transaction["new_number"],
-                         'verdict': transaction["verdict"]
+                         'payment_sum': transaction["payment_sum"], 'verdict': transaction["verdict"]
                          }
             user_info.append(user_dict)
         validate_c.close()

@@ -1,3 +1,4 @@
+import datetime
 import random
 import requests
 
@@ -30,10 +31,31 @@ def count_sum(delta_number, tariff):
 
 
 async def set_verdict(user_id: int, ipu: str, new_number: str):
-    # info = await SQLDatabase.get_last_values(user_id, ipu)
-    # Делаем умный подсчет с помощью мат. модели
-    # возврат 1 или 0
-    return random.randint(0, 1)
+    info = (await SQLDatabase.get_last_values(user_id, ipu)).reverse()
+    counter = 0
+    diff = 0
+    if len(info) == 1:
+        if (abs(int((datetime.datetime.now() - info[0]['date']).days) * 130 - (int(new_number) - info[0]['new_number']))) / (int(new_number) - info[0]['new_number']) < 0.3:
+            return 0
+        else:
+            return 1
+    for dictionary in info:
+        if counter == 0:
+            first_date = dictionary['date']
+            first_number = int(dictionary['new_number'])
+        else:
+            date_diff = int((dictionary['date'] - first_date).days)
+            num_diff = int(dictionary['new_number']) - first_number
+            diff += num_diff / date_diff
+            first_date = dictionary['date']
+            first_number = int(dictionary['new_number'])
+        counter += 1
+    if len(info) == 3:
+        diff /= 2
+    if (abs(int((datetime.datetime.now() - info[-1]['date']).days) * diff - (int(new_number) - info[-1]['new_number']))) / (int(new_number) - info[-1]['new_number']) < 0.3:
+        return 0
+    else:
+        return 1
 
 
 async def insert_info(func_name, username, sheet, headers):
