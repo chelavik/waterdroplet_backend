@@ -108,8 +108,7 @@ async def add_transaction(key: str, login: str, new_number: str, ipu: str):
         user_id, tariff = await SQLDatabase.get_user_id_tariff(login)
         prev_number = await SQLDatabase.get_last_number(user_id, ipu)
         if int(new_number) <= int(prev_number):
-            if int(new_number) != int(prev_number) or not Hasher.verify_password(key, SECRET_KEY):
-                raise BadIpuDeltaError
+            raise BadIpuDeltaError
         trans_id = await SQLDatabase.add_transaction(user_id, prev_number, new_number, ipu,
                                                      count_sum((int(new_number) - int(prev_number)) / 1000, tariff),
                                                      await set_verdict(user_id, ipu, new_number))
