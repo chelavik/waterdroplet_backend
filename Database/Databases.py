@@ -185,7 +185,7 @@ class SQLDatabase:
 
     async def get_last_number(self, user_id, ipu):
         validate_c = self.trans_conn.cursor()
-        validate_c.execute(f"SELECT new_number from transactions WHERE id_physic={user_id} AND ipu='{ipu}' "
+        validate_c.execute(f"SELECT new_number from transactions WHERE id_physic={user_id} AND ipu='{ipu}' and status=2 "
                            f"ORDER BY date DESC "
                            f"LIMIT 1")
         prev_number = validate_c.fetchone()
