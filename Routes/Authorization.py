@@ -55,15 +55,18 @@ def get_user(login: str):
 
 
 def authenticate_user(login: str, password: str):
-    user = get_user(login)
-    if not user:
-        return False
-    if user.user_type == 'sotrudnik':
-        if password != user.hashed_password:
+    try:
+        user = get_user(login)
+        if not user:
             return False
-    elif not Hasher.verify_password(password, user.hashed_password):
-        return False
-    return user
+        if user.user_type == 'sotrudnik':
+            if password != user.hashed_password:
+                return False
+        elif not Hasher.verify_password(password, user.hashed_password):
+            return False
+        return user
+    except:
+        return BadTokenError
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
@@ -82,7 +85,10 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 
 @router.post("/login", tags=['user'])
 async def login_for_access_token(user: auth):
-    user = authenticate_user(user.username, user.password)
+    try:
+        user = authenticate_user(user.username, user.password)
+    except BadTokenError:
+        raise HTTPException(status_code=401, detail='no log-ins for physics')
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
