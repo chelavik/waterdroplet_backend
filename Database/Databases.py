@@ -349,16 +349,23 @@ class SQLDatabase:
     async def get_related_physics(self, username):
         business_id = await self.get_business_id(username)
         user_c = self.users_conn.cursor()
-        user_c.execute(f'SELECT id_physic, contract_number, full_name, email, ipus, address, id_business from physic '
+        user_c.execute(f'SELECT id_physic, contract_number, full_name, email, ipus, address from physic '
                        f'WHERE id_business={business_id}')
         info = user_c.fetchall()
         user_c.close()
         return info
 
+    async def get_address_by_contract_number(self, contract_number: str):
+        user_c = self.users_conn.cursor()
+        user_c.execute(f'SELECT address from physic WHERE contract_number="{contract_number}" LIMIT 1;')
+        address = user_c.fetchone()
+        user_c.close()
+        return address
+
     async def get_hundred_physics(self, username, hundred: int):
         business_id = await self.get_business_id(username)
         user_c = self.users_conn.cursor()
-        user_c.execute(f'SELECT id_physic, contract_number, full_name, email, ipus, address, id_business from physic '
+        user_c.execute(f'SELECT id_physic, contract_number, full_name, email, ipus, address from physic '
                        f'WHERE id_business={business_id} '
                        f'LIMIT 15 OFFSET {hundred * 15};')
         info = user_c.fetchall()

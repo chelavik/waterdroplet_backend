@@ -1,11 +1,17 @@
+from cryptography.fernet import InvalidToken
+import requests
+
 from Database import Databases
 from Database.Databases import NotFoundError
+from Routes.Transactions import Encrypter
 from Utils.Hasher import HasherClass
 from jose.exceptions import ExpiredSignatureError
 from Models.Models import *
-from fastapi import HTTPException, APIRouter
+from fastapi import HTTPException, APIRouter, UploadFile, File, Form
 from starlette.responses import JSONResponse
 from Routes.Authorization import unpack_token, BadTokenError
+from Utils.QRscanner import scanQR
+from config import SECRET_KEY, iputoken
 
 router = APIRouter()
 Hasher = HasherClass()
@@ -129,20 +135,52 @@ async def get_ipus_by_address(token: Token, address: str):
         raise HTTPException(status_code=404, detail='user by address not found')
 
 
+@router.post('/scan_validation_photo', tags=['sotrudnik'])
+async def scan_validation_photo(photo: UploadFile = File(...), key: str = Form()):
+    try:
+        if not Hasher.verify_password(key, SECRET_KEY):
+            raise HTTPException(status_code=403, detail='bad secret key')
+        content = await photo.read()
+        qr_info = scanQR(content)
+        if qr_info == '':
+            raise HTTPException(status_code=404, detail='QR-code not found on photo')
+        try:
+            Encrypter.decrypt_qrinfo(qr_info).split(sep=';')  # договор, счетчик
+        except InvalidToken:
+            raise HTTPException(status_code=404, detail='QR-code wrong info')
+        data = {"token": iputoken}
+        files = {"upload_image": (photo.filename, content)}
+        number_result = requests.post(url='https://api.waterdroplet.ru/get_number',
+                                      data=data, files=files)
+        if number_result.status_code == 200:
+            res = number_result.json()  # цифры на счетчике
+            if res == "":
+                raise HTTPException(status_code=417, detail='number not found on photo')
+            info = {'qr_string': qr_info, 'number': res['number']}
+            return info
+        else:
+            raise HTTPException(status_code=500, detail='API service Error')
+    except:
+        ...
+
+
 @router.post('/new_validation', tags=['sotrudnik'])
-async def new_validation(token: Token, sotr_number: str, ipu: str, address: str):
+async def new_validation(token: Token, sotr_number: str, qr_string: str):
     try:
         username, user_type = unpack_token(token.access_token)
+        try:
+            qr_info = Encrypter.decrypt_qrinfo(qr_string).split(sep=';')
+        except InvalidToken:
+            raise HTTPException(status_code=404, detail='QR-info issues')
+        address = await SQLDatabase.get_address_by_contract_number(qr_info[0])
         if not user_type == "sotrudnik":
             raise HTTPException(status_code=400, detail="bad user_type")
-        await SQLDatabase.add_validation(username, sotr_number, ipu, address)
+        await SQLDatabase.add_validation(username, sotr_number, qr_info[1], address)
         return HTTPException(status_code=200, detail="success")
     except ExpiredSignatureError:
         raise HTTPException(status_code=401, detail='token expired')
     except BadTokenError:
         raise HTTPException(status_code=401, detail='bad token')
-    except NotFoundError:
-        raise HTTPException(status_code=404, detail='address or ipu not found')
 
 
 @router.post('/get_validation_logs', tags=['transactions'])

@@ -165,8 +165,10 @@ IN: body: Token. OUT: [
 } / 200 - success / 400 - bad user_type /
 401 - проблема с токеном
 
-- post('/new_validation'): IN: body: Token; query: sotr_number: str, ipu: str, address: str. OUT: 200 - success / 400 - bad user_type /
-401 - проблема с токеном
+- post('/scan_validation_photo'): IN: form-data: key: str, photo: File. OUT: 403 - неверный ключ (секретный ключ) / 404 - не найден qr_code или на нем не распознаны необходимые данные
+/ 417 - значение на счетчике не распознано / 500 - ошибка сервера
+- post('/new_validation'): IN: body: Token; query: sotr_number: str, qr_string: str. OUT: 200 - success / 400 - bad user_type /
+401 - проблема с токеном / 404 - проблема строки с куара (не должна происходить)
 - post('/get_validation_logs'): IN: body: token: Token ; query: validation_id: int. OUT: 
 {
   "sotrudnik_photo_date": "2023-04-02 20:05:51",
