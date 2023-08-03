@@ -166,7 +166,10 @@ IN: body: Token. OUT: [
 401 - проблема с токеном
 
 - post('/scan_validation_photo'): IN: form-data: key: str, photo: File. OUT: 403 - неверный ключ (секретный ключ) / 404 - не найден qr_code или на нем не распознаны необходимые данные
-/ 417 - значение на счетчике не распознано / 500 - ошибка сервера
+/ 417 - значение на счетчике не распознано / 500 - ошибка сервера / {
+  "qr_string": str,
+  "number": str
+}
 - post('/new_validation'): IN: body: Token; query: sotr_number: str, qr_string: str. OUT: 200 - success / 400 - bad user_type /
 401 - проблема с токеном / 404 - проблема строки с куара (не должна происходить)
 - post('/get_validation_logs'): IN: body: token: Token ; query: validation_id: int. OUT: 
@@ -183,7 +186,7 @@ IN: body: Token. OUT: [
 ## transactions
 - post("/scan_photo"): IN: form-data: key: str, photo: File. OUT: 403 - неверный ключ (секретный ключ) / 
 404 - не найден qr_code или на нем не распознаны необходимые данные / 417 - значение на счетчике совпадает с предыдущим или меньше него; значение счетчика не распознано 
- / 200 - возвращается id_transaction: int, payment_sum: int, first_value: boolean 
+ / 200 - возвращается id_transaction: int, payment_sum: int, first_value: boolean, number: str
 - post("/trans_status"): IN: body: key: Secret_key; query: trans_id: int, status: int. OUT: код 200 - успех / 403 - неверный ключ / 500 - ошибка сервера
 транзакция имеет 3 статуса, записываемых в бд цифрой. -1 - отклонена, 0 - создана, 1 - ожидание, 2 - успех.
 - post('/get_transactions_logs/{page_id}'): IN: token: Token, page_id: int; OUT: list(dict("transaction_id": int, "full_name": str, "transaction_date": str, "ipu": str, "prev_number": str, "new_number": str, "verdict": boolean (1=подозрительный, 0=все в порядке)), ...) / 

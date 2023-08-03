@@ -137,31 +137,28 @@ async def get_ipus_by_address(token: Token, address: str):
 
 @router.post('/scan_validation_photo', tags=['sotrudnik'])
 async def scan_validation_photo(photo: UploadFile = File(...), key: str = Form()):
+    if not Hasher.verify_password(key, SECRET_KEY):
+        raise HTTPException(status_code=403, detail='bad secret key')
+    content = await photo.read()
+    qr_info = scanQR(content)
+    if qr_info == '':
+        raise HTTPException(status_code=404, detail='QR-code not found on photo')
     try:
-        if not Hasher.verify_password(key, SECRET_KEY):
-            raise HTTPException(status_code=403, detail='bad secret key')
-        content = await photo.read()
-        qr_info = scanQR(content)
-        if qr_info == '':
-            raise HTTPException(status_code=404, detail='QR-code not found on photo')
-        try:
-            Encrypter.decrypt_qrinfo(qr_info).split(sep=';')  # договор, счетчик
-        except InvalidToken:
-            raise HTTPException(status_code=404, detail='QR-code wrong info')
-        data = {"token": iputoken}
-        files = {"upload_image": (photo.filename, content)}
-        number_result = requests.post(url='https://api.waterdroplet.ru/get_number',
-                                      data=data, files=files)
-        if number_result.status_code == 200:
-            res = number_result.json()  # цифры на счетчике
-            if res == "":
-                raise HTTPException(status_code=417, detail='number not found on photo')
-            info = {'qr_string': qr_info, 'number': res['number']}
-            return info
-        else:
-            raise HTTPException(status_code=500, detail='API service Error')
-    except:
-        ...
+        Encrypter.decrypt_qrinfo(qr_info).split(sep=';')  # договор, счетчик
+    except InvalidToken:
+        raise HTTPException(status_code=404, detail='QR-code wrong info')
+    data = {"token": iputoken}
+    files = {"upload_image": (photo.filename, content)}
+    number_result = requests.post(url='https://api.waterdroplet.ru/get_number',
+                                  data=data, files=files)
+    if number_result.status_code == 200:
+        res = number_result.json()  # цифры на счетчике
+        if res == "":
+            raise HTTPException(status_code=417, detail='number not found on photo')
+        info = {'qr_string': qr_info, 'number': res['number']}
+        return JSONResponse(info)
+    else:
+        raise HTTPException(status_code=500, detail='API service Error')
 
 
 @router.post('/new_validation', tags=['sotrudnik'])
