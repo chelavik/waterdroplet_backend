@@ -1,4 +1,5 @@
-import asyncio, aiomysql, pymysql
+import pymysql
+from typing import Optional
 import datetime
 from typing import Any
 from databases import Database
@@ -372,14 +373,34 @@ class SQLDatabase:
         user_c.close()
         return info
 
-    async def get_suspicious_validations(self, username, hundred):
+    async def get_suspicious_validations(self, username, hundred, first_date: Optional[str] = None,
+                                         second_date: Optional[str] = None):
         business_id = await self.get_business_id(username)
         user_c = self.users_conn.cursor()
         validate_c = self.trans_conn.cursor()
-        validate_c.execute(
-            f'SELECT id_validation, id_physic, sotrudnik_photo_date from validate WHERE id_business={business_id} '
-            f'AND verdict="Подозрительно" '
-            f'LIMIT 15 OFFSET {hundred * 15};')
+        if first_date is None and second_date is None:
+            validate_c.execute(
+                f'SELECT id_validation, id_physic, sotrudnik_photo_date from validate WHERE id_business={business_id} '
+                f'and verdict = "Подозрительно" '
+                f'LIMIT 15 OFFSET {hundred * 15};')
+        elif first_date is not None and second_date is not None:
+            validate_c.execute(f"SELECT id_validation, id_physic, sotrudnik_photo_date from validate "
+                               f"WHERE sotrudnik_photo_date "
+                               f"BETWEEN '{first_date} 00:00:00' AND '{second_date} 23:59:59' "
+                               f"AND id_business = {business_id} AND verdict = 'Подозрительно' "
+                               f"LIMIT 15 OFFSET {hundred * 15};")
+        elif first_date is not None and second_date is None:
+            current_date = datetime.datetime.now().strftime('%Y-%m-%d')
+            validate_c.execute(f"SELECT id_validation, id_physic, sotrudnik_photo_date from validate "
+                               f"WHERE sotrudnik_photo_date "
+                               f"BETWEEN '{first_date} 00:00:00' AND '{current_date} 23:59:59' "
+                               f"AND verdict = 'Подозрительно' and id_business = {business_id} "
+                               f"LIMIT 15 OFFSET {hundred * 15};")
+        else:
+            validate_c.execute(f"SELECT id_validation, id_physic, sotrudnik_photo_date FROM validate "
+                               f"WHERE sotrudnik_photo_date <= '{second_date} 23:59:59' AND verdict = 'Подозрительно' "
+                               f"AND id_business = {business_id} "
+                               f"LIMIT 15 OFFSET {hundred * 15};")
         info = validate_c.fetchall()
         user_info = []
         for validation in info:
@@ -392,13 +413,33 @@ class SQLDatabase:
         user_c.close()
         return user_info
 
-    async def get_all_validations(self, username, hundred):
+    async def get_all_validations(self, username, hundred, first_date: Optional[str] = None,
+                                  second_date: Optional[str] = None):
         business_id = await self.get_business_id(username)
         user_c = self.users_conn.cursor()
         validate_c = self.trans_conn.cursor()
-        validate_c.execute(
-            f'SELECT id_validation, id_physic, sotrudnik_photo_date from validate WHERE id_business={business_id} '
-            f'LIMIT 15 OFFSET {hundred * 15};')
+        if first_date is None and second_date is None:
+            validate_c.execute(
+                f'SELECT id_validation, id_physic, sotrudnik_photo_date from validate WHERE id_business={business_id} '
+                f'LIMIT 15 OFFSET {hundred * 15};')
+        elif first_date is not None and second_date is not None:
+            validate_c.execute(f"SELECT id_validation, id_physic, sotrudnik_photo_date from validate "
+                               f"WHERE sotrudnik_photo_date "
+                               f"BETWEEN '{first_date} 00:00:00' AND '{second_date} 23:59:59' "
+                               f"AND id_business={business_id} "
+                               f"LIMIT 15 OFFSET {hundred * 15};")
+        elif first_date is not None and second_date is None:
+            current_date = datetime.datetime.now().strftime('%Y-%m-%d')
+            validate_c.execute(f"SELECT id_validation, id_physic, sotrudnik_photo_date from validate "
+                               f"WHERE sotrudnik_photo_date "
+                               f"BETWEEN '{first_date} 00:00:00' AND '{current_date} 23:59:59' "
+                               f"AND id_business={business_id} "
+                               f"LIMIT 15 OFFSET {hundred * 15};")
+        else:
+            validate_c.execute(f"SELECT id_validation, id_physic, sotrudnik_photo_date FROM validate "
+                               f"WHERE sotrudnik_photo_date <= '{second_date} 23:59:59' "
+                               f"AND id_business={business_id} "
+                               f"LIMIT 15 OFFSET {hundred * 15};")
         info = validate_c.fetchall()
         user_info = []
         for validation in info:
@@ -411,14 +452,33 @@ class SQLDatabase:
         user_c.close()
         return user_info
 
-    async def get_transactions_logs(self, username, hundred):
+    async def get_transactions_logs(self, username, hundred, first_date: Optional[str] = None,
+                                    second_date: Optional[str] = None):
         business_id = await self.get_business_id(username)
         user_c = self.users_conn.cursor()
         validate_c = self.trans_conn.cursor()
-        validate_c.execute(
-            f'SELECT id_transaction, id_physic, prev_number, new_number, date, ipu, payment_sum, verdict '
-            f'from transactions WHERE id_business={business_id} and status=2 '
-            f'LIMIT 15 OFFSET {hundred * 15};')
+        if first_date is None and second_date is None:
+            validate_c.execute(
+                f'SELECT id_transaction, id_physic, prev_number, new_number, date, ipu, payment_sum, verdict '
+                f'from transactions WHERE id_business={business_id} and status=2 ' 
+                f'LIMIT 15 OFFSET {hundred * 15};')
+        elif first_date is not None and second_date is not None:
+            validate_c.execute(f"SELECT id_transaction, id_physic, prev_number, new_number, date, ipu, payment_sum, "
+                               f"verdict from transactions WHERE id_business={business_id} and status=2 "
+                               f"AND date BETWEEN '{first_date} 00:00:00' AND '{second_date} 23:59:59' "
+                               f"LIMIT 15 OFFSET {hundred * 15};")
+        elif first_date is not None and second_date is None:
+            current_date = datetime.datetime.now().strftime('%Y-%m-%d')
+            validate_c.execute(f"SELECT id_transaction, id_physic, prev_number, new_number, date, ipu, payment_sum, "
+                               f"verdict from transactions "
+                               f"WHERE id_business={business_id} and status=2 and date "
+                               f"BETWEEN '{first_date} 00:00:00' AND '{current_date} 23:59:59' "
+                               f"LIMIT 15 OFFSET {hundred * 15};")
+        else:
+            validate_c.execute(f"SELECT id_transaction, id_physic, prev_number, new_number, date, ipu, payment_sum, "
+                               f"verdict from transactions "
+                               f"WHERE date <= '{second_date} 23:59:59' and id_business={business_id} and status=2 "
+                               f"LIMIT 15 OFFSET {hundred * 15};")
         info = validate_c.fetchall()
         user_info = []
         for transaction in info:
@@ -434,14 +494,34 @@ class SQLDatabase:
         user_c.close()
         return user_info
 
-    async def get_sus_transactions_logs(self, username, hundred):
+    async def get_sus_transactions_logs(self, username, hundred, first_date: Optional[str] = None,
+                                        second_date: Optional[str] = None):
         business_id = await self.get_business_id(username)
         user_c = self.users_conn.cursor()
         validate_c = self.trans_conn.cursor()
-        validate_c.execute(
-            f'SELECT id_transaction, id_physic, prev_number, new_number, date, ipu, payment_sum, verdict '
-            f'from transactions WHERE id_business={business_id} and verdict="Подозрительно" and status=2 '
-            f'LIMIT 15 OFFSET {hundred * 15};')
+        if first_date is None and second_date is None:
+            validate_c.execute(
+                f'SELECT id_transaction, id_physic, prev_number, new_number, date, ipu, payment_sum, verdict '
+                f'from transactions WHERE id_business={business_id} and status=2 and verdict="Подозрительно" '
+                f'LIMIT 15 OFFSET {hundred * 15};')
+        elif first_date is not None and second_date is not None:
+            validate_c.execute(f"SELECT id_transaction, id_physic, prev_number, new_number, date, ipu, payment_sum, "
+                               f"verdict from transactions WHERE id_business={business_id} and status=2 "
+                               f"and verdict='Подозрительно' "
+                               f"AND date BETWEEN '{first_date} 00:00:00' AND '{second_date} 23:59:59' "
+                               f"LIMIT 15 OFFSET {hundred * 15};")
+        elif first_date is not None and second_date is None:
+            current_date = datetime.datetime.now().strftime('%Y-%m-%d')
+            validate_c.execute(f"SELECT id_transaction, id_physic, prev_number, new_number, date, ipu, payment_sum, "
+                               f"verdict from transactions WHERE id_business={business_id} and status=2 "
+                               f"and verdict='Подозрительно' "
+                               f"and date BETWEEN '{first_date} 00:00:00' AND '{current_date} 23:59:59' "
+                               f"LIMIT 15 OFFSET {hundred * 15};")
+        else:
+            validate_c.execute(f"SELECT id_transaction, id_physic, prev_number, new_number, date, ipu, payment_sum, "
+                               f"verdict from transactions WHERE id_business={business_id} and status=2 "
+                               f"and date <= '{second_date} 23:59:59' and verdict='Подозрительно' "
+                               f"LIMIT 15 OFFSET {hundred * 15};")
         info = validate_c.fetchall()
         user_info = []
         for transaction in info:
@@ -530,7 +610,6 @@ class SQLDatabase:
                        f'VALUES ("{name}", "{phone}", "{message}")')
         self.users_conn.commit()
         user_c.close()
-
 
 
 # -----------------------------SQLITE----------------------------

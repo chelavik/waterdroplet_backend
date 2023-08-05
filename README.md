@@ -110,7 +110,7 @@ OUT: {
 
 
 ## validations
-- post('/get_all_validations/{page_id}') IN: body: token:Token; url: page_id: int. out: [
+- post('/get_all_validations/{page_id}') IN: body: token:Token; url: page_id: int, first_date: Optional[str], second_date: Optional[str]. out: [
   {
     "validation_id": 2,
     "validation_date": "2023-04-02 20:05:51",
@@ -124,7 +124,7 @@ OUT: {
 ]
 
 
-- post("/suspicious_validations/{page_id}"): IN: body: Token; url: page_id: int. OUT:[
+- post("/suspicious_validations/{page_id}"): IN: body: Token; url: page_id: int, first_date: Optional[str], second_date: Optional[str]. OUT:[
   {
     "validation_id": 3,
     "validation_date": "2023-04-02 20:06:07",
@@ -189,11 +189,11 @@ IN: body: Token. OUT: [
  / 200 - возвращается id_transaction: int, payment_sum: int, first_value: boolean, number: str
 - post("/trans_status"): IN: body: key: Secret_key; query: trans_id: int, status: int. OUT: код 200 - успех / 403 - неверный ключ / 500 - ошибка сервера
 транзакция имеет 3 статуса, записываемых в бд цифрой. -1 - отклонена, 0 - создана, 1 - ожидание, 2 - успех.
-- post('/get_transactions_logs/{page_id}'): IN: token: Token, page_id: int; OUT: list(dict("transaction_id": int, "full_name": str, "transaction_date": str, "ipu": str, "prev_number": str, "new_number": str, "verdict": boolean (1=подозрительный, 0=все в порядке)), ...) / 
+- post('/get_transactions_logs/{page_id}'): IN: token: Token, page_id: int, first_date: Optional[str], second_date: Optional[str] ; OUT: list(dict("transaction_id": int, "full_name": str, "transaction_date": str, "ipu": str, "prev_number": str, "new_number": str, "verdict": boolean (1=подозрительный, 0=все в порядке)), ...) / 
 400 - bad user type / 401 - проблема токена
-- post('/get_suspicious_transactions_logs/{page_id}'): IN: token: Token, page_id: int; OUT: list(dict("transaction_id": int, "full_name": str, "transaction_date": str, "ipu": str, "prev_number": str, "new_number": str, "verdict": 1), ...) / 
+- post('/get_suspicious_transactions_logs/{page_id}'): IN: token: Token, page_id: int, first_date: Optional[str], second_date: Optional[str]; OUT: list(dict("transaction_id": int, "full_name": str, "transaction_date": str, "ipu": str, "prev_number": str, "new_number": str, "verdict": 1), ...) / 
 400 - bad user type / 401 - проблема токена
-- post('/save_file'): IN: token: Token; OUT: файл-лог data.xlsx - отчет по транзакциям у юр. лица/ 400 / 401 
+- post('/save_file'): IN: token: Token; OUT: файл-лог data.xlsx - отчет по транзакциям у юр. лица / 400 / 401 
 
 # серверы
 - 185.185.70.161:3306 : mysql_db

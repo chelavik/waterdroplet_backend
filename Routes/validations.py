@@ -1,3 +1,5 @@
+from typing import Any
+
 from cryptography.fernet import InvalidToken
 import requests
 
@@ -50,12 +52,13 @@ async def get_hundred_physics(token: Token, page_id: int):
 
 
 @router.post('/get_all_validations/{page_id}', tags=['business'])
-async def get_all_validations(token: Token, page_id: int):
+async def get_all_validations(token: Token, page_id: int, first_date: Optional[str] = None,
+                              second_date: Optional[str] = None):
     try:
         username, user_type = unpack_token(token.access_token)
         if user_type == "business":
             page_id -= 1
-            info = await SQLDatabase.get_all_validations(username, page_id)
+            info = await SQLDatabase.get_all_validations(username, page_id, first_date, second_date)
             for dictionary in info:
                 dictionary['validation_date'] = str(dictionary['validation_date'])
             return JSONResponse(info)
@@ -67,14 +70,14 @@ async def get_all_validations(token: Token, page_id: int):
         raise HTTPException(status_code=401, detail='bad token')
 
 
-
 @router.post('/suspicious_validations/{page_id}', tags=['business'])
-async def get_suspicious_validations(token: Token, page_id: int):
+async def get_suspicious_validations(token: Token, page_id: int, first_date: Optional[str] = None,
+                                     second_date: Optional[str] = None):
     try:
         username, user_type = unpack_token(token.access_token)
         if user_type == "business":
             page_id -= 1
-            info = await SQLDatabase.get_suspicious_validations(username, page_id)
+            info = await SQLDatabase.get_suspicious_validations(username, page_id, first_date, second_date)
             for dictionary in info:
                 dictionary['validation_date'] = str(dictionary['validation_date'])
             return JSONResponse(info)

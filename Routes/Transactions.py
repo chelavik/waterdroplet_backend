@@ -164,12 +164,13 @@ async def scan_photo(photo: UploadFile = File(...), key: str = Form()):
 
 
 @router.post('/get_transactions_logs/{page_id}', tags=['transactions'])
-async def get_transactions_logs(token: Token, page_id: int):
+async def get_transactions_logs(token: Token, page_id: int, first_date: Optional[str] = None,
+                                second_date: Optional[str] = None):
     try:
         username, user_type = unpack_token(token.access_token)
         if user_type == "business":
             page_id -= 1
-            info = await SQLDatabase.get_transactions_logs(username, page_id)
+            info = await SQLDatabase.get_transactions_logs(username, page_id, first_date, second_date)
             for dictionary in info:
                 dictionary['transaction_date'] = str(dictionary['transaction_date'])
             return JSONResponse(info)
@@ -182,12 +183,13 @@ async def get_transactions_logs(token: Token, page_id: int):
 
 
 @router.post('/get_suspicious_transactions_logs/{page_id}', tags=['transactions'])
-async def get_suspicious_transactions_logs(token: Token, page_id: int):
+async def get_suspicious_transactions_logs(token: Token, page_id: int, first_date: Optional[str] = None,
+                                           second_date: Optional[str] = None):
     try:
         username, user_type = unpack_token(token.access_token)
         if user_type == "business":
             page_id -= 1
-            info = await SQLDatabase.get_sus_transactions_logs(username, page_id)
+            info = await SQLDatabase.get_sus_transactions_logs(username, page_id, first_date, second_date)
             for dictionary in info:
                 dictionary['transaction_date'] = str(dictionary['transaction_date'])
             return JSONResponse(info)
