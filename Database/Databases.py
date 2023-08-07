@@ -378,7 +378,7 @@ class SQLDatabase:
         business_id = await self.get_business_id(username)
         user_c = self.users_conn.cursor()
         validate_c = self.trans_conn.cursor()
-        count_query = f"select COUNT(*) from waterdroplet_model.physic as ph " \
+        count_query = f"select COUNT(*) as total_rows from waterdroplet_model.physic as ph " \
                       f"JOIN transactions.validate as val on val.id_physic = ph.id_physic " \
                       f"WHERE val.id_business={business_id} and verdict = 'Подозрительно' "
         query = f"select val.id_validation, val.id_physic, val.sotrudnik_photo_date, ph.contract_number, " \
@@ -428,7 +428,7 @@ class SQLDatabase:
         business_id = await self.get_business_id(username)
         user_c = self.users_conn.cursor()
         validate_c = self.trans_conn.cursor()
-        count_query = f"select COUNT(*) from waterdroplet_model.physic as ph " \
+        count_query = f"select COUNT(*) as total_rows from waterdroplet_model.physic as ph " \
                       f"JOIN transactions.validate as val on val.id_physic = ph.id_physic " \
                       f"WHERE val.id_business={business_id} "
         query = f"select val.id_validation, val.id_physic, val.sotrudnik_photo_date, ph.contract_number, " \
