@@ -59,8 +59,6 @@ async def get_all_validations(token: Token, page_id: int, first_date: Optional[s
         if user_type == "business":
             page_id -= 1
             info = await SQLDatabase.get_all_validations(username, page_id, first_date, second_date, search)
-            for dictionary in info:
-                dictionary['validation_date'] = str(dictionary['validation_date'])
             return JSONResponse(info)
         else:
             raise HTTPException(status_code=400, detail="bad user_type")
@@ -78,8 +76,6 @@ async def get_suspicious_validations(token: Token, page_id: int, first_date: Opt
         if user_type == "business":
             page_id -= 1
             info = await SQLDatabase.get_suspicious_validations(username, page_id, first_date, second_date, search)
-            for dictionary in info:
-                dictionary['validation_date'] = str(dictionary['validation_date'])
             return JSONResponse(info)
         else:
             raise HTTPException(status_code=400, detail="bad user_type")

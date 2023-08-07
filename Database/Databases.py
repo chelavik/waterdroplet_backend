@@ -411,13 +411,14 @@ class SQLDatabase:
         info = validate_c.fetchall()
         validate_c.execute(count_query)
         amount = validate_c.fetchone()
-        user_info = [amount]
+        user_info = []
         for validation in info:
             user_c.execute(f'SELECT full_name from physic WHERE id_physic={validation["id_physic"]}')
             result = user_c.fetchone()
             user_dict = {'validation_id': validation["id_validation"],
-                         'validation_date': validation["sotrudnik_photo_date"], 'full_name': result["full_name"]}
+                         'validation_date': str(validation["sotrudnik_photo_date"]), 'full_name': result["full_name"]}
             user_info.append(user_dict)
+        user_info.append(amount)
         validate_c.close()
         user_c.close()
         return user_info
@@ -459,13 +460,14 @@ class SQLDatabase:
         info = validate_c.fetchall()
         validate_c.execute(count_query)
         amount = validate_c.fetchone()
-        user_info = [amount]
+        user_info = []
         for validation in info:
             user_c.execute(f'SELECT full_name from physic WHERE id_physic={validation["id_physic"]}')
             result = user_c.fetchone()
             user_dict = {'validation_id': validation["id_validation"],
-                         'validation_date': validation["sotrudnik_photo_date"], 'full_name': result["full_name"]}
+                         'validation_date': str(validation["sotrudnik_photo_date"]), 'full_name': result["full_name"]}
             user_info.append(user_dict)
+        user_info.append(amount)
         validate_c.close()
         user_c.close()
         return user_info
@@ -507,16 +509,17 @@ class SQLDatabase:
         info = validate_c.fetchall()
         validate_c.execute(count_query)
         amount = validate_c.fetchone()
-        user_info = [amount]
+        user_info = []
         for transaction in info:
             user_c.execute(f'SELECT full_name from physic WHERE id_physic={transaction["id_physic"]}')
             result = user_c.fetchone()
             user_dict = {'transaction_id': transaction["id_transaction"], 'full_name': result["full_name"],
-                         'transaction_date': transaction["date"], 'ipu': transaction['ipu'],
+                         'transaction_date': str(transaction["date"]), 'ipu': transaction['ipu'],
                          'prev_number': transaction["prev_number"], 'new_number': transaction["new_number"],
                          'payment_sum': transaction["payment_sum"], 'verdict': transaction["verdict"]
                          }
             user_info.append(user_dict)
+        user_info.append(amount)
         validate_c.close()
         user_c.close()
         return user_info
@@ -556,16 +559,17 @@ class SQLDatabase:
         info = validate_c.fetchall()
         validate_c.execute(count_query)
         amount = validate_c.fetchone()
-        user_info = [amount]
+        user_info = []
         for transaction in info:
             user_c.execute(f'SELECT full_name from physic WHERE id_physic={transaction["id_physic"]}')
             result = user_c.fetchone()
             user_dict = {'transaction_id': transaction["id_transaction"], 'full_name': result["full_name"],
-                         'transaction_date': transaction["date"], 'ipu': transaction['ipu'],
+                         'transaction_date': str(transaction["date"]), 'ipu': transaction['ipu'],
                          'prev_number': transaction["prev_number"], 'new_number': transaction["new_number"],
                          'payment_sum': transaction["payment_sum"], 'verdict': transaction["verdict"]
                          }
             user_info.append(user_dict)
+        user_info.append(amount)
         validate_c.close()
         user_c.close()
         return user_info

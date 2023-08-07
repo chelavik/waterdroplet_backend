@@ -171,8 +171,6 @@ async def get_transactions_logs(token: Token, page_id: int, first_date: Optional
         if user_type == "business":
             page_id -= 1
             info = await SQLDatabase.get_transactions_logs(username, page_id, first_date, second_date, search)
-            for dictionary in info:
-                dictionary['transaction_date'] = str(dictionary['transaction_date'])
             return JSONResponse(info)
         else:
             raise HTTPException(status_code=400, detail="bad user_type")
@@ -190,8 +188,6 @@ async def get_suspicious_transactions_logs(token: Token, page_id: int, first_dat
         if user_type == "business":
             page_id -= 1
             info = await SQLDatabase.get_sus_transactions_logs(username, page_id, first_date, second_date, search)
-            for dictionary in info:
-                dictionary['transaction_date'] = str(dictionary['transaction_date'])
             return JSONResponse(info)
         else:
             raise HTTPException(status_code=400, detail="bad user_type")
