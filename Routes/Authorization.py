@@ -66,7 +66,7 @@ def authenticate_user(login: str, password: str):
             return False
         return user
     except:
-        return BadTokenError
+        raise BadTokenError
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
