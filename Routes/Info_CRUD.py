@@ -28,7 +28,7 @@ async def get_about_us():
 async def edit_about_us(token: Token, AboutUs: AboutUs):
     try:
         username, user_type = unpack_token(token.access_token)
-        if username == 'admin' and user_type == 'physic':
+        if username == 'admin' and user_type == 'business':
             await database.edit_about_us(AboutUs)
             return HTTPException(status_code=200, detail='Success')
         else:
@@ -66,7 +66,7 @@ async def get_article_by_id(article_id: int):
 async def edit_article(token: Token, article_id: int, article_text: str, article_name: Optional[str] = None):
     try:
         username, user_type = unpack_token(token.access_token)
-        if username == 'admin' and user_type == 'physic':
+        if username == 'admin' and user_type == 'business':
             if article_name is not None:
                 await database.edit_article(article_id, article_name, article_text)
             await database.edit_article_text(article_id, article_text)
@@ -86,7 +86,7 @@ async def edit_article(token: Token, article_id: int, article_text: str, article
 async def post_article(token: Token, Article: Article):
     try:
         username, user_type = unpack_token(token.access_token)
-        if username == 'admin' and user_type == 'physic':
+        if username == 'admin' and user_type == 'business':
             await database.post_article(Article)
             return HTTPException(status_code=200, detail='Success')
         else:
@@ -104,7 +104,7 @@ async def post_article(token: Token, Article: Article):
 async def delete_article(token: Token, article_id: int):
     try:
         username, user_type = unpack_token(token.access_token)
-        if username == 'admin' and user_type == 'physic':
+        if username == 'admin' and user_type == 'business':
             await database.delete_article(article_id)
             return HTTPException(status_code=200, detail='Success')
         else:
@@ -133,7 +133,7 @@ async def get_all_services():
 async def edit_service_by_id(token: Token, Service: Service, service_id: int):
     try:
         username, user_type = unpack_token(token.access_token)
-        if username == 'admin' and user_type == 'physic':
+        if username == 'admin' and user_type == 'business':
             await database.edit_service_by_id(service_id, Service)
             return HTTPException(status_code=200, detail='Success')
         else:
@@ -151,7 +151,7 @@ async def edit_service_by_id(token: Token, Service: Service, service_id: int):
 async def post_service(token: Token, Service: Service):
     try:
         username, user_type = unpack_token(token.access_token)
-        if username == 'admin' and user_type == 'physic':
+        if username == 'admin' and user_type == 'business':
             await database.post_service(Service)
             return HTTPException(status_code=200, detail='Success')
         else:
@@ -169,7 +169,7 @@ async def post_service(token: Token, Service: Service):
 async def delete_service(token: Token, service_id: int):
     try:
         username, user_type = unpack_token(token.access_token)
-        if username == 'admin' and user_type == 'physic':
+        if username == 'admin' and user_type == 'business':
             await database.delete_service(service_id)
             return HTTPException(status_code=200, detail='Success')
         else:
