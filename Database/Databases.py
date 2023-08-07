@@ -361,7 +361,7 @@ class SQLDatabase:
         user_c.execute(f'SELECT address from physic WHERE contract_number="{contract_number}" LIMIT 1;')
         address = user_c.fetchone()
         user_c.close()
-        return address
+        return address['address']
 
     async def get_hundred_physics(self, username, hundred: int):
         business_id = await self.get_business_id(username)
@@ -374,35 +374,44 @@ class SQLDatabase:
         return info
 
     async def get_suspicious_validations(self, username, hundred, first_date: Optional[str] = None,
-                                         second_date: Optional[str] = None):
+                                         second_date: Optional[str] = None, search: Optional[str] = None):
         business_id = await self.get_business_id(username)
         user_c = self.users_conn.cursor()
         validate_c = self.trans_conn.cursor()
+        count_query = f"select COUNT(*) from waterdroplet_model.physic as ph " \
+                      f"JOIN transactions.validate as val on val.id_physic = ph.id_physic " \
+                      f"WHERE val.id_business={business_id} and verdict = 'Подозрительно' "
+        query = f"select val.id_validation, val.id_physic, val.sotrudnik_photo_date, ph.contract_number, " \
+                f"ph.full_name, ph.address from waterdroplet_model.physic as ph " \
+                f"JOIN transactions.validate as val on val.id_physic = ph.id_physic WHERE val.id_business={business_id} " \
+                f"and verdict = 'Подозрительно' "
+        if search is not None:
+            query += f"and (ph.contract_number like '%{search}%' or ph.full_name like '%{search}%' or " \
+                     f"ph.address like '%{search}%') "
+            count_query += f"and (ph.contract_number like '%{search}%' or ph.full_name like '%{search}%' or " \
+                           f"ph.address like '%{search}%') "
         if first_date is None and second_date is None:
-            validate_c.execute(
-                f'SELECT id_validation, id_physic, sotrudnik_photo_date from validate WHERE id_business={business_id} '
-                f'and verdict = "Подозрительно" '
-                f'LIMIT 15 OFFSET {hundred * 15};')
+            pass
         elif first_date is not None and second_date is not None:
-            validate_c.execute(f"SELECT id_validation, id_physic, sotrudnik_photo_date from validate "
-                               f"WHERE sotrudnik_photo_date "
-                               f"BETWEEN '{first_date} 00:00:00' AND '{second_date} 23:59:59' "
-                               f"AND id_business = {business_id} AND verdict = 'Подозрительно' "
-                               f"LIMIT 15 OFFSET {hundred * 15};")
+            query += f'AND sotrudnik_photo_date ' \
+                     f'BETWEEN "{first_date} 00:00:00" AND "{second_date} 23:59:59" '
+            count_query += f'AND sotrudnik_photo_date ' \
+                           f'BETWEEN "{first_date} 00:00:00" AND "{second_date} 23:59:59" '
         elif first_date is not None and second_date is None:
             current_date = datetime.datetime.now().strftime('%Y-%m-%d')
-            validate_c.execute(f"SELECT id_validation, id_physic, sotrudnik_photo_date from validate "
-                               f"WHERE sotrudnik_photo_date "
-                               f"BETWEEN '{first_date} 00:00:00' AND '{current_date} 23:59:59' "
-                               f"AND verdict = 'Подозрительно' and id_business = {business_id} "
-                               f"LIMIT 15 OFFSET {hundred * 15};")
+            query += f'AND sotrudnik_photo_date ' \
+                     f'BETWEEN "{first_date} 00:00:00" AND "{current_date} 23:59:59" '
+            count_query += f'AND sotrudnik_photo_date ' \
+                           f'BETWEEN "{first_date} 00:00:00" AND "{current_date} 23:59:59" '
         else:
-            validate_c.execute(f"SELECT id_validation, id_physic, sotrudnik_photo_date FROM validate "
-                               f"WHERE sotrudnik_photo_date <= '{second_date} 23:59:59' AND verdict = 'Подозрительно' "
-                               f"AND id_business = {business_id} "
-                               f"LIMIT 15 OFFSET {hundred * 15};")
+            query += f'AND sotrudnik_photo_date <= "{second_date} 23:59:59" '
+            count_query += f'AND sotrudnik_photo_date <= "{second_date} 23:59:59" '
+        query += f'LIMIT 15 OFFSET {hundred * 15};'
+        validate_c.execute(query)
         info = validate_c.fetchall()
-        user_info = []
+        validate_c.execute(count_query)
+        amount = validate_c.fetchone()
+        user_info = [amount]
         for validation in info:
             user_c.execute(f'SELECT full_name from physic WHERE id_physic={validation["id_physic"]}')
             result = user_c.fetchone()
@@ -414,34 +423,43 @@ class SQLDatabase:
         return user_info
 
     async def get_all_validations(self, username, hundred, first_date: Optional[str] = None,
-                                  second_date: Optional[str] = None):
+                                  second_date: Optional[str] = None, search: Optional[str] = None):
         business_id = await self.get_business_id(username)
         user_c = self.users_conn.cursor()
         validate_c = self.trans_conn.cursor()
+        count_query = f"select COUNT(*) from waterdroplet_model.physic as ph " \
+                      f"JOIN transactions.validate as val on val.id_physic = ph.id_physic " \
+                      f"WHERE val.id_business={business_id} "
+        query = f"select val.id_validation, val.id_physic, val.sotrudnik_photo_date, ph.contract_number, " \
+                f"ph.full_name, ph.address from waterdroplet_model.physic as ph " \
+                f"JOIN transactions.validate as val on val.id_physic = ph.id_physic WHERE val.id_business={business_id} "
+        if search is not None:
+            query += f"and (ph.contract_number like '%{search}%' or ph.full_name like '%{search}%' or " \
+                     f"ph.address like '%{search}%') "
+            count_query += f"and (ph.contract_number like '%{search}%' or ph.full_name like '%{search}%' or " \
+                           f"ph.address like '%{search}%') "
         if first_date is None and second_date is None:
-            validate_c.execute(
-                f'SELECT id_validation, id_physic, sotrudnik_photo_date from validate WHERE id_business={business_id} '
-                f'LIMIT 15 OFFSET {hundred * 15};')
+            pass
         elif first_date is not None and second_date is not None:
-            validate_c.execute(f"SELECT id_validation, id_physic, sotrudnik_photo_date from validate "
-                               f"WHERE sotrudnik_photo_date "
-                               f"BETWEEN '{first_date} 00:00:00' AND '{second_date} 23:59:59' "
-                               f"AND id_business={business_id} "
-                               f"LIMIT 15 OFFSET {hundred * 15};")
+            query += f"AND sotrudnik_photo_date " \
+                     f"BETWEEN '{first_date} 00:00:00' AND '{second_date} 23:59:59' "
+            count_query += f"AND sotrudnik_photo_date " \
+                           f"BETWEEN '{first_date} 00:00:00' AND '{second_date} 23:59:59' "
         elif first_date is not None and second_date is None:
             current_date = datetime.datetime.now().strftime('%Y-%m-%d')
-            validate_c.execute(f"SELECT id_validation, id_physic, sotrudnik_photo_date from validate "
-                               f"WHERE sotrudnik_photo_date "
-                               f"BETWEEN '{first_date} 00:00:00' AND '{current_date} 23:59:59' "
-                               f"AND id_business={business_id} "
-                               f"LIMIT 15 OFFSET {hundred * 15};")
+            query += f"AND sotrudnik_photo_date " \
+                     f"BETWEEN '{first_date} 00:00:00' AND '{current_date} 23:59:59' "
+            count_query += f"AND sotrudnik_photo_date " \
+                           f"BETWEEN '{first_date} 00:00:00' AND '{current_date} 23:59:59' "
         else:
-            validate_c.execute(f"SELECT id_validation, id_physic, sotrudnik_photo_date FROM validate "
-                               f"WHERE sotrudnik_photo_date <= '{second_date} 23:59:59' "
-                               f"AND id_business={business_id} "
-                               f"LIMIT 15 OFFSET {hundred * 15};")
+            query += f"AND sotrudnik_photo_date <= '{second_date} 23:59:59' "
+            count_query += f"AND sotrudnik_photo_date <= '{second_date} 23:59:59' "
+        query += f"LIMIT 15 OFFSET {hundred * 15};"
+        validate_c.execute(query)
         info = validate_c.fetchall()
-        user_info = []
+        validate_c.execute(count_query)
+        amount = validate_c.fetchone()
+        user_info = [amount]
         for validation in info:
             user_c.execute(f'SELECT full_name from physic WHERE id_physic={validation["id_physic"]}')
             result = user_c.fetchone()
@@ -453,34 +471,43 @@ class SQLDatabase:
         return user_info
 
     async def get_transactions_logs(self, username, hundred, first_date: Optional[str] = None,
-                                    second_date: Optional[str] = None):
+                                    second_date: Optional[str] = None, search: Optional[str] = None):
         business_id = await self.get_business_id(username)
         user_c = self.users_conn.cursor()
         validate_c = self.trans_conn.cursor()
+        count_query = f"select COUNT(*) as total_rows " \
+                      f"from waterdroplet_model.physic as ph " \
+                      f"JOIN transactions.transactions as val on val.id_physic = ph.id_physic " \
+                      f"WHERE val.id_business={business_id} and status=2 "
+        query = f"select val.id_transaction, val.id_physic, val.prev_number, val.new_number, val.date, val.ipu, " \
+                f"val.payment_sum, val.verdict, ph.contract_number, ph.full_name, ph.address " \
+                f"from waterdroplet_model.physic as ph " \
+                f"JOIN transactions.transactions as val on val.id_physic = ph.id_physic " \
+                f"WHERE val.id_business={business_id} and status=2 "
+        if search is not None:
+            query += f"and (ph.contract_number like '%{search}%' or ph.full_name like '%{search}%' or " \
+                     f"ph.address like '%{search}%') "
+            count_query += f"and (ph.contract_number like '%{search}%' or ph.full_name like '%{search}%' or " \
+                           f"ph.address like '%{search}%') "
         if first_date is None and second_date is None:
-            validate_c.execute(
-                f'SELECT id_transaction, id_physic, prev_number, new_number, date, ipu, payment_sum, verdict '
-                f'from transactions WHERE id_business={business_id} and status=2 ' 
-                f'LIMIT 15 OFFSET {hundred * 15};')
+            pass
         elif first_date is not None and second_date is not None:
-            validate_c.execute(f"SELECT id_transaction, id_physic, prev_number, new_number, date, ipu, payment_sum, "
-                               f"verdict from transactions WHERE id_business={business_id} and status=2 "
-                               f"AND date BETWEEN '{first_date} 00:00:00' AND '{second_date} 23:59:59' "
-                               f"LIMIT 15 OFFSET {hundred * 15};")
+            count_query += f"AND date BETWEEN '{first_date} 00:00:00' AND '{second_date} 23:59:59' "
+            query += f"AND date BETWEEN '{first_date} 00:00:00' AND '{second_date} 23:59:59' "
+
         elif first_date is not None and second_date is None:
             current_date = datetime.datetime.now().strftime('%Y-%m-%d')
-            validate_c.execute(f"SELECT id_transaction, id_physic, prev_number, new_number, date, ipu, payment_sum, "
-                               f"verdict from transactions "
-                               f"WHERE id_business={business_id} and status=2 and date "
-                               f"BETWEEN '{first_date} 00:00:00' AND '{current_date} 23:59:59' "
-                               f"LIMIT 15 OFFSET {hundred * 15};")
+            query += f"AND date BETWEEN '{first_date} 00:00:00' AND '{current_date} 23:59:59' "
+            count_query += f"AND date BETWEEN '{first_date} 00:00:00' AND '{current_date} 23:59:59' "
         else:
-            validate_c.execute(f"SELECT id_transaction, id_physic, prev_number, new_number, date, ipu, payment_sum, "
-                               f"verdict from transactions "
-                               f"WHERE date <= '{second_date} 23:59:59' and id_business={business_id} and status=2 "
-                               f"LIMIT 15 OFFSET {hundred * 15};")
+            query += f"AND date <= '{second_date} 23:59:59' "
+            count_query += f"AND date <= '{second_date} 23:59:59' "
+        query += f"LIMIT 15 OFFSET {hundred * 15};"
+        validate_c.execute(query)
         info = validate_c.fetchall()
-        user_info = []
+        validate_c.execute(count_query)
+        amount = validate_c.fetchone()
+        user_info = [amount]
         for transaction in info:
             user_c.execute(f'SELECT full_name from physic WHERE id_physic={transaction["id_physic"]}')
             result = user_c.fetchone()
@@ -495,35 +522,41 @@ class SQLDatabase:
         return user_info
 
     async def get_sus_transactions_logs(self, username, hundred, first_date: Optional[str] = None,
-                                        second_date: Optional[str] = None):
+                                        second_date: Optional[str] = None, search: Optional[str] = None):
         business_id = await self.get_business_id(username)
         user_c = self.users_conn.cursor()
         validate_c = self.trans_conn.cursor()
+        count_query = f"select COUNT(*) as total_rows " \
+                      f"from waterdroplet_model.physic as ph " \
+                      f"JOIN transactions.transactions as val on val.id_physic = ph.id_physic " \
+                      f"WHERE val.id_business={business_id} and status=2 and verdict='Подозрительно' "
+        query = f"select val.id_transaction, val.id_physic, val.prev_number, val.new_number, val.date, val.ipu, " \
+                f"val.payment_sum, val.verdict, ph.contract_number, ph.full_name, ph.address " \
+                f"from waterdroplet_model.physic as ph " \
+                f"JOIN transactions.transactions as val on val.id_physic = ph.id_physic " \
+                f"WHERE val.id_business={business_id} and status=2 and verdict='Подозрительно' "
+        if search is not None:
+            query += f"and (ph.contract_number like '%{search}%' or ph.full_name like '%{search}%' or " \
+                     f"ph.address like '%{search}%') "
+            count_query += f"and (ph.contract_number like '%{search}%' or ph.full_name like '%{search}%' or " \
+                           f"ph.address like '%{search}%') "
         if first_date is None and second_date is None:
-            validate_c.execute(
-                f'SELECT id_transaction, id_physic, prev_number, new_number, date, ipu, payment_sum, verdict '
-                f'from transactions WHERE id_business={business_id} and status=2 and verdict="Подозрительно" '
-                f'LIMIT 15 OFFSET {hundred * 15};')
+            pass
         elif first_date is not None and second_date is not None:
-            validate_c.execute(f"SELECT id_transaction, id_physic, prev_number, new_number, date, ipu, payment_sum, "
-                               f"verdict from transactions WHERE id_business={business_id} and status=2 "
-                               f"and verdict='Подозрительно' "
-                               f"AND date BETWEEN '{first_date} 00:00:00' AND '{second_date} 23:59:59' "
-                               f"LIMIT 15 OFFSET {hundred * 15};")
+            query += f"AND date BETWEEN '{first_date} 00:00:00' AND '{second_date} 23:59:59' "
+            count_query += f"AND date BETWEEN '{first_date} 00:00:00' AND '{second_date} 23:59:59' "
         elif first_date is not None and second_date is None:
             current_date = datetime.datetime.now().strftime('%Y-%m-%d')
-            validate_c.execute(f"SELECT id_transaction, id_physic, prev_number, new_number, date, ipu, payment_sum, "
-                               f"verdict from transactions WHERE id_business={business_id} and status=2 "
-                               f"and verdict='Подозрительно' "
-                               f"and date BETWEEN '{first_date} 00:00:00' AND '{current_date} 23:59:59' "
-                               f"LIMIT 15 OFFSET {hundred * 15};")
+            query += f"and date BETWEEN '{first_date} 00:00:00' AND '{current_date} 23:59:59' "
+            count_query += f"and date BETWEEN '{first_date} 00:00:00' AND '{current_date} 23:59:59' "
         else:
-            validate_c.execute(f"SELECT id_transaction, id_physic, prev_number, new_number, date, ipu, payment_sum, "
-                               f"verdict from transactions WHERE id_business={business_id} and status=2 "
-                               f"and date <= '{second_date} 23:59:59' and verdict='Подозрительно' "
-                               f"LIMIT 15 OFFSET {hundred * 15};")
+            query += f"and date <= '{second_date} 23:59:59' "
+            count_query += f"and date <= '{second_date} 23:59:59' "
+        query += f"LIMIT 15 OFFSET {hundred * 15};"
         info = validate_c.fetchall()
-        user_info = []
+        validate_c.execute(count_query)
+        amount = validate_c.fetchone()
+        user_info = [amount]
         for transaction in info:
             user_c.execute(f'SELECT full_name from physic WHERE id_physic={transaction["id_physic"]}')
             result = user_c.fetchone()
@@ -581,13 +614,16 @@ class SQLDatabase:
         validate_c.execute(f'SELECT date, new_number from transactions WHERE id_physic={id_physic} AND ipu="{ipu}" '
                            f'ORDER BY date DESC LIMIT 1')
         data = validate_c.fetchone()
-        user_c.execute(f'SELECT id_sotrudnik from sotrudnik WHERE login="{username}"')
-        id_sotr = (user_c.fetchone())['id_sotrudnik']
+        user_c.execute(f'SELECT id_sotrudnik, id_business from sotrudnik WHERE login="{username}"')
+        info = user_c.fetchone()
+        id_sotr, sotr_id_business = info['id_sotrudnik'], info['id_business']
+        if sotr_id_business != id_business:
+            raise BadUserError
         if not data:
             validate_c.execute(f'INSERT INTO validate (id_physic, id_business, ipu, '
                                f'sotrudnik_id, sotrudnik_photo_date, sotrudnik_number, verdict) '
                                f'VALUES ({id_physic}, {id_business}, "{ipu}", '
-                               f'{id_sotr}, NOW(), "{sotr_number}", 2)')
+                               f'{id_sotr}, NOW(), "{sotr_number}", "Не подозрительно")')
         else:
             physic_photo_date, physic_number = data['date'], data['new_number']
             if (int(sotr_number) - int(physic_number) > (config.VALIDATION_CONST *

@@ -4,7 +4,7 @@ from cryptography.fernet import InvalidToken
 import requests
 
 from Database import Databases
-from Database.Databases import NotFoundError
+from Database.Databases import NotFoundError, BadUserError
 from Routes.Transactions import Encrypter
 from Utils.Hasher import HasherClass
 from jose.exceptions import ExpiredSignatureError
@@ -53,12 +53,12 @@ async def get_hundred_physics(token: Token, page_id: int):
 
 @router.post('/get_all_validations/{page_id}', tags=['business'])
 async def get_all_validations(token: Token, page_id: int, first_date: Optional[str] = None,
-                              second_date: Optional[str] = None):
+                              second_date: Optional[str] = None, search: Optional[str] = None):
     try:
         username, user_type = unpack_token(token.access_token)
         if user_type == "business":
             page_id -= 1
-            info = await SQLDatabase.get_all_validations(username, page_id, first_date, second_date)
+            info = await SQLDatabase.get_all_validations(username, page_id, first_date, second_date, search)
             for dictionary in info:
                 dictionary['validation_date'] = str(dictionary['validation_date'])
             return JSONResponse(info)
@@ -72,12 +72,12 @@ async def get_all_validations(token: Token, page_id: int, first_date: Optional[s
 
 @router.post('/suspicious_validations/{page_id}', tags=['business'])
 async def get_suspicious_validations(token: Token, page_id: int, first_date: Optional[str] = None,
-                                     second_date: Optional[str] = None):
+                                     second_date: Optional[str] = None, search: Optional[str] = None):
     try:
         username, user_type = unpack_token(token.access_token)
         if user_type == "business":
             page_id -= 1
-            info = await SQLDatabase.get_suspicious_validations(username, page_id, first_date, second_date)
+            info = await SQLDatabase.get_suspicious_validations(username, page_id, first_date, second_date, search)
             for dictionary in info:
                 dictionary['validation_date'] = str(dictionary['validation_date'])
             return JSONResponse(info)
@@ -172,15 +172,25 @@ async def new_validation(token: Token, sotr_number: str, qr_string: str):
             qr_info = Encrypter.decrypt_qrinfo(qr_string).split(sep=';')
         except InvalidToken:
             raise HTTPException(status_code=404, detail='QR-info issues')
-        address = await SQLDatabase.get_address_by_contract_number(qr_info[0])
+        try:
+            address = await SQLDatabase.get_address_by_contract_number(qr_info[0])
+        except NotFoundError:
+            raise HTTPException(status_code=404, detail='ошибка адреса')
         if not user_type == "sotrudnik":
             raise HTTPException(status_code=400, detail="bad user_type")
-        await SQLDatabase.add_validation(username, sotr_number, qr_info[1], address)
-        return HTTPException(status_code=200, detail="success")
+        try:
+            await SQLDatabase.add_validation(username, sotr_number, qr_info[1], address)
+            return HTTPException(status_code=200, detail="success")
+        except NotFoundError:
+            raise HTTPException(status_code=500, detail='Database error')
     except ExpiredSignatureError:
         raise HTTPException(status_code=401, detail='token expired')
     except BadTokenError:
         raise HTTPException(status_code=401, detail='bad token')
+    except NotFoundError:
+        raise HTTPException(status_code=404, detail='ipu not found')
+    except BadUserError:
+        raise HTTPException(status_code=403, detail='physic is not from worker\'s business')
 
 
 @router.post('/get_validation_logs', tags=['transactions'])
