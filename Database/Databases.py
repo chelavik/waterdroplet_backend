@@ -556,6 +556,7 @@ class SQLDatabase:
             query += f"and date <= '{second_date} 23:59:59' "
             count_query += f"and date <= '{second_date} 23:59:59' "
         query += f"LIMIT 15 OFFSET {hundred * 15};"
+        validate_c.execute(query)
         info = validate_c.fetchall()
         validate_c.execute(count_query)
         amount = validate_c.fetchone()
