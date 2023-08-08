@@ -171,7 +171,7 @@ async def get_transactions_logs(token: Token, page_id: int, first_date: Optional
         if user_type == "business":
             page_id -= 1
             info, amount = await SQLDatabase.get_transactions_logs(username, page_id, first_date, second_date, search)
-            return JSONResponse(info, amount)
+            return JSONResponse({'data': info, 'amount': amount['total_rows']})
         else:
             raise HTTPException(status_code=400, detail="bad user_type")
     except ExpiredSignatureError:
@@ -188,7 +188,7 @@ async def get_suspicious_transactions_logs(token: Token, page_id: int, first_dat
         if user_type == "business":
             page_id -= 1
             info, amount = await SQLDatabase.get_sus_transactions_logs(username, page_id, first_date, second_date, search)
-            return JSONResponse(info, amount)
+            return JSONResponse({'data': info, 'amount': amount['total_rows']})
         else:
             raise HTTPException(status_code=400, detail="bad user_type")
     except ExpiredSignatureError:

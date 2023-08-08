@@ -59,7 +59,7 @@ async def get_all_validations(token: Token, page_id: int, first_date: Optional[s
         if user_type == "business":
             page_id -= 1
             info, amount = await SQLDatabase.get_all_validations(username, page_id, first_date, second_date, search)
-            return JSONResponse(info, amount)
+            return JSONResponse({'data': info, 'amount': amount['total_rows']})
         else:
             raise HTTPException(status_code=400, detail="bad user_type")
     except ExpiredSignatureError:
@@ -76,7 +76,7 @@ async def get_suspicious_validations(token: Token, page_id: int, first_date: Opt
         if user_type == "business":
             page_id -= 1
             info, amount = await SQLDatabase.get_suspicious_validations(username, page_id, first_date, second_date, search)
-            return JSONResponse(info, amount)
+            return JSONResponse({'data': info, 'amount': amount['total_rows']})
         else:
             raise HTTPException(status_code=400, detail="bad user_type")
     except ExpiredSignatureError:

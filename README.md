@@ -121,11 +121,8 @@ OUT: {
     "validation_id": 3,
     "validation_date": "2023-04-02 20:06:07",
     "full_name": "IVANOV IVAN IVANOVICH"
-  },...,
-  {
-    "total_rows": int
-  }
-]
+  },...
+], "amount": int
 total_rows показывает количество строк удовлетворяющих всем условиям (фильтр+поиск)
 
 - post("/suspicious_validations/{page_id}"): IN: body: Token; url: page_id: int, first_date: Optional[str], second_date: Optional[str], search: Optional[str]. 
@@ -139,11 +136,8 @@ total_rows показывает количество строк удовлетв
     "validation_id": 19,
     "validation_date": "2023-04-17 22:56:16",
     "full_name": "IVANOV IVAN IVANOVICH"
-  }, ...,
-  {
-    "total_rows": int
-  }
-].  total_rows показывает количество строк удовлетворяющих всем условиям (фильтр+поиск) / 400 - bad user_type / 401 - проблема с токеном
+  }, ...
+], "amount": int.  total_rows показывает количество строк удовлетворяющих всем условиям (фильтр+поиск) / 400 - bad user_type / 401 - проблема с токеном
 - post("/first_ipu_value"): IN: body: token: Token , key: Secret_key; query: number: str, ipu: str. OUT: 200 / 403 / 400/ 404
 
 - post('/get_related_address/{page_id}'): IN: body: Token; url: page_id: int. OUT: [
@@ -199,11 +193,11 @@ IN: body: Token. OUT: [
 транзакция имеет 3 статуса, записываемых в бд цифрой. -1 - отклонена, 0 - создана, 1 - ожидание, 2 - успех.
 - post('/get_transactions_logs/{page_id}'): IN: token: Token, page_id: int, first_date: Optional[str], second_date: Optional[str], search: Optional[str]. 
 даты first_date и second_date пишутся в формате Y-m-d
-; OUT: list(dict("transaction_id": int, "full_name": str, "transaction_date": str, "ipu": str, "prev_number": str, "new_number": str, "verdict": str (подозрительно / не подозрительно), ..., dict('total_rows':int))
-total_rows показывает количество строк удовлетворяющих всем условиям (фильтр+поиск) / 400 - bad user type / 401 - проблема токена
+; OUT: list(dict("transaction_id": int, "full_name": str, "transaction_date": str, "ipu": str, "prev_number": str, "new_number": str, "verdict": str (подозрительно / не подозрительно), ...,) 'amount':int)) amount
+показывает количество строк удовлетворяющих всем условиям (фильтр+поиск) / 400 - bad user type / 401 - проблема токена
 - post('/get_suspicious_transactions_logs/{page_id}'): IN: token: Token, page_id: int, first_date: Optional[str], second_date: Optional[str], search: Optional[str]. 
-даты first_date и second_date пишутся в формате Y-m-d; OUT: list(dict("transaction_id": int, "full_name": str, "transaction_date": str, "ipu": str, "prev_number": str, "new_number": str, "verdict": str (подозрительно / не подозрительно)), ..., 
-dict('total_rows':int)). total_rows показывает количество строк удовлетворяющих всем условиям (фильтр+поиск) / 
+даты first_date и second_date пишутся в формате Y-m-d; OUT: {list(dict("transaction_id": int, "full_name": str, "transaction_date": str, "ipu": str, "prev_number": str, "new_number": str, "verdict": str (подозрительно / не подозрительно)), ...),
+'amount': int}. total_rows показывает количество строк удовлетворяющих всем условиям (фильтр+поиск) / 
 400 - bad user type / 401 - проблема токена
 - post('/save_file'): IN: token: Token; OUT: файл-лог data.xlsx - отчет по транзакциям у юр. лица / 400 / 401 
 
