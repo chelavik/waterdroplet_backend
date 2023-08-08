@@ -9,22 +9,8 @@
 - AboutUs: about_text: str
 - Article: article_name: str, article_text: str
 - Service: service_name: str, price: str
-- Worker: login: str, full_name:str, phone: str, password: str
+- Worker: login: str, full_name: str, phone: str, password: str
 - Secret_key: key: str
-
-## site_info 
-- post/put/delete запросы выполнятся лишь при токене от пользователя с ником admin
-- get('/get-about-us'): OUT: описание сайта about_text 
-- put('/edit-about-us'): IN: body: Token, AboutUs. output: код 200
-- get('/get-all-articles'): OUT: список словарей модели Article
-- get('/get-article-by-id/{article_id}'): IN: query: article_id: int. OUT: одна статья по введенному айди
-- put('/edit-article/{article_id}'): IN: body: Token; query: article_id: int, article_text: str, article_name: str / None. OUT: код 200 / код 400
-- post('/post-article'): IN: body: Token, Article. OUT: код 200
-- delete('/delete-article/{article_id}'): IN: body: Token; query: article_id: int. OUT: код 200
-- get('/get-all-services'): IN: список словарей модели Service
-- put('/edit-service-by-id/{service_id}'): IN: body: Token, Service; query: service_id: int. OUT: код 200
-- post('/post-service'): IN: body: Token, Service. OUT: код 200
-- delete('/delete-service/{service_id}'): IN: body: Token; query: service_id: int. OUT: код 200
 
 
 ## workers (работает только для бизнес-аккаунта)
@@ -46,6 +32,7 @@
     }
   ]
 } / 412 / 401 
+
 - post('/workers/worker_info/{worker_id}'): IN: body: Token ; url: worker_id:int. 
 OUT: {
   "worker": {
@@ -65,11 +52,7 @@ OUT: {
 
 
 ## user
-- post("/register"): IN: body: модель auth; query: user_type: str. OUT: код 200 / код 400 (в связи с занятым лицевым счетом)
-- post("/login"): IN: body: модель auth. OUT: {"access_token": str, "token_type": "bearer", "first_enter": bool, "user_type": str} / код 401.  user_type: sotrudnik / physic
 - post("/login_business"): IN: body: модель auth. OUT: {"access_token": str, "token_type": "bearer", "first_enter": bool, "user_type": str} / код 401. user_type: business - only
-- put('/change_password'): IN: body: Token ; query: new_password: str. OUT: код 200 / код 402: не пройдена валидация пароля (min 8 символов, 2 цифры, 1 заглавная буква)
-- put('/change_email'): IN: body: Token ; query: new_email: str. OUT: код 200
 - post('/user_info'): IN: body: Token. output: словарь со всей информацией о пользователе / ошибка 400 если пользователь - не физик или работник. поскольку в роуте
 принимается и сотрудник, и физическое лицо, модели словарей разные. (бизнес-токен не принимается)
 у сотрудника: id_sotrudnik, id_business, login, full_name.
@@ -78,15 +61,20 @@ OUT: {
   "ipu1": "03/31/2023",
   "ipu2": "03/31/2023"
 } / ошибка 400, если пользователь - не физическое лицо. пока так, поскольку неизвестно в каком виде хранятся счетчики в бд
-- post('/send_form'): IN: query: name: str, phone: str, message: str. OUT: код 200 / код 500 - проблема бд.
+
 - post('/get_user_by_address'): IN: body: token:Token; query: address: str. OUT: {
   "full_name": "IVANOV IVAN IVANOVICH",
   "login": "physic2"
   "email": "string"
 } - login - номер договора  / 400 - пользователь - не сотрудник / 404 - не найден пользователь по адресу / 401 - плохой токен
+- post("/login"): IN: body: модель auth. OUT: {"access_token": str, "token_type": "bearer", "first_enter": bool, "user_type": str} / код 401.  user_type: sotrudnik / physic
+- put('/change_password'): IN: body: Token ; query: new_password: str. OUT: код 200 / код 402: не пройдена валидация пароля (min 8 символов, 2 цифры, 1 заглавная буква)
+- put('/change_email'): IN: body: Token ; query: new_email: str. OUT: код 200
+- post('/send_form'): IN: query: name: str, phone: str, message: str. OUT: код 200 / код 500 - проблема бд.
+
 ## business
 - post("/get_business"): IN: body: Token. OUT: id_business, login, email, apitoken, expiration_date словарем / ошибка 401, если пользователь - не бизнес
-- post("/get_related_physics/{page_id}"): IN: body: Token; url: page_id: int. OUT: словарь до ста пользователей от n•100 до n•100+100
+- post("/get_related_physics/{page_id}"): IN: body: Token; url: page_id: int. OUT: dict
 [
     {
       "id_physic": 4,
@@ -138,7 +126,6 @@ total_rows показывает количество строк удовлетв
     "full_name": "IVANOV IVAN IVANOVICH"
   }, ...
 ], "amount": int.  total_rows показывает количество строк удовлетворяющих всем условиям (фильтр+поиск) / 400 - bad user_type / 401 - проблема с токеном
-- post("/first_ipu_value"): IN: body: token: Token , key: Secret_key; query: number: str, ipu: str. OUT: 200 / 403 / 400/ 404
 
 - post('/get_related_address/{page_id}'): IN: body: Token; url: page_id: int. OUT: [
   {
@@ -184,6 +171,7 @@ IN: body: Token. OUT: [
   "physic_name": "string",
   "sotrudnik_name": "PAVLOV H.A."
 } / 400 - проблема токена / 403 - bad user_type / 404 - не найдена валидация по id
+- post("/first_ipu_value"): IN: body: token: Token , key: Secret_key; query: number: str, ipu: str. OUT: 200 / 403 / 400 / 404
 
 ## transactions
 - post("/scan_photo"): IN: form-data: key: str, photo: File. OUT: 403 - неверный ключ (секретный ключ) / 
@@ -200,6 +188,22 @@ IN: body: Token. OUT: [
 'amount': int}. total_rows показывает количество строк удовлетворяющих всем условиям (фильтр+поиск) / 
 400 - bad user type / 401 - проблема токена
 - post('/save_file'): IN: token: Token; OUT: файл-лог data.xlsx - отчет по транзакциям у юр. лица / 400 / 401 
+
+## site_info 
+- post/put/delete запросы выполнятся лишь при токене от пользователя с ником admin
+- get('/get-about-us'): OUT: описание сайта about_text 
+- put('/edit-about-us'): IN: body: Token, AboutUs. output: код 200
+- get('/get-all-articles'): OUT: список словарей модели Article
+- get('/get-article-by-id/{article_id}'): IN: query: article_id: int. OUT: одна статья по введенному айди
+- put('/edit-article/{article_id}'): IN: body: Token; query: article_id: int, article_text: str, article_name: str / None. OUT: код 200 / код 400
+- post('/post-article'): IN: body: Token, Article. OUT: код 200
+- delete('/delete-article/{article_id}'): IN: body: Token; query: article_id: int. OUT: код 200
+- get('/get-all-services'): IN: список словарей модели Service
+- put('/edit-service-by-id/{service_id}'): IN: body: Token, Service; query: service_id: int. OUT: код 200
+- post('/post-service'): IN: body: Token, Service. OUT: код 200
+- delete('/delete-service/{service_id}'): IN: body: Token; query: service_id: int. OUT: код 200
+
+
 
 # серверы
 - 185.185.70.161:3306 : mysql_db
