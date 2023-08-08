@@ -418,10 +418,9 @@ class SQLDatabase:
             user_dict = {'validation_id': validation["id_validation"],
                          'validation_date': str(validation["sotrudnik_photo_date"]), 'full_name': result["full_name"]}
             user_info.append(user_dict)
-        user_info.append(amount)
         validate_c.close()
         user_c.close()
-        return user_info
+        return user_info, amount
 
     async def get_all_validations(self, username, hundred, first_date: Optional[str] = None,
                                   second_date: Optional[str] = None, search: Optional[str] = None):
@@ -467,10 +466,9 @@ class SQLDatabase:
             user_dict = {'validation_id': validation["id_validation"],
                          'validation_date': str(validation["sotrudnik_photo_date"]), 'full_name': result["full_name"]}
             user_info.append(user_dict)
-        user_info.append(amount)
         validate_c.close()
         user_c.close()
-        return user_info
+        return user_info, amount
 
     async def get_transactions_logs(self, username, hundred, first_date: Optional[str] = None,
                                     second_date: Optional[str] = None, search: Optional[str] = None):
@@ -519,10 +517,9 @@ class SQLDatabase:
                          'payment_sum': transaction["payment_sum"], 'verdict': transaction["verdict"]
                          }
             user_info.append(user_dict)
-        user_info.append(amount)
         validate_c.close()
         user_c.close()
-        return user_info
+        return user_info, amount
 
     async def get_sus_transactions_logs(self, username, hundred, first_date: Optional[str] = None,
                                         second_date: Optional[str] = None, search: Optional[str] = None):
@@ -570,10 +567,9 @@ class SQLDatabase:
                          'payment_sum': transaction["payment_sum"], 'verdict': transaction["verdict"]
                          }
             user_info.append(user_dict)
-        user_info.append(amount)
         validate_c.close()
         user_c.close()
-        return user_info
+        return user_info, amount
 
     async def get_all_addresses(self, username, user_type):
         if user_type == 'sotrudnik':
@@ -741,7 +737,6 @@ class DatabaseClass(DatabaseBaseClass):
     # about_us
     async def get_about_us(self):
         return (await self.request(self.getAboutUs))[0]
-        # Adajiojfokp[];
 
     async def edit_about_us(self, AboutUs):
         await self.request(self.editAboutUs, about_text=AboutUs.about_text)
