@@ -406,7 +406,7 @@ class SQLDatabase:
         else:
             query += f'AND sotrudnik_photo_date <= "{second_date} 23:59:59" '
             count_query += f'AND sotrudnik_photo_date <= "{second_date} 23:59:59" '
-        query += f'LIMIT 15 OFFSET {hundred * 15};'
+        query += f'ORDER BY val.id_validation DESC LIMIT 15 OFFSET {hundred * 15};'
         validate_c.execute(query)
         info = validate_c.fetchall()
         validate_c.execute(count_query)
@@ -454,7 +454,7 @@ class SQLDatabase:
         else:
             query += f"AND sotrudnik_photo_date <= '{second_date} 23:59:59' "
             count_query += f"AND sotrudnik_photo_date <= '{second_date} 23:59:59' "
-        query += f"LIMIT 15 OFFSET {hundred * 15};"
+        query += f"ORDER BY val.id_validation DESC LIMIT 15 OFFSET {hundred * 15};"
         validate_c.execute(query)
         info = validate_c.fetchall()
         validate_c.execute(count_query)
@@ -502,7 +502,7 @@ class SQLDatabase:
         else:
             query += f"AND date <= '{second_date} 23:59:59' "
             count_query += f"AND date <= '{second_date} 23:59:59' "
-        query += f"LIMIT 15 OFFSET {hundred * 15};"
+        query += f"ORDER BY val.id_transaction DESC LIMIT 15 OFFSET {hundred * 15};"
         validate_c.execute(query)
         info = validate_c.fetchall()
         validate_c.execute(count_query)
@@ -552,7 +552,7 @@ class SQLDatabase:
         else:
             query += f"and date <= '{second_date} 23:59:59' "
             count_query += f"and date <= '{second_date} 23:59:59' "
-        query += f"LIMIT 15 OFFSET {hundred * 15};"
+        query += f"ORDER BY val.id_transaction DESC LIMIT 15 OFFSET {hundred * 15};"
         validate_c.execute(query)
         info = validate_c.fetchall()
         validate_c.execute(count_query)
