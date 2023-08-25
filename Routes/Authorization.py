@@ -119,7 +119,7 @@ async def login_for_business(user: auth):
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    if user.user_type != "business" or user.user_type == 'admin':
+    if user.user_type != "business" or user.user_type != 'admin':
         raise HTTPException(status_code=400, detail='bad user_type')
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
