@@ -64,6 +64,8 @@ def authenticate_user(login: str, password: str):
                 return False
         elif not Hasher.verify_password(password, user.hashed_password):
             return False
+        if login == 'admin':
+            user.user_type = 'admin'
         return user
     except:
         raise BadTokenError
@@ -117,7 +119,7 @@ async def login_for_business(user: auth):
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    if user.user_type != "business":
+    if user.user_type != "business" or user.user_type == 'admin':
         raise HTTPException(status_code=400, detail='bad user_type')
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
