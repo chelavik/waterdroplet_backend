@@ -106,7 +106,7 @@ class SQLDatabase:
         return data
 
     async def get_business(self, username, user_type):
-        if user_type == 'business':
+        if user_type == 'business' or user_type == 'admin':
             user_c = self.users_conn.cursor()
             user_c.execute(f"SELECT id_business, login, company_name, email, apitoken, expiration_date from business "
                            f"WHERE login='{username}'")
