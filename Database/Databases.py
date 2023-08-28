@@ -186,9 +186,10 @@ class SQLDatabase:
 
     async def get_last_number(self, user_id, ipu):
         validate_c = self.trans_conn.cursor()
-        validate_c.execute(f"SELECT new_number from transactions WHERE id_physic={user_id} AND ipu='{ipu}' and status=2 "
-                           f"ORDER BY date DESC "
-                           f"LIMIT 1")
+        validate_c.execute(
+            f"SELECT new_number from transactions WHERE id_physic={user_id} AND ipu='{ipu}' and status=2 "
+            f"ORDER BY date DESC "
+            f"LIMIT 1")
         prev_number = validate_c.fetchone()
         if not prev_number:
             raise NotFoundError
@@ -363,15 +364,26 @@ class SQLDatabase:
         user_c.close()
         return address['address']
 
-    async def get_hundred_physics(self, username, hundred: int):
+    async def get_hundred_physics(self, username, hundred: int, search: str):
         business_id = await self.get_business_id(username)
         user_c = self.users_conn.cursor()
-        user_c.execute(f'SELECT id_physic, contract_number, full_name, email, ipus, address from physic '
-                       f'WHERE id_business={business_id} '
-                       f'LIMIT 15 OFFSET {hundred * 15};')
+        count_query = f"SELECT COUNT(*) as total_rows from physic " \
+                      f"WHERE id_business={business_id} "
+        query = f'SELECT id_physic, contract_number, full_name, email, ipus, address from physic ' \
+                f'WHERE id_business={business_id} '
+        if search is not None:
+            query += f"and (contract_number like '%{search}%' or email like '%{search}%' or ipus like '%{search}%'" \
+                     f"or address like '%{search}%' or full_name like '%{search}%')"
+            count_query += f"and (contract_number like '%{search}%' or email like '%{search}%' or ipus like '%{search}%'" \
+                           f"or address like '%{search}%' or full_name like '%{search}%')"
+        count_query += f"LIMIT 15 OFFSET {hundred * 15}"
+        query += f"LIMIT 15 OFFSET {hundred * 15}"
+        user_c.execute(query)
         info = user_c.fetchall()
+        user_c.execute(count_query)
+        amount = user_c.fetchone()
         user_c.close()
-        return info
+        return info, amount
 
     async def get_suspicious_validations(self, username, hundred, first_date: Optional[str] = None,
                                          second_date: Optional[str] = None, search: Optional[str] = None):
@@ -380,16 +392,18 @@ class SQLDatabase:
         validate_c = self.trans_conn.cursor()
         count_query = f"select COUNT(*) as total_rows from waterdroplet_model.physic as ph " \
                       f"JOIN transactions.validate as val on val.id_physic = ph.id_physic " \
+                      f"JOIN waterdroplet_model.sotrudnik as sotr on val.sotrudnik_id = sotr.id_sotrudnik " \
                       f"WHERE val.id_business={business_id} and verdict = 'Подозрительно' "
         query = f"select val.id_validation, val.id_physic, val.sotrudnik_photo_date, ph.contract_number, " \
                 f"ph.full_name, ph.address from waterdroplet_model.physic as ph " \
-                f"JOIN transactions.validate as val on val.id_physic = ph.id_physic WHERE val.id_business={business_id} " \
-                f"and verdict = 'Подозрительно' "
+                f"JOIN transactions.validate as val on val.id_physic = ph.id_physic " \
+                f"JOIN waterdroplet_model.sotrudnik as sotr on val.sotrudnik_id = sotr.id_sotrudnik " \
+                f"WHERE val.id_business={business_id} and verdict = 'Подозрительно' "
         if search is not None:
-            query += f"and (ph.contract_number like '%{search}%' or ph.full_name like '%{search}%' or " \
-                     f"ph.address like '%{search}%') "
-            count_query += f"and (ph.contract_number like '%{search}%' or ph.full_name like '%{search}%' or " \
-                           f"ph.address like '%{search}%') "
+            query += f"and (sotr.full_name like '%{search}%' or ph.full_name like '%{search}%' or " \
+                     f"val.physic_number like '%{search}%' or val.sotrudnik_number like '%{search}%') "
+            count_query += f"and (sotr.full_name like '%{search}%' or ph.full_name like '%{search}%' or " \
+                           f"val.physic_number like '%{search}%' or val.sotrudnik_number like '%{search}%') "
         if first_date is None and second_date is None:
             pass
         elif first_date is not None and second_date is not None:
@@ -429,15 +443,18 @@ class SQLDatabase:
         validate_c = self.trans_conn.cursor()
         count_query = f"select COUNT(*) as total_rows from waterdroplet_model.physic as ph " \
                       f"JOIN transactions.validate as val on val.id_physic = ph.id_physic " \
+                      f"JOIN waterdroplet_model.sotrudnik as sotr on val.sotrudnik_id = sotr.id_sotrudnik " \
                       f"WHERE val.id_business={business_id} "
         query = f"select val.id_validation, val.id_physic, val.sotrudnik_photo_date, ph.contract_number, " \
-                f"ph.full_name, ph.address from waterdroplet_model.physic as ph " \
-                f"JOIN transactions.validate as val on val.id_physic = ph.id_physic WHERE val.id_business={business_id} "
+                f"sotr.id_sotrudnik, ph.full_name, ph.address from waterdroplet_model.physic as ph " \
+                f"JOIN transactions.validate as val on val.id_physic = ph.id_physic " \
+                f"JOIN waterdroplet_model.sotrudnik as sotr on val.sotrudnik_id = sotr.id_sotrudnik " \
+                f"WHERE val.id_business={business_id} "
         if search is not None:
-            query += f"and (ph.contract_number like '%{search}%' or ph.full_name like '%{search}%' or " \
-                     f"ph.address like '%{search}%') "
-            count_query += f"and (ph.contract_number like '%{search}%' or ph.full_name like '%{search}%' or " \
-                           f"ph.address like '%{search}%') "
+            query += f"and (sotr.full_name like '%{search}%' or ph.full_name like '%{search}%' or " \
+                     f"val.physic_number like '%{search}%' or val.sotrudnik_number like '%{search}%') "
+            count_query += f"and (sotr.full_name like '%{search}%' or ph.full_name like '%{search}%' or " \
+                           f"val.physic_number like '%{search}%' or val.sotrudnik_number like '%{search}%') "
         if first_date is None and second_date is None:
             pass
         elif first_date is not None and second_date is not None:
@@ -485,10 +502,10 @@ class SQLDatabase:
                 f"JOIN transactions.transactions as val on val.id_physic = ph.id_physic " \
                 f"WHERE val.id_business={business_id} and status=2 "
         if search is not None:
-            query += f"and (ph.contract_number like '%{search}%' or ph.full_name like '%{search}%' or " \
-                     f"ph.address like '%{search}%') "
-            count_query += f"and (ph.contract_number like '%{search}%' or ph.full_name like '%{search}%' or " \
-                           f"ph.address like '%{search}%') "
+            query += f"and (val.new_number like '%{search}%' or ph.full_name like '%{search}%' or " \
+                     f"val.id_transaction like '%{search}%') "
+            count_query += f"and (val.new_number like '%{search}%' or ph.full_name like '%{search}%' or " \
+                           f"val.id_transaction like '%{search}%') "
         if first_date is None and second_date is None:
             pass
         elif first_date is not None and second_date is not None:
@@ -536,10 +553,10 @@ class SQLDatabase:
                 f"JOIN transactions.transactions as val on val.id_physic = ph.id_physic " \
                 f"WHERE val.id_business={business_id} and status=2 and verdict='Подозрительно' "
         if search is not None:
-            query += f"and (ph.contract_number like '%{search}%' or ph.full_name like '%{search}%' or " \
-                     f"ph.address like '%{search}%') "
-            count_query += f"and (ph.contract_number like '%{search}%' or ph.full_name like '%{search}%' or " \
-                           f"ph.address like '%{search}%') "
+            query += f"and (val.new_number like '%{search}%' or ph.full_name like '%{search}%' or " \
+                     f"val.id_transaction like '%{search}%') "
+            count_query += f"and (val.new_number like '%{search}%' or ph.full_name like '%{search}%' or " \
+                           f"val.id_transaction like '%{search}%') "
         if first_date is None and second_date is None:
             pass
         elif first_date is not None and second_date is not None:

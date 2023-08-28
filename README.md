@@ -74,8 +74,8 @@ OUT: {
 
 ## business
 - post("/get_business"): IN: body: Token. OUT: id_business, login, email, apitoken, expiration_date словарем / ошибка 401, если пользователь - не бизнес
-- post("/get_related_physics/{page_id}"): IN: body: Token; url: page_id: int. OUT: dict
-[
+- post("/get_related_physics/{page_id}"): IN: body: Token; query: search: str; url: page_id: int. OUT: dict
+{ data: [
     {
       "id_physic": 4,
       "login": "physic1",
@@ -94,7 +94,9 @@ OUT: {
       "address": null,
       "id_business": 2
     }
-  ] / 200 - success / 400 - bad user_type / 401 - проблема с токеном
+  ],
+   amount: int}
+/ 200 - success.  / 400 - bad user_type / 401 - проблема с токеном
 
 
 ## validations
@@ -110,8 +112,8 @@ OUT: {
     "validation_date": "2023-04-02 20:06:07",
     "full_name": "IVANOV IVAN IVANOVICH"
   },...
-], "amount": int
-total_rows показывает количество строк удовлетворяющих всем условиям (фильтр+поиск)
+], "amount": int}
+amount показывает количество строк удовлетворяющих всем условиям. поиск находит соответствия в: имени клиента или сотрудника, показаниях клиента или сотрудника / 400 - bad user_type / 401 - проблема с токеном
 
 - post("/suspicious_validations/{page_id}"): IN: body: Token; url: page_id: int, first_date: Optional[str], second_date: Optional[str], search: Optional[str]. 
 даты first_date и second_date пишутся в формате Y-m-d. OUT:[
@@ -125,7 +127,7 @@ total_rows показывает количество строк удовлетв
     "validation_date": "2023-04-17 22:56:16",
     "full_name": "IVANOV IVAN IVANOVICH"
   }, ...
-], "amount": int.  total_rows показывает количество строк удовлетворяющих всем условиям (фильтр+поиск) / 400 - bad user_type / 401 - проблема с токеном
+], "amount": int.  amount показывает количество строк удовлетворяющих всем условиям. поиск находит соответствия в: имени клиента или сотрудника, показаниях клиента или сотрудника / 400 - bad user_type / 401 - проблема с токеном
 
 - post('/get_related_address/{page_id}'): IN: body: Token; url: page_id: int. OUT: [
   {
@@ -182,10 +184,10 @@ IN: body: Token. OUT: [
 - post('/get_transactions_logs/{page_id}'): IN: token: Token, page_id: int, first_date: Optional[str], second_date: Optional[str], search: Optional[str]. 
 даты first_date и second_date пишутся в формате Y-m-d
 ; OUT: list(dict("transaction_id": int, "full_name": str, "transaction_date": str, "ipu": str, "prev_number": str, "new_number": str, "verdict": str (подозрительно / не подозрительно), ...,) 'amount':int)) amount
-показывает количество строк удовлетворяющих всем условиям (фильтр+поиск) / 400 - bad user type / 401 - проблема токена
+показывает количество строк удовлетворяющих всем условиям. поиск находит соответствия в: имени клиента, номере проверки, показаниях физ лица.  / 400 - bad user type / 401 - проблема токена
 - post('/get_suspicious_transactions_logs/{page_id}'): IN: token: Token, page_id: int, first_date: Optional[str], second_date: Optional[str], search: Optional[str]. 
 даты first_date и second_date пишутся в формате Y-m-d; OUT: {list(dict("transaction_id": int, "full_name": str, "transaction_date": str, "ipu": str, "prev_number": str, "new_number": str, "verdict": str (подозрительно / не подозрительно)), ...),
-'amount': int}. total_rows показывает количество строк удовлетворяющих всем условиям (фильтр+поиск) / 
+'amount': int}. amount показывает количество строк удовлетворяющих всем условиям. поиск находит соответствия в: имени клиента, номере проверки, показаниях физ лица. / 
 400 - bad user type / 401 - проблема токена
 - post('/save_file'): IN: token: Token; OUT: файл-лог data.xlsx - отчет по транзакциям у юр. лица / 400 / 401 
 

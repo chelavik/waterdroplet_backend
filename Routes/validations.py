@@ -36,13 +36,13 @@ async def get_related_physics(token: Token):
 
 
 @router.post('/get_related_physics/{page_id}', tags=['business'])
-async def get_hundred_physics(token: Token, page_id: int):
+async def get_hundred_physics(token: Token, page_id: int, search: str):
     try:
         username, user_type = unpack_token(token.access_token)
         if user_type == "business":
             page_id -= 1
-            info = await SQLDatabase.get_hundred_physics(username, page_id)
-            return JSONResponse(info)
+            info, amount = await SQLDatabase.get_hundred_physics(username, page_id, search)
+            return JSONResponse({'data': info, 'amount': amount['total_rows']})
         else:
             raise HTTPException(status_code=400, detail="bad user_type")
     except ExpiredSignatureError:
