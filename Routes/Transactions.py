@@ -103,7 +103,7 @@ headers.update(
 )
 
 
-async def add_transaction(key: str, login: str, new_number: str, ipu: str):
+async def add_transaction(login: str, new_number: str, ipu: str):
     try:
         user_id, tariff = await SQLDatabase.get_user_id_tariff(login)
         prev_number = await SQLDatabase.get_last_number(user_id, ipu)

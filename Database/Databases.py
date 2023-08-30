@@ -364,7 +364,7 @@ class SQLDatabase:
         user_c.close()
         return address['address']
 
-    async def get_hundred_physics(self, username, hundred: int, search: str):
+    async def get_hundred_physics(self, username, hundred: int, search: Optional[str] = None):
         business_id = await self.get_business_id(username)
         user_c = self.users_conn.cursor()
         count_query = f"SELECT COUNT(*) as total_rows from physic " \
@@ -376,7 +376,6 @@ class SQLDatabase:
                      f"or address like '%{search}%' or full_name like '%{search}%')"
             count_query += f"and (contract_number like '%{search}%' or email like '%{search}%' or ipus like '%{search}%'" \
                            f"or address like '%{search}%' or full_name like '%{search}%')"
-        count_query += f"LIMIT 15 OFFSET {hundred * 15}"
         query += f"LIMIT 15 OFFSET {hundred * 15}"
         user_c.execute(query)
         info = user_c.fetchall()

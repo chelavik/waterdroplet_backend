@@ -36,7 +36,7 @@ async def get_related_physics(token: Token):
 
 
 @router.post('/get_related_physics/{page_id}', tags=['business'])
-async def get_hundred_physics(token: Token, page_id: int, search: str):
+async def get_hundred_physics(token: Token, page_id: int, search: Optional[str] = None):
     try:
         username, user_type = unpack_token(token.access_token)
         if user_type == "business":
